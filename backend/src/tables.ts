@@ -148,6 +148,22 @@ export const THEMES_TABLE: Table = new Table(THEMES, [
     type: "TEXT",
     fkey: `${FILES}(name)`,
   },
+  {
+    name: "target_video_width",
+    type: "SMALLINT"
+  },
+  {
+    name: "target_video_height",
+    type: "SMALLINT"
+  },
+  {
+    name: "video_offset_x",
+    type: "SMALLINT"
+  },
+  {
+    name: "video_offset_y",
+    type: "SMALLINT"
+  },
 ]);
 export const FILES_TABLE: Table = new Table(FILES, [
   {
