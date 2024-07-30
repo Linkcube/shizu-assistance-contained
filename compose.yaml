@@ -67,6 +67,33 @@ services:
       - private
       - public
 
+  obs:
+    build:
+      context: obs
+    depends_on:
+      backend:
+        condition: service_healthy
+        restart: true
+    volumes:
+      - type: bind
+        source: ${LOCAL_LOGOS_PATH}
+        target: ${DOCKER_LOGOS_PATH}
+      - type: bind
+        source: ${LOCAL_RECORDINGS_PATH}
+        target: ${DOCKER_RECORDINGS_PATH}
+      - type: bind
+        source: ${LOCAL_THEMES_PATH}
+        target: ${DOCKER_THEMES_PATH}
+      - type: bind
+        source: ${LOCAL_EXPORT_PATH}
+        target: ${DOCKER_EXPORT_PATH}
+      - type: bind
+        source: ${LOCAL_OBS_RECORDINGS_PATH}
+        target: ${DOCKER_OBS_RECORDINGS_PATH}
+    ports:
+      - 5900:5900
+      - 5901:5901
+
 networks:
   public:
   private:
