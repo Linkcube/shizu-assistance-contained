@@ -11,7 +11,7 @@ This is a containerization and subsequent development of [Shizu OBS Assisstant](
 Install [docker](https://docs.docker.com/get-docker/)
 
 Copy `.env_defaults` to `.env`, and fill out the use specific values as needed.<br>
-Check out [Environment Setup](https://github.com/Linkcube/shizu-assistance-contained?tab=readme#Environment-Setup) for more details.
+Check out [Environment Setup](https://github.com/Linkcube/shizu-assistance-contained?tab=readme#environment-setup) for more details.
 
 Run `docker compose up -d` in the root directory.
 

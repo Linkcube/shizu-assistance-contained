@@ -1,0 +1,75 @@
+version: '1.0'
+
+services:
+
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres:/data/postgres
+    networks:
+      - private
+
+  backend:
+    build:
+        args:
+        - NODE_ENV=development
+        context: backend
+        target: development
+    user: "node"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    environment:
+      - DATABASE_DB=${POSTGRES_DB}
+      - DATABASE_USER=${POSTGRES_USER}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_HOST=db
+      - NODE_ENV=development
+      - RTMP_SERVER=${RTMP_SERVER}
+      - FILE_SERVER_AUTHORIZATION=${FILE_SERVER_AUTHORIZATION}
+    volumes:
+      - ./backend/src:/code/src:ro
+      - ./backend/package.json:/code/package.json
+      - ./backend/package-lock.json:/code/package-lock.json
+      - ./backend/tsconfig.json:/code/tsconfig.json:ro
+      - type: bind
+        source: ${LOCAL_LOGOS_PATH}
+        target: ${DOCKER_LOGOS_PATH}
+      - type: bind
+        source: ${LOCAL_RECORDINGS_PATH}
+        target: ${DOCKER_RECORDINGS_PATH}
+      - type: bind
+        source: ${LOCAL_THEMES_PATH}
+        target: ${DOCKER_THEMES_PATH}
+      - type: bind
+        source: ${LOCAL_EXPORT_PATH}
+        target: ${DOCKER_EXPORT_PATH}
+      - type: bind
+        source: ${LOCAL_IMPORT_PATH}
+        target: ${DOCKER_IMPORT_PATH}
+    ports:
+      - 4004:4004
+      - 9229:9229
+      - 9230:9230
+    command: npm run start-watch
+    networks:
+      - private
+      - public
+
+networks:
+  public:
+  private:
+
+volumes:
+  postgres:
