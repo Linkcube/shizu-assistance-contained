@@ -38,6 +38,11 @@ services:
       - NODE_ENV=development
       - RTMP_SERVER=${RTMP_SERVER}
       - FILE_SERVER_AUTHORIZATION=${FILE_SERVER_AUTHORIZATION}
+      - DOCKER_LOGOS_PATH=${DOCKER_LOGOS_PATH}
+      - DOCKER_RECORDINGS_PATH=${DOCKER_RECORDINGS_PATH}
+      - DOCKER_THEMES_PATH=${DOCKER_THEMES_PATH}
+      - DOCKER_EXPORT_PATH=${DOCKER_EXPORT_PATH}
+      - DOCKER_IMPORT_PATH=${DOCKER_IMPORT_PATH}
     volumes:
       - ./backend/src:/code/src:ro
       - ./backend/package.json:/code/package.json
