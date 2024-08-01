@@ -16,29 +16,13 @@
     export let index = 0;
     export let current_lineup = "";
     export let name = "";
+    export let promo_data;
 
     const dispatch = createEventDispatcher();
     const close = () => dispatch('close');
 
     let error_on_init = false;
-    let file_name;
-
-    const ledger_data = get(ledger);
-    const promo_data = ledger_data.promos.filter(promo => promo.name === name)[0];
-
-    if (promo_data === undefined) {
-        error_stack.set({
-            message: `Could not find Promo ${name} in ledger.`,
-            extensions: {
-                statusCode: 404,
-                errorType: "PromoNotFoundError"
-            }
-        });
-        error_on_init = true;
-        close();
-    } else {
-        file_name = toFileName(promo_data.path);
-    }
+    let file_name = promo_data.promo_file;
 
     export const removePromo = () => {
         fetchRemoveLineupPromo(current_lineup, name).then(_ => fetchLineup(current_lineup));

@@ -13,6 +13,11 @@ export const currentTheme = writable({});
 export const themes = writable([]);
 export const error_stack = writable(null);
 
+export const all_djs = writable([]);
+export const all_promos = writable([]);
+export const all_events = writable([]);
+export const current_event_object = writable({});
+
 export const graphqlBase = `${location.protocol}//${window.location.hostname}:4004`;
 const graphqlUrl = `${graphqlBase}/gui/graphql`;
 
@@ -72,6 +77,123 @@ currentThemeIndex.subscribe((newTheme) => {
 });
 
 
+// New Queries
+
+const djsQuery = `
+query {
+    guiGetDjs {
+        name,
+        logo,
+        recording,
+        rtmp_server,
+        rtmp_key,
+        public_name,
+        discord_id,
+        past_events
+    }
+}`;
+
+const djsMinQuery = `
+query {
+    guiGetDjs {
+        name,
+        logo,
+        recording,
+        rtmp_server
+    }
+}`;
+
+const promosQuery = `
+query {
+    guiGetPromos {
+        name,
+        promo_file
+    }
+}`;
+
+const promosMinQuery = `
+query {
+    guiGetPromos {
+        name
+    }
+}`;
+
+const themesQuery = `
+query {
+    guiGetThemes {
+        name,
+        overlay_file,
+        stinger_file,
+        starting_file,
+        ending_file
+    }
+}`;
+
+const eventsQuery = `
+query {
+    guiGetEvents {
+        name,
+        djs { name, is_live, vj },
+        promos,
+        theme,
+        public
+    }
+}`;
+
+const eventsMinQuery = `
+query {
+    guiGetEvents {
+        name
+    }
+}`;
+
+const filesQuery = `
+query {
+    guiGetFiles {
+        name,
+        root,
+        file_path,
+        ending_file
+    }
+}`;
+
+const djSingleQuery = (name) => `
+query {
+    guiGetDj(dj_name: "${name}") {
+        name,
+        logo,
+        recording,
+        rtmp_server,
+        rtmp_key,
+        public_name,
+        discord_id,
+        past_events
+    }
+}`;
+
+const promoSingleQuery = (name) => `
+query {
+    guiGetPromo(promo_name: "${name}") {
+        name,
+        promo_file
+    }
+}`;
+
+const eventSingleQuery = (name) => `
+query {
+    guiGetEvent(event_name: "${name}") {
+        name,
+        djs { name, is_live, vj },
+        promos,
+        theme,
+        public
+    }
+}`;
+
+
+
+// Legacy
+
 const settingsQuery = `
 query {
     getSettings {
@@ -96,8 +218,8 @@ query {
 
 const getAppThemesQuery = `
 query {
-    getAppThemes { 
-        title,
+    guiGetAppThemes { 
+        name,
         style {
             primaryColor,
             secondaryColor,
@@ -119,8 +241,8 @@ query {
 
 const addAppThemeMutation = `
 mutation {
-    addAppTheme { 
-        title,
+    guiAddAppTheme { 
+        name,
         style {
             primaryColor,
             secondaryColor,
@@ -140,10 +262,10 @@ mutation {
 }
 `;
 
-const editAppThemeMutation = (themeIndex, newTheme) => `
+const editAppThemeMutation = (name, newTheme) => `
 mutation {
-    editAppTheme(
-        themeIndex: ${themeIndex}, newThemeTitle: "${newTheme.title}",
+    guiEditAppTheme(
+        name: "${name}",
         newThemeStyle: {
             primaryColor: "${newTheme.style.primaryColor}",
             secondaryColor: "${newTheme.style.secondaryColor}",
@@ -159,7 +281,7 @@ mutation {
             submitTextColor: "${newTheme.style.submitTextColor}",
             submitBackgroundColor: "${newTheme.style.submitBackgroundColor}"
         }) { 
-        title,
+        name,
         style {
             primaryColor,
             secondaryColor,
@@ -178,9 +300,9 @@ mutation {
     }
 }`;
 
-const deleteAppThemeMutation = (themeIndex) => `
+const deleteAppThemeMutation = (name) => `
 mutation {
-    deleteAppTheme(themeIndex: ${themeIndex}) { 
+    guiDeleteAppTheme(name: "${name}") { 
         title,
         style {
             primaryColor,
@@ -415,6 +537,85 @@ const getReconstructLogoPathQuery = (dirs) => reconstructPathHelper("reconstruct
 const getReconstructRecordingPathQuery = (dirs) => reconstructPathHelper("reconstructRecordingPath", dirs);
 const getReconstructExportPathQuery = (dirs) => reconstructPathHelper("reconstructExportPath", dirs);
 
+
+
+// New fetch
+
+export function fetchDjs() {
+    fetch(djsMinQuery).then(promise => {
+        Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                all_djs.set(response.data.guiGetDjs);
+            }
+        })
+    })
+}
+
+export function fetchPromos() {
+    fetch(promosMinQuery).then(promise => {
+        Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                all_promos.set(response.data.guiGetPromos);
+            }
+        })
+    })
+}
+
+export function fetchEvents() {
+    fetch(eventsMinQuery).then(promise => {
+        Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                all_events.set(response.data.guiGetEvents);
+            }
+        })
+    })
+}
+
+export function fetchSingleDj(name) {
+    return fetch(djSingleQuery(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetDj);
+            }
+        })
+    })
+}
+
+export function fetchSinglePromo(name) {
+    return fetch(promoSingleQuery(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetPromo);
+            }
+        })
+    })
+}
+
+export function fetchSingleEvent(name) {
+    return fetch(eventSingleQuery(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                currentLineupObjects.set(response.data.guiGetEvent);
+            }
+        })
+    })
+}
+
+
+// Legacy fetch
+
 export function fetchSettings() {
     fetch(settingsQuery).then(promise => {
         Promise.resolve(promise).then(resp => {
@@ -454,7 +655,7 @@ export function fetchGetAppThemes() {
     fetch(getAppThemesQuery).then(promise => {
         Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty('data')) {
-                themes.set(response.data.getAppThemes);
+                themes.set(response.data.guiGetAppThemes);
             }
         })
     });

@@ -21,6 +21,7 @@
     export let name = "";
     export let is_live = false;
     export let vj = "";
+    export let dj_data;
 
     const dispatch = createEventDispatcher();
     const close = () => dispatch('close');
@@ -31,34 +32,16 @@
         "jp": "Japan",
         "europe": "Europe"
     };
-    let logo_name = "";
-    let recording_name = "";
-    let rtmp_server = "";
-    let stream_key = "";
+    let logo_name = dj_data.logo;
+    let recording_name = dj_data.recording;
+    let rtmp_server = dj_data.rtmp_server;
+    let stream_key = dj_data.rtmp_key;
     let error_on_init = false;
 
-    const ledger_data = get(ledger);
-    const dj_data = ledger_data.djs.filter(dj => dj.name === name)[0];
-
-    if (dj_data === undefined) {
-        error_stack.set({
-            message: `Could not find DJ ${name} in ledger.`,
-            extensions: {
-                statusCode: 404,
-                errorType: "DjNotFoundError"
-            }
-        });
-        error_on_init = true;
-        close();
-    } else {
-        logo_name = toFileName(dj_data.logo_path);    
-        recording_name = toFileName(dj_data.recording_path);
-
-        if (dj_data.rtmp_server) {
-            rtmp_server = rtmp_conversion[dj_data.rtmp_server];
-        }
-        stream_key = dj_data.stream_key;
+    if (dj_data.rtmp_server) {
+        rtmp_server = rtmp_conversion[dj_data.rtmp_server];
     }
+    stream_key = dj_data.stream_key;
 
     export const removeDj = () => {
         fetchRemoveLineupDj(current_lineup, name).then(_ => fetchLineup(current_lineup));
@@ -98,10 +81,10 @@
                 </div>
             </div>
             <div class="row">
-                <p>Logo File: {logo_name ? logo_name : "Not Set"}</p>
+                <p>Logo: {logo_name ? logo_name : "Not Set"}</p>
             </div>
             <div class="row">
-                <p>Recording File: {recording_name ? recording_name : "Not Set"}</p>
+                <p>Recording: {recording_name ? recording_name : "Not Set"}</p>
             </div>
             <div class="row">
                 <p>RTMP Server: {rtmp_server ? rtmp_server : "Not Set"}</p>

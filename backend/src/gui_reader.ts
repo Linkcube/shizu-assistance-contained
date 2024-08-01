@@ -4,6 +4,7 @@ import {
   get_file,
   get_promo,
   get_theme,
+  read_app_themes_table,
   read_djs_table,
   read_events_table,
   read_files_table,
@@ -31,6 +32,10 @@ export const guiGetPromos = async () => {
 export const guiGetDjs = async () => {
   return await read_djs_table();
 };
+
+export const guiGetAppThemes = async () => {
+  return await read_app_themes_table();
+}
 
 export const guiGetFile = async (data: { file_name: string }) => {
   const file = await get_file(data.file_name);

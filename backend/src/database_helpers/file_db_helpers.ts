@@ -3,9 +3,9 @@ import { InvalidFileError } from "../errors";
 import { DJS_TABLE, FILES_TABLE, PROMOS_TABLE, THEMES_TABLE } from "../tables";
 import { IEventObject, IFileObject } from "../types";
 import {
-  interna_get_row_from_table,
-  interna_insert_into_table,
-  interna_update_table_entry,
+  internal_get_row_from_table,
+  internal_insert_into_table,
+  internal_update_table_entry,
 } from "./helper_functions";
 
 const validate_file = async (
@@ -36,7 +36,7 @@ export const internal_insert_into_files = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_insert_into_table(FILES_TABLE, file_data, pool);
+  await internal_insert_into_table(FILES_TABLE, file_data, pool);
 };
 
 export const internal_update_file = async (
@@ -48,14 +48,14 @@ export const internal_update_file = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_update_table_entry(FILES_TABLE, file_data, pool);
+  await internal_update_table_entry(FILES_TABLE, file_data, pool);
 };
 
 export const internal_delete_file = async (
   file_name: string,
   pool: PoolClient,
 ) => {
-  const file = (await interna_get_row_from_table(
+  const file = (await internal_get_row_from_table(
     FILES_TABLE,
     file_name,
     pool,

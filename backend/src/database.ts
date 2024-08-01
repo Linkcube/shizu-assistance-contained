@@ -7,6 +7,7 @@ import {
   THEMES_TABLE,
   ALL_TABLES,
   PROMOS_TABLE,
+  APP_THEMES_TABLE,
 } from "./tables";
 import {
   IDjObject,
@@ -23,7 +24,7 @@ import {
 } from "./types";
 import {
   internal_create_table_helper,
-  interna_get_row_from_table,
+  internal_get_row_from_table,
   internal_read_entire_table,
 } from "./database_helpers/helper_functions";
 import {
@@ -69,6 +70,7 @@ import {
 import { join, normalize, parse } from "path";
 import { accessSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import util from "node:util";
+import { internal_delete_app_themes, internal_insert_into_app_themes, internal_update_app_themes } from "./database_helpers/app_themes_db_helpers";
 
 // File for accessing SQL, handles client/pool lifecycles.
 
@@ -112,40 +114,54 @@ export const read_djs_table = async () => {
   return retval.rows;
 };
 
+export const read_app_themes_table = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_entire_table(APP_THEMES_TABLE, pool);
+  await pool.release();
+  return retval.rows;
+}
+
 export const get_file = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(FILES_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(FILES_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_theme = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(THEMES_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(THEMES_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_event = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(EVENTS_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(EVENTS_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_promo = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(PROMOS_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(PROMOS_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_dj = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(DJS_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(DJS_TABLE, name, pool);
   await pool.release();
   return retval;
 };
+
+export const get_app_theme = async (name: string) => {
+  const pool = await database_pool.connect();
+  const retval = await internal_get_row_from_table(APP_THEMES_TABLE, name, pool);
+  await pool.release();
+  return retval;
+}
 
 export const create_tables = async () => {
   const client = database_client();
@@ -395,6 +411,27 @@ export const delete_dj = async (dj_name: string) => {
   return error;
 };
 
+export const create_new_app_theme = async (app_theme_name: string) => {
+  const pool = await database_pool.connect();
+  const error = await internal_insert_into_app_themes(app_theme_name, pool);
+  await pool.release();
+  return error;
+}
+
+export const update_app_theme = async (app_theme_name: string, style: any) => {
+  const pool = await database_pool.connect();
+  const error = await internal_update_app_themes(app_theme_name, style, pool);
+  await pool.release();
+  return error;
+}
+
+export const delete_app_theme = async (app_theme_name: string) => {
+  const pool = await database_pool.connect();
+  const error = await internal_delete_app_themes(app_theme_name, pool);
+  await pool.release();
+  return error;
+}
+
 const find_event_objects = async (event_name: string) => {
   const files_to_check: string[] = [];
   const errors = [];
@@ -403,7 +440,7 @@ const find_event_objects = async (event_name: string) => {
   const djs: IDjObject[] = [];
 
   const pool = await database_pool.connect();
-  const event: IEventObject | Error = await interna_get_row_from_table(
+  const event: IEventObject | Error = await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -411,7 +448,7 @@ const find_event_objects = async (event_name: string) => {
   if (event instanceof Error) return { file_names: [], errors: [event] };
 
   if (event.theme) {
-    theme = await interna_get_row_from_table(THEMES_TABLE, event.theme, pool);
+    theme = await internal_get_row_from_table(THEMES_TABLE, event.theme, pool);
     if (theme instanceof Error || theme === undefined) {
       errors.push(theme);
     } else {
@@ -424,7 +461,7 @@ const find_event_objects = async (event_name: string) => {
 
   if (event.promos) {
     for (const promo_name of event.promos) {
-      const promo: IPromoObject | Error = await interna_get_row_from_table(
+      const promo: IPromoObject | Error = await internal_get_row_from_table(
         PROMOS_TABLE,
         promo_name,
         pool,
@@ -446,7 +483,7 @@ const find_event_objects = async (event_name: string) => {
 
   if (event.djs) {
     for (const lineup_dj of event.djs) {
-      const dj: IDjObject | Error = await interna_get_row_from_table(
+      const dj: IDjObject | Error = await internal_get_row_from_table(
         DJS_TABLE,
         lineup_dj.name,
         pool,
@@ -513,7 +550,7 @@ const gather_files_for_export = async (files_to_check: string[]) => {
   const errors = [];
   const pool = await database_pool.connect();
   for (const file_name of files_to_check) {
-    const file: IFileObject | Error = await interna_get_row_from_table(
+    const file: IFileObject | Error = await internal_get_row_from_table(
       FILES_TABLE,
       file_name,
       pool,

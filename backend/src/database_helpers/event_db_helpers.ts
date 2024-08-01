@@ -1,8 +1,8 @@
 import { PoolClient } from "pg";
 import {
-  interna_insert_into_table,
-  interna_get_row_from_table,
-  interna_update_table_entry,
+  internal_insert_into_table,
+  internal_get_row_from_table,
+  internal_update_table_entry,
 } from "./helper_functions";
 import { InvalidFileError, InvalidDjError } from "../errors";
 import { EVENTS_TABLE, DJS_TABLE, PROMOS_TABLE, THEMES_TABLE } from "../tables";
@@ -80,7 +80,7 @@ export const internal_insert_into_events = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_insert_into_table(EVENTS_TABLE, event_data, pool);
+  await internal_insert_into_table(EVENTS_TABLE, event_data, pool);
 };
 
 export const internal_add_event_dj = async (
@@ -88,9 +88,9 @@ export const internal_add_event_dj = async (
   dj_data: ILineupDjObject,
   pool: PoolClient,
 ) => {
-  const dj = await interna_get_row_from_table(DJS_TABLE, dj_data.name, pool);
+  const dj = await internal_get_row_from_table(DJS_TABLE, dj_data.name, pool);
   if (dj instanceof Error) return dj;
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -121,13 +121,13 @@ export const internal_add_event_promo = async (
   promo_name: string,
   pool: PoolClient,
 ) => {
-  const promo = await interna_get_row_from_table(
+  const promo = await internal_get_row_from_table(
     PROMOS_TABLE,
     promo_name,
     pool,
   );
   if (promo instanceof Error) return promo;
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -162,7 +162,7 @@ export const internal_update_event = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_update_table_entry(EVENTS_TABLE, event_data, pool);
+  await internal_update_table_entry(EVENTS_TABLE, event_data, pool);
 };
 
 export const internal_update_event_dj = async (
@@ -172,7 +172,7 @@ export const internal_update_event_dj = async (
   is_live?: boolean,
   vj?: string,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -206,7 +206,7 @@ export const internal_remove_event_dj = async (
   dj_name: string,
   pool: PoolClient,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -237,7 +237,7 @@ export const internal_remove_event_promo = async (
   promo_name: string,
   pool: PoolClient,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -273,7 +273,7 @@ export const internal_move_event_dj = async (
   index_b: number,
   pool: PoolClient,
 ) => {
-  const event = await interna_get_row_from_table(
+  const event = await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -313,7 +313,7 @@ export const internal_move_event_promo = async (
   index_b: number,
   pool: PoolClient,
 ) => {
-  const event = await interna_get_row_from_table(
+  const event = await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -358,7 +358,7 @@ export const internal_delete_event = async (
   event_name: string,
   pool: PoolClient,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,

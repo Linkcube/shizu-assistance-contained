@@ -49,6 +49,7 @@ const PROMOS = "promos";
 const EVENTS = "events";
 const THEMES = "themes";
 const FILES = "files";
+const APP_THEMES = "app_themes";
 export const DJS_TABLE: Table = new Table(DJS, [
   {
     name: "name",
@@ -183,10 +184,21 @@ export const FILES_TABLE: Table = new Table(FILES, [
     type: "TEXT",
   },
 ]);
+export const APP_THEMES_TABLE: Table = new Table(APP_THEMES, [
+  {
+    name: "name",
+    type: "TEXT PRIMARY KEY",
+  },
+  {
+    name: "style",
+    type: `JSONB`,
+  },
+])
 export const ALL_TABLES = [
   FILES_TABLE,
   THEMES_TABLE,
   PROMOS_TABLE,
   DJS_TABLE,
   EVENTS_TABLE,
+  APP_THEMES_TABLE
 ];

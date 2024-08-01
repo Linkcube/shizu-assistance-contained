@@ -72,17 +72,17 @@ services:
       - private
       - public
 
-  frontend:
-    build:
-      context: frontend
-    depends_on:
-      - backend
-    ports:
-      - 5000:5000
-    environment:
-      - PORT=5000
-    networks:
-      - public
+  # frontend:
+  #   build:
+  #     context: frontend
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - 5000:5000
+  #   environment:
+  #     - PORT=5000
+  #   networks:
+  #     - public
 
 networks:
   public:

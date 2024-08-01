@@ -29,17 +29,18 @@
 
     export let index = -1;
     export let name = "";
-    export let file_path = "";
+    export let promo_data;
 
     const current_lineup = get(currentLineup);
     const lineup_names = get(lineups);
     let target_lineup = lineup_names[0];
 
-    let file_name = toFileName(file_path);
+    let file_name = promo_data.promo_file;
     let selecting_file = false;
     let show_file_dialog = false;
     let current_error = null;
     let show_save_message = false;
+    let file_path = "";
 
     error_stack.subscribe(error => current_error = error);
 

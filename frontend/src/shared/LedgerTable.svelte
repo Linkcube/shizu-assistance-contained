@@ -1,11 +1,13 @@
 
 <script>
     import {
-        ledger
+        all_djs,
+        all_promos,
+        fetchSingleDj,
+        fetchSinglePromo
     } from '$lib/store';
     import {
         MaterialTable,
-        MaterialTableRow,
 		IconButton,
 		MaterialInput
     } from 'linkcube-svelte-components';
@@ -26,26 +28,28 @@
 
     let dj_modal_index = -1;
 	let dj_modal_name = "";
-	let dj_modal_logo_path = "";
-	let dj_modal_rtmp_server = "";
-	let dj_modal_stream_key = "";
-	let dj_modal_recording_path = "";
+    let dj_promise = Promise.resolve();
 
     let promo_modal_index = -1;
     let promo_modal_name = "";
-    let promo_modal_file_path = "";
+    let promo_promise = Promise.resolve();
 
-    ledger.subscribe(value => {
-		if (value.hasOwnProperty("djs")) {
-			ledger_djs = value.djs.map((dj, index) => {
+    all_djs.subscribe(value => {
+		if (value.length > 0) {
+			ledger_djs = value.map((dj, index) => {
                 dj['index'] = index;
                 return dj;
             });
-			ledger_promos = value.promos.map((promo, index) => {
+            display_ledger_djs = ledger_djs;
+		}
+	});
+
+    all_promos.subscribe(value => {
+		if (value.length > 0) {
+			ledger_promos = value.map((promo, index) => {
                 promo['index'] = index;
                 return promo
             });
-            display_ledger_djs = ledger_djs;
             display_ledger_promos = ledger_promos
 		}
 	});
@@ -74,39 +78,32 @@
         }
     }
 
-    const editDj = (index, name, logo_path, rtmp_server, stream_key, recording_path) => {
+    const editDj = (index, name) => {
 		dj_modal_index = (index !== null) ? index : -1;
 		dj_modal_name = (name !== null) ? name : "";
-		dj_modal_logo_path = (logo_path !== null) ? logo_path : "";
-		dj_modal_rtmp_server = (rtmp_server !== null) ? rtmp_server : "";
-		dj_modal_stream_key = (stream_key !== null) ? stream_key : "";
-		dj_modal_recording_path = (recording_path !== null) ? recording_path : "";
+        dj_promise = fetchSingleDj(name);
 		show_dj_modal = true;
 	}
 	const resetDjModal = () => {
 		dj_modal_index = -1;
 		dj_modal_name = "";
-		dj_modal_logo_path = "";
-		dj_modal_rtmp_server = "";
-		dj_modal_stream_key = "";
-		dj_modal_recording_path = "";
 		show_dj_modal = false; 
 	}
 
-    const editPromo = (index, name, file_path) => {
+    const editPromo = (index, name) => {
         promo_modal_index = (index !== null) ? index : -1;
         promo_modal_name = (name !== null) ? name : "";
-        promo_modal_file_path = (file_path !== null) ? file_path : "";
+        promo_promise = fetchSinglePromo(name);
         show_promo_modal = true;
     }
     const resetPromoModal = () => {
 		promo_modal_index = -1;
 		promo_modal_name = "";
-		promo_modal_file_path = "";
         show_promo_modal = false;
 	}
 
     function compareBy(field, direction) {
+        // TODO: handle nulls
         switch(field) {
             case dj_table_fields[0]:
                 if (direction) return (a, b) => a.index < b.index;
@@ -115,14 +112,14 @@
                 if (direction) return (a, b) => a.name.localeCompare(b.name) * -1;
                 return (a, b) => a.name.localeCompare(b.name);
             case dj_table_fields[2]:
-                if (direction) return (a, b) => a.logo_path.localeCompare(b.logo_path) * -1;
-                return (a, b) => a.logo_path.localeCompare(b.logo_path);
+                if (direction) return (a, b) => a.logo.localeCompare(b.logo) * -1;
+                return (a, b) => a.logo.localeCompare(b.logo);
             case dj_table_fields[3]:
                 if (direction) return (a, b) => a.rtmp_server.localeCompare(b.rtmp_server) * -1;
                 return (a, b) => a.rtmp_server.localeCompare(b.rtmp_server);
             case dj_table_fields[4]:
-                if (direction) return (a, b) => a.recording_path.localeCompare(b.recording_path) * -1;
-                return (a, b) => a.recording_path.localeCompare(b.recording_path);
+                if (direction) return (a, b) => a.recording.localeCompare(b.recording) * -1;
+                return (a, b) => a.recording.localeCompare(b.recording);
         }
     }
 
@@ -172,23 +169,24 @@
 </style>
 
 {#if show_dj_modal}
-    <DjModal
-        index={dj_modal_index}
-        name={dj_modal_name}
-        logo_path={dj_modal_logo_path}
-        rtmp_server={dj_modal_rtmp_server}
-        stream_key={dj_modal_stream_key}
-        recording_path={dj_modal_recording_path}
-        on:close={resetDjModal}
-    />
+    {#await dj_promise then dj_data}
+        <DjModal
+            index={dj_modal_index}
+            name={dj_modal_name}
+            dj_data={dj_data}
+            on:close={resetDjModal}
+        />
+    {/await}
 {/if}
 {#if show_promo_modal}
-    <PromoModal
-        index={promo_modal_index}
-        name={promo_modal_name}
-        file_path={promo_modal_file_path}
-        on:close={resetPromoModal}
-    />
+    {#await promo_promise then promo_data}
+        <PromoModal
+            index={promo_modal_index}
+            name={promo_modal_name}
+            promo_data={promo_data}
+            on:close={resetPromoModal}
+        />
+    {/await}
 {/if}
 
 <div class="flex-column">
@@ -212,9 +210,9 @@
             </div>
             <div slot="item" let:item let:index>
                 <NewMatTableRow
-                    values={[`${item.index + 1}`, item.name, item.logo_path !== "", item.rtmp_server, item.recording_path !== ""]}
+                    values={[`${item.index + 1}`, item.name, Boolean(item.logo), item.rtmp_server, Boolean(item.recording)]}
                     type="click row"
-                    on:click={() => editDj(item.index, item.name, item.logo_path, item.rtmp_server, item.stream_key, item.recording_path)} />
+                    on:click={() => editDj(item.index, item.name)} />
             </div>
         </MaterialTable>
     {:else}
@@ -226,7 +224,7 @@
                 <NewMatTableRow
                     values={[`${item.index + 1}`, item.name]}
                     type="click row"
-                    on:click={() => editPromo(item.index, item.name, item.path)}
+                    on:click={() => editPromo(item.index, item.name)}
                 />
             </div>
         </MaterialTable>

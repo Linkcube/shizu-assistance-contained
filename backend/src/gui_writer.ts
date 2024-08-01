@@ -4,6 +4,8 @@ import {
   add_logo_file,
   add_recording_file,
   add_theme_file,
+  create_new_app_theme,
+  delete_app_theme,
   delete_dj,
   delete_event,
   delete_file,
@@ -21,6 +23,7 @@ import {
   move_event_promo,
   remove_event_dj,
   remove_event_promo,
+  update_app_theme,
   update_dj,
   update_event,
   update_event_dj,
@@ -29,6 +32,7 @@ import {
   update_theme,
 } from "./database";
 import {
+  guiGetAppThemes,
   guiGetDjs,
   guiGetEvents,
   guiGetFiles,
@@ -133,6 +137,34 @@ export const guiAddEventPromo = async (data: {
 
   return await guiGetEvents();
 };
+
+export const guiAddAppTheme = async (data: {
+  name: string
+}) => {
+  const error = await create_new_app_theme(data.name);
+  if (error !== undefined) return error;
+
+  return await guiGetAppThemes();
+}
+
+export const guiEditAppTheme = async (data: {
+  name: string,
+  style: any
+}) => {
+  const error = await update_app_theme(data.name, data.style);
+  if (error !== undefined) return error;
+
+  return await guiGetAppThemes();
+}
+
+export const guiDeleteAppTheme = async (data: {
+  name: string
+}) => {
+  const error = await delete_app_theme(data.name);
+  if (error !== undefined) return error;
+
+  return await guiGetAppThemes();
+}
 
 export const guiUpdateFile = async (file_data: IFileObject) => {
   const error = await update_file(file_data);

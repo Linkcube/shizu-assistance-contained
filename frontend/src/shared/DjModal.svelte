@@ -18,7 +18,8 @@
         toFileName,
         RECORDING_TYPE,
         LOGO_TYPE,
-        error_stack
+        error_stack,
+        all_events
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import { get } from 'svelte/store';
@@ -27,21 +28,23 @@
 
     export let index = -1;
     export let name = "";
-    export let logo_path = "";
-    let logo_name = toFileName(logo_path);
-    export let rtmp_server = "";
-    export let stream_key = "";
-    export let recording_path = "";
-    let recording_name = toFileName(recording_path);
     let selecting_file = false;
 
     const current_lineup = get(currentLineup);
-    const lineup_names = get(lineups);
+    const lineup_names = get(all_events).map(event => event.name);
     let target_lineup = lineup_names[0];
     let show_logo_dialog = false;
     let show_recording_dialog = false;
     let current_error = null;
     let show_save_message = false;
+
+    export let dj_data;
+
+    let logo_name = dj_data.logo;
+    let recording_name = dj_data.recording;
+    let rtmp_server = dj_data.rtmp_server;
+    let stream_key = dj_data.rtmp_key;
+    
 
 
     const dispatch = createEventDispatcher();
@@ -57,8 +60,8 @@
         if (index < 0) {
             fetchAddDj(
                 name,
-                logo_path,
-                recording_path,
+                logo_name,
+                recording_name,
                 rtmp_server,
                 stream_key
             )
@@ -66,8 +69,8 @@
             fetchUpdateDj(
                 index,
                 name,
-                logo_path,
-                recording_path,
+                logo_name,
+                recording_name,
                 rtmp_server,
                 stream_key
             )
@@ -88,7 +91,6 @@
         if (event.detail) {
             let full_path = event.detail;
             logo_name = toFileName(full_path);
-            logo_path = full_path;
         }
     }
 
@@ -100,7 +102,6 @@
         if (event.detail) {
             let full_path = event.detail;
             recording_name = toFileName(full_path);
-            recording_path = full_path;
         }
     }
 
@@ -165,7 +166,7 @@
                 <IconButton icon="photo" title="Select Logo" on:click={selectLogo} />
             </div>
             <!-- <MaterialButton value="Select Logo" on:click={selectLogo} /> -->
-            <p>Logo: {logo_name ? logo_name : "Not Set"}</p>
+            <p>Logo: {dj_data ? logo_name : "Not Set"}</p>
         </div>
         <div class="row">
             <MaterialSelect label="RTMP Server" bind:value={rtmp_server}>

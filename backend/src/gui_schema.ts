@@ -12,6 +12,7 @@ type Query {
     guiGetEvent(event_name: String!): eventObject
     guiGetDj(dj_name: String!): djObject
     guiGetPromo(promo_name: String!): promoObject
+    guiGetAppThemes: [appThemeObject]
 }
 type Mutation {
     guiAddNewFile(
@@ -133,6 +134,12 @@ type Mutation {
     guiExportEvent(event_name: String!): String
     guiImportLegacyLedger(ledger_path: String!): String
     guiImportLegacyEvents(lineups_path: String!): String
+    guiAddAppTheme(name: String): [appThemeObject]
+    guiEditAppTheme(
+        name: String!,
+        style: appThemeObjectInput!
+    ): [themeObject]
+    guiDeleteAppTheme(name: String!): [appThemeObject]
 }
 type djObject {
     name: String,
@@ -173,9 +180,43 @@ type promoObject {
     name: String,
     promo_file: String
 }
+type appThemeObject {
+    name: String,
+    style: themeStyle
+},
+type themeStyle {
+    primaryColor: String,
+    secondaryColor: String,
+    backgroundColor: String,
+    primaryTextColor: String,
+    secondaryTextColor: String,
+    highlightColor: String,
+    focusColor: String,
+    activeColor: String,
+    deleteColor: String,
+    cancelTextColor: String,
+    cancelBackgroundColor: String,
+    submitTextColor: String,
+    submitBackgroundColor: String
+}
 input djLineupInput {
     name: String,
     is_live: Boolean,
     vj: String
+}
+input appThemeObjectInput {
+    primaryColor: String,
+    secondaryColor: String,
+    backgroundColor: String,
+    primaryTextColor: String,
+    secondaryTextColor: String,
+    highlightColor: String,
+    focusColor: String,
+    activeColor: String,
+    deleteColor: String,
+    cancelTextColor: String,
+    cancelBackgroundColor: String,
+    submitTextColor: String,
+    submitBackgroundColor: String
 }
 `);

@@ -3,7 +3,10 @@
         fetchSettings,
         fetchLedger,
         fetchLineups,
-		fetchGetAppThemes
+		fetchGetAppThemes,
+		fetchDjs,
+		fetchPromos,
+		fetchEvents
     } from '$lib/store';
 	import LedgerTable from '../shared/LedgerTable.svelte';
 	import LineupsTable from "../shared/LineupsTable.svelte"
@@ -12,6 +15,10 @@
     fetchSettings();
     fetchLedger();
     fetchLineups();
+
+	fetchDjs();
+	fetchPromos();
+	fetchEvents();
 </script>
 
 <style>

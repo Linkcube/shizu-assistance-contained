@@ -73,7 +73,7 @@ export const internal_read_entire_table = async (
   return retval;
 };
 
-export const interna_get_row_from_table = async (
+export const internal_get_row_from_table = async (
   table: Table,
   primary_key: string,
   pool: PoolClient,
@@ -88,7 +88,7 @@ export const interna_get_row_from_table = async (
   return retval.rows[0];
 };
 
-export const interna_insert_into_table = async (
+export const internal_insert_into_table = async (
   table: Table,
   obj_data: any,
   pool: PoolClient,
@@ -134,7 +134,7 @@ export const interna_insert_into_table = async (
   }
 };
 
-export const interna_update_table_entry = async (
+export const internal_update_table_entry = async (
   table: Table,
   obj_data: any,
   pool: PoolClient,

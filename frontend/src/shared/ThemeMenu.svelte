@@ -41,7 +41,7 @@
         fetchEditAppTheme(editIndex, editThemeStyle).then((promise) => {
             Promise.resolve(promise).then(response => {
                 if (response.hasOwnProperty('data')) {
-                    themes.set(response.data.editAppTheme);
+                    themes.set(response.data.guiEditAppTheme);
                     currentThemeIndex.set(oldIndex);
                 }
             })
@@ -53,20 +53,23 @@
         fetchAddAppTheme().then((promise) => {
             Promise.resolve(promise).then(response => {
                 if (response.hasOwnProperty('data')) {
-                    themes.set(response.data.addAppTheme);
+                    themes.set(response.data.guiAddAppTheme);
                 }
             })
         });
     };
 
     function deleteStyle() {
-        let oldIndex = get(currentThemeIndex);
+        let old_name = get(currentTheme).name;
         currentThemeIndex.set(0);
         fetchDeleteAppTheme(editIndex).then((promise) => {
             Promise.resolve(promise).then(response => {
                 if (response.hasOwnProperty('data')) {
-                    themes.set(response.data.deleteAppTheme);
-                    currentThemeIndex.set(oldIndex);
+                    themes.set(response.data.guiDeleteAppTheme);
+                    let prev_theme = response.data.guiDeleteAppTheme.findIndex(theme => theme.name === old_name);
+                    if (prev_theme >= 0) {
+                        currentThemeIndex.set(prev_theme);
+                    }
                 }
             })
         });
@@ -163,7 +166,8 @@
     {#if styleEdit }
         <Modal on:close={() => styleEdit = false} on:submission={changeStyle}>
             <div class="top-row">
-                <MaterialInput label="Theme Title" bind:value={editThemeStyle.title}/>
+                <!-- <MaterialInput label="Theme Title" bind:value={editThemeStyle.title}/> -->
+                <h2>{editThemeStyle.name}</h2>
                 {#if editIndex != 0}
                     <div class="delete">
                         <IconButton icon="delete_forever" title="Delete Style" on:click={deleteStyle}/>
@@ -239,7 +243,7 @@
                 <div class="right-side">
                     <MaterialSelect label="Active Theme" bind:value={$currentThemeIndex}>
                         {#each themes_data as theme, index }
-                            <option value={index}>{theme.title}</option>
+                            <option value={index}>{theme.name}</option>
                         {/each}
                     </MaterialSelect>
                 </div>
@@ -251,7 +255,7 @@
                     </div>
                     <div slot="item" let:item let:index>
                         <MaterialTableRow
-                            values={[`${index + 1}.`, item.title]}
+                            values={[`${index + 1}.`, item.name]}
                             type="click row"
                             on:click={() => selectStyle(index)}
                         />

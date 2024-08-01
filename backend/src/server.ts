@@ -12,6 +12,7 @@ import {
   guiGetEvent,
   guiGetPromo,
   guiGetDj,
+  guiGetAppThemes
 } from "./gui_reader";
 import {
   guiAddNewFile,
@@ -42,6 +43,9 @@ import {
   guiExportEvent,
   guiImportLegacyLedger,
   guiImportLegacyEvents,
+  guiAddAppTheme,
+  guiEditAppTheme,
+  guiDeleteAppTheme
 } from "./gui_writer";
 import { create_tables, database_pool } from "./database";
 import cors from "cors";
@@ -94,6 +98,10 @@ const gui_root = {
   guiExportEvent,
   guiImportLegacyLedger,
   guiImportLegacyEvents,
+  guiGetAppThemes,
+  guiAddAppTheme,
+  guiEditAppTheme,
+  guiDeleteAppTheme
 };
 const app = express();
 const logo_permissions = staticLogoPermission();

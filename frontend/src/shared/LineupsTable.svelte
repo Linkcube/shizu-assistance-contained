@@ -12,7 +12,11 @@
         fetchDeleteLineup,
         fetchLineups,
         EXPORT_TYPE,
-        error_stack
+        error_stack,
+        all_events,
+        fetchSingleEvent,
+        fetchSingleDj,
+        fetchSinglePromo
     } from '$lib/store';
     import {
         MaterialTable,
@@ -49,10 +53,12 @@
     let edit_dj_name = "";
     let edit_dj_is_live = false;
     let edit_dj_vj = "";
+    let edit_dj_promise = Promise.resolve();
     let show_edit_dj = false;
 
     let edit_promo_index = 0;
     let edit_promo_name = "";
+    let edit_promo_promise = Promise.resolve();
     let show_edit_promo = false;
 
     let dragging_index = -1;
@@ -82,9 +88,21 @@
             })
         }
     });
+    all_events.subscribe(value => {
+        lineups_data = value;
+        if (lineups_data) {
+            display_lineups = lineups_data.map((lineup, index) => {
+                return ({
+                    index: index,
+                    name: lineup.name
+                });
+            })
+        }
+    });
     currentLineup.subscribe(value => current_lineup = value);
 
 	currentLineupObjects.subscribe(value => {
+        console.log(value);
 		lineup_djs = value.djs;
         if (value.promos) lineup_promos = value.promos.map(promo => ({name: promo}));
         loading = false;
@@ -95,16 +113,10 @@
 	}
 
 	const selectLineup = (name) => {
-		fetchLineup(name).then(_ => {
+		fetchSingleEvent(name).then(_ => {
 			currentLineup.set(name);
 			current_lineup = name;
             search_value = null;
-            display_lineups = lineups_data.map((lineup, index) => {
-                return ({
-                    index: index,
-                    name: lineup
-                });
-            });
 		});
 	}
 
@@ -120,6 +132,7 @@
         edit_dj_name = name;
         edit_dj_is_live = is_live;
         edit_dj_vj = vj;
+        edit_dj_promise = fetchSingleDj(name);
         show_edit_dj = true;
     }
 
@@ -128,6 +141,7 @@
         last_action = EDIT_PROMO_FAILED;
         edit_promo_index = index;
         edit_promo_name = name;
+        edit_promo_promise = fetchSinglePromo(name);
         show_edit_promo = true;
     }
 
@@ -227,15 +241,15 @@
             display_lineups = lineups_data.map((lineup, index) => {
                 return ({
                     index: index,
-                    name: lineup
+                    name: lineup.name
                 });
             })
         } else {
-            display_lineups = lineups_data.filter(lineup => lineup.toUpperCase().includes(search_value.toUpperCase()))
+            display_lineups = lineups_data.filter(lineup => lineup.name.toUpperCase().includes(search_value.toUpperCase()))
             .map((lineup, index) => {
                 return ({
                     index: index,
-                    name: lineup
+                    name: lineup.name
                 });
             });
         }
@@ -303,7 +317,7 @@
 
 {#if current_error && show_export_error}
     {#if last_action && last_action.startsWith("Edit")}
-        <ErrorPopup error={current_error} header={last_action} callback="Remove from Lineup" on:close={close_error} on:callback={removeErrorFromLineup}/>
+        <ErrorPopup error={current_error} header={last_action} callback="Remove from Event" on:close={close_error} on:callback={removeErrorFromLineup}/>
     {:else}
         <ErrorPopup error={current_error} header={last_action} on:close={close_error} />
     {/if}
@@ -312,22 +326,28 @@
     <AddLineupModal on:close={() => show_add_lineup = false} />
 {/if}
 {#if show_edit_dj}
-    <DjLineupModal
-        index={edit_dj_index}
-        name={edit_dj_name}
-        is_live={edit_dj_is_live}
-        current_lineup={current_lineup}
-        vj={edit_dj_vj}
-        on:close={() => show_edit_dj = false}
-    />
+    {#await edit_dj_promise then dj_data }
+        <DjLineupModal
+            index={edit_dj_index}
+            name={edit_dj_name}
+            is_live={edit_dj_is_live}
+            current_lineup={current_lineup}
+            vj={edit_dj_vj}
+            dj_data={dj_data}
+            on:close={() => show_edit_dj = false}
+        />
+    {/await}
 {/if}
 {#if show_edit_promo}
-    <PromoLineupModal
-        index={edit_promo_index}
-        name={edit_promo_name}
-        current_lineup={current_lineup}
-        on:close={() => show_edit_promo = false}
-    />
+    {#await edit_promo_promise then promo_data }
+        <PromoLineupModal
+            index={edit_promo_index}
+            name={edit_promo_name}
+            current_lineup={current_lineup}
+            promo_data={promo_data}
+            on:close={() => show_edit_promo = false}
+        />
+    {/await}
 {/if}
 {#if show_export_dialog}
     <FileDialog file_type={EXPORT_TYPE} on:close={() => show_export_dialog = false} on:submission={exportSelected}/>
@@ -335,14 +355,14 @@
 
 <div class="flex-column">
     <div class="flex-row">
-        <h1>Lineups</h1>
+        <h1>Events</h1>
     </div>
     {#if current_lineup === null}
         <div class="flex-row space-between">
-            <MaterialInput label="Search Lineups" bind:value={search_value} on:blur={enterSearch} on:enter={enterSearch}/>
+            <MaterialInput label="Search Events" bind:value={search_value} on:blur={enterSearch} on:enter={enterSearch}/>
             <div class="fill" />
             <div class="icon-container">
-                <IconButton icon="add" title="Add Lineup" on:click={addLineup} />
+                <IconButton icon="add" title="Add Event" on:click={addLineup} />
             </div>
         </div>
         <div class="flex-row">
@@ -364,10 +384,10 @@
             <p>{current_lineup}</p>
             <div class="display-button icon-container">
                 <IconButton icon="sync_alt" title="Show {show_lineup_djs ? 'Promos' : 'DJs'}" on:click={toggleLineupObjects} />
-                <IconButton icon="download" title="Export Lineup" on:click={exportLineup} />
-                <IconButton icon="reply" title="Back to Lineups" on:click={backToLineups} />
+                <IconButton icon="download" title="Export Event" on:click={exportLineup} />
+                <IconButton icon="reply" title="Back to Events" on:click={backToLineups} />
                 <div class="delete">
-                    <IconButton icon="delete_forever" title="Delete Lineups" on:click={deleteLineup} />
+                    <IconButton icon="delete_forever" title="Delete Event" on:click={deleteLineup} />
                 </div>
             </div>
         </div>
