@@ -26,7 +26,7 @@
      */
     let current_path = [];
     let current_files = [];
-    let top_level_dirs = [];
+    let top_level_dir = [];
     let display_files = [];
 
 	/**
@@ -72,22 +72,22 @@
         if (file_type == LOGO_TYPE) {
             fetchLogoPermissions(current_path).then(res => {
                 if (res.hasOwnProperty("data")) {
-                    let file_blob = res.data.getLogoPermissions;
+                    let file_blob = res.data.guiGetLogoPermissions;
                     current_files = file_blob.files;
                     display_files = current_files;
                     current_path = file_blob.path;
-                    top_level_dirs = file_blob.top_dirs;
+                    top_level_dir = file_blob.top_dir;
                 }
             })
         }
         if (file_type == RECORDING_TYPE) {
             fetchRecordingPermissions(current_path).then(res => {
                 if (res.hasOwnProperty("data")) {
-                    let file_blob = res.data.getRecordingPermissions;
+                    let file_blob = res.data.guiGetRecordingPermissions;
                     current_files = file_blob.files;
                     display_files = current_files;
                     current_path = file_blob.path;
-                    top_level_dirs = file_blob.top_dirs;
+                    top_level_dir = file_blob.top_dir;
                 }
             })
         }
@@ -98,7 +98,7 @@
                     current_files = file_blob.files;
                     display_files = current_files;
                     current_path = file_blob.path;
-                    top_level_dirs = file_blob.top_dirs;
+                    top_level_dir = file_blob.top_dirs;
                 }
             })
         }
@@ -107,14 +107,14 @@
     }
 
     function selectTopDir(dir) {
-        current_path = [dir];
+        current_path = [];
         selected_file = false;
         preview_path = "";
         fetchFileBlob();
     }
 
     function navUp() {
-        if (current_path.length == 1) return;
+        if (current_path.length == 0) return;
 
         current_path.pop();
         selected_file = false;
@@ -122,7 +122,7 @@
         fetchFileBlob();
     }
 
-    function selectFileItem(file_name, is_dir) {
+    function selectFileItem(file_name, ext, is_dir) {
         if (is_dir) {
             current_path.push(file_name);
             selected_file = false;
@@ -132,9 +132,9 @@
             // Update preview and selected item
             selected_file = file_name;
             if (file_type == LOGO_TYPE) {
-                preview_path = `${graphqlBase}/logos/${current_path.join("/")}/${selected_file}`;
+                preview_path = `${graphqlBase}/logos/${current_path.join("/")}/${selected_file + ext}`;
             } else {
-                preview_path = `${graphqlBase}/recordings/${current_path.join("/")}/${selected_file}`;
+                preview_path = `${graphqlBase}/recordings/${current_path.join("/")}/${selected_file + ext}`;
             }
             
         }
@@ -142,25 +142,12 @@
 
     function submission() {
         if (file_type == LOGO_TYPE) {
-            current_path.push(selected_file);
-            fetchReconstructLogoPath(current_path).then(res => {
-                if (res.hasOwnProperty("data")) {
-                    let path = res.data.reconstructLogoPath;
-                    dispatch('submission', path.replaceAll("\\", "/"));
-                    close();
-                }
-            })
+            dispatch('submission', selected_file);
+            close();
         }
         if (file_type == RECORDING_TYPE) {
-            current_path.push(selected_file);
-            fetchReconstructRecordingPath(current_path).then(res => {
-                if (res.hasOwnProperty("data")) {
-                    let path = res.data.reconstructRecordingPath;
-                    path.replaceAll("\\", "/");
-                    dispatch('submission', path.replaceAll("\\", "/"));
-                    close();
-                }
-            })
+            dispatch('submission', selected_file);
+            close();
         }
         if (file_type == EXPORT_TYPE) {
             fetchReconstructExportPath(current_path).then(res => {
@@ -177,8 +164,8 @@
     function compareBy(field, direction) {
         switch(field) {
             case "name":
-                if (direction) return (a, b) => a.name.localeCompare(b.name) * -1;
-                return (a, b) => a.name.localeCompare(b.name);
+                if (direction) return (a, b) => `${a.name}${a.ext}`.localeCompare(`${b.name}${b.ext}`) * -1;
+                return (a, b) => `${a.name}${a.ext}`.localeCompare(`${b.name}${b.ext}`);
             case "type":
                 if (direction) return (a, b) => a.is_dir < b.is_dir;
                 return (a, b) => a.is_dir > b.is_dir;
@@ -203,7 +190,7 @@
         if (search_value === "") {
             display_files = current_files;
         } else {
-            display_files = current_files.filter(file => file.name.toUpperCase().includes(search_value.toUpperCase()));
+            display_files = current_files.filter(file => `${file.name}${file.ext}`.toUpperCase().includes(search_value.toUpperCase()));
         }
     }
 
@@ -394,21 +381,21 @@
 
 <div class="modal" role="dialog" aria-modal="true" bind:this={modal}>
 	<div class="nav-header row">
-        <p>Current Directory: /{current_path.join("/")}</p>
+        <p>Current Directory: /{top_level_dir}/{current_path.join("/")}</p>
     </div>
     <br>
 	<div class="main row">
         <div class="top-dir column">
-            <span class="top-dir-item column" on:click={navUp}>
-                <span class="material-icons large-icon">arrow_upward</span>
-                <p>Nav Up</p>
-            </span>
-            {#each top_level_dirs as top_level_dir}
-                <span class="top-dir-item column" on:click={() => selectTopDir(top_level_dir)}>
-                    <span class="material-icons large-icon">{current_path.includes(top_level_dir) ? "folder_open" : "folder"}</span>
-                    <p>/{top_level_dir}</p>
+            {#if current_path.length > 0}
+                <span class="top-dir-item column" on:click={navUp}>
+                    <span class="material-icons large-icon">arrow_upward</span>
+                    <p>Nav Up</p>
                 </span>
-            {/each}
+            {/if}
+            <span class="top-dir-item column" on:click={() => selectTopDir(top_level_dir)}>
+                <span class="material-icons large-icon">{current_path.length === 0 ? "folder_open" : "folder"}</span>
+                <p>{top_level_dir}</p>
+            </span>
         </div>
         <div class="body column">
             <div class="nav-header row">
@@ -424,7 +411,7 @@
             </div>
             <div class="file-selection column">
                 {#each display_files as file}
-                    <span class="row file-selection-row" on:click={() => selectFileItem(file.name, file.is_dir)}>
+                    <span class="row file-selection-row" on:click={() => selectFileItem(file.name, file.ext, file.is_dir)}>
                         <span class="material-icons large-icon file-selection-icon">
                             {#if file.is_dir}
                                 folder
@@ -434,7 +421,7 @@
                                 video_file
                             {/if}
                         </span>
-                        <span class="file-selection-item">{file.name}</span>
+                        <span class="file-selection-item">{file.name}{file.ext}</span>
                     </span>
                 {/each}
             </div>

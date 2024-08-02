@@ -66,6 +66,8 @@ import {
   EXPORT_ROOT,
   root_map,
   rebuildLegacyObjects,
+  LOGOS_ROOT,
+  RECORDINGS_ROOT,
 } from "./file_helpers";
 import { join, normalize, parse } from "path";
 import { accessSync, readdirSync, readFileSync, writeFileSync } from "fs";
@@ -170,6 +172,8 @@ export const create_tables = async () => {
   for (const table of ALL_TABLES) {
     await internal_create_table_helper(client, table);
   }
+
+  create_new_app_theme("Default");
 
   await client.end();
 };
@@ -515,6 +519,7 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
     return new InvalidFileError(`No local path or url set for ${file.name}`);
   let local_file_path;
   let has_local_file = false;
+  const root = root_map.get(file.root!)!;
   if (file.file_path) {
     local_file_path = file.file_path;
     try {
@@ -525,7 +530,6 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
     }
   } else {
     const file_name = parse(file.url_path!).base;
-    const root = root_map.get(file.root!)!;
     local_file_path = join(root, decodeURI(file_name));
   }
 
@@ -539,7 +543,7 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
     const fetch_result = await fetchFile(file.url_path, local_file_path);
     if (fetch_result instanceof Error) return fetch_result;
     if (!file.file_path) {
-      file.file_path = local_file_path;
+      file.file_path = local_file_path.slice(root.length + 1);
       await internal_update_file(file, pool);
     }
   }
@@ -605,7 +609,7 @@ export const export_event = async (event_name: string) => {
       url: "",
       vj: "",
     };
-    if (dj.logo) dj_export_data.logo_path = files_map.get(dj.logo)!;
+    if (dj.logo) dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
     if (lineup_dj.is_live) {
       dj_export_data.url = util.format(
         process.env.RTMP_SERVER,
@@ -614,7 +618,7 @@ export const export_event = async (event_name: string) => {
       );
     } else {
       if (dj.recording) {
-        dj_export_data.recording_path = files_map.get(dj.recording)!;
+        dj_export_data.recording_path = join(RECORDINGS_ROOT, files_map.get(dj.recording)!);
         dj_export_data.resolution = getResolution(
           dj_export_data.recording_path,
         );
@@ -635,7 +639,7 @@ export const export_event = async (event_name: string) => {
         resolution: Promise.resolve([]),
       };
       if (promo.promo_file) {
-        promo_export_data.path = files_map.get(promo.promo_file)!;
+        promo_export_data.path = join(RECORDINGS_ROOT, files_map.get(promo.promo_file)!);
         promo_export_data.resolution = getResolution(promo_export_data.path);
       }
 

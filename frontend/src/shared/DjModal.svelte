@@ -89,8 +89,7 @@
 
     function updateLogo(event) {
         if (event.detail) {
-            let full_path = event.detail;
-            logo_name = toFileName(full_path);
+            logo_name = toFileName(event.detail);
         }
     }
 
@@ -100,8 +99,7 @@
 
     function updateRecording(event) {
         if (event.detail) {
-            let full_path = event.detail;
-            recording_name = toFileName(full_path);
+            recording_name = toFileName(event.detail);
         }
     }
 

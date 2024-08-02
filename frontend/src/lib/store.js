@@ -19,6 +19,7 @@ export const all_events = writable([]);
 export const current_event_object = writable({});
 
 export const graphqlBase = `${location.protocol}//${window.location.hostname}:4004`;
+export const staticAssetsBase = `${location.protocol}//${window.location.hostname}:4004`;
 const graphqlUrl = `${graphqlBase}/gui/graphql`;
 
 export const RTMP_SERVERS = [
@@ -73,6 +74,7 @@ currentThemeIndex.subscribe((newTheme) => {
     }
     if (themes_data[newTheme]) {
         updateTheme(themes_data[newTheme].style);
+        localStorage.setItem("theme_index", newTheme);
     }
 });
 
@@ -508,16 +510,17 @@ const getPermissionsQueryHelper = (query_head, sub_dirs) => {
         ${query_head} {
             files {
                 name,
+                ext,
                 is_dir
             },
             path,
-            top_dirs
+            top_dir
         }
     }`
 }
 
-const getLogoPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("getLogoPermissions", sub_dirs);
-const getRecordingPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("getRecordingPermissions", sub_dirs);
+const getLogoPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetLogoPermissions", sub_dirs);
+const getRecordingPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetRecordingPermissions", sub_dirs);
 const getExportPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("getExportPermissions", sub_dirs);
 
 const reconstructPathHelper = (query_head, dirs) => {
@@ -656,6 +659,13 @@ export function fetchGetAppThemes() {
         Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty('data')) {
                 themes.set(response.data.guiGetAppThemes);
+                let last_theme = localStorage.getItem("theme_index");
+                if (last_theme !== null) {
+                    currentThemeIndex.set(parseInt(last_theme));
+                    console.log(`Setting theme to ${last_theme}`);
+                } else {
+                    currentThemeIndex.set(0);
+                }
             }
         })
     });

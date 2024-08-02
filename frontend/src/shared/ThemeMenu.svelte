@@ -29,7 +29,7 @@
 
     function selectStyle(index) {
         editIndex = index;
-        editThemeStyle.title = themes_data[editIndex].title;
+        editThemeStyle.name = themes_data[editIndex].name;
         Object.assign(editThemeStyle.style, themes_data[editIndex].style);
         styleEdit = true;
     };

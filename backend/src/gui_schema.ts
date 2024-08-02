@@ -13,6 +13,8 @@ type Query {
     guiGetDj(dj_name: String!): djObject
     guiGetPromo(promo_name: String!): promoObject
     guiGetAppThemes: [appThemeObject]
+    guiGetLogoPermissions(sub_dirs: [String]): fileDialogBlob
+    guiGetRecordingPermissions(sub_dirs: [String]): fileDialogBlob
 }
 type Mutation {
     guiAddNewFile(
@@ -138,9 +140,9 @@ type Mutation {
     guiEditAppTheme(
         name: String!,
         style: appThemeObjectInput!
-    ): [themeObject]
+    ): [appThemeObject]
     guiDeleteAppTheme(name: String!): [appThemeObject]
-}
+},
 type djObject {
     name: String,
     logo: String,
@@ -150,36 +152,36 @@ type djObject {
     public_name: String,
     discord_id: String,
     past_events: [String]
-}
+},
 type djLineupObject {
     name: String,
     is_live: Boolean,
     vj: String
-}
+},
 type eventObject {
     name: String,
     djs: [djLineupObject],
     promos: [String],
     theme: String,
     public: Boolean
-}
+},
 type themeObject {
     name: String,
     overlay_file: String,
     stinger_file: String,
     starting_file: String,
     ending_file: String
-}
+},
 type fileObject {
     name: String,
     root: String,
     file_path: String,
     url_path: String
-}
+},
 type promoObject {
     name: String,
     promo_file: String
-}
+},
 type appThemeObject {
     name: String,
     style: themeStyle
@@ -198,12 +200,22 @@ type themeStyle {
     cancelBackgroundColor: String,
     submitTextColor: String,
     submitBackgroundColor: String
-}
+},
+type fileDialogBlob {
+    files: [fileBlob],
+    path: [String],
+    top_dir: String
+},
+type fileBlob {
+    name: String,
+    ext: String
+    is_dir: Boolean
+},
 input djLineupInput {
     name: String,
     is_live: Boolean,
     vj: String
-}
+},
 input appThemeObjectInput {
     primaryColor: String,
     secondaryColor: String,

@@ -106,3 +106,9 @@ export interface ILegacyLineup {
   djs: ILegacyLineupDj[];
   promos: string[];
 }
+
+export interface IFileBlob {
+  name: string;
+  ext: string;
+  is_dir: boolean;
+}

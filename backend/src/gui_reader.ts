@@ -12,6 +12,7 @@ import {
   read_themes_table,
 } from "./database";
 import { InvalidFileError } from "./errors";
+import { getLocalLogoFiles, getLocalRecordingFiles } from "./file_helpers";
 
 export const guiGetFiles = async () => {
   return await read_files_table();
@@ -76,3 +77,11 @@ export const guiGetDj = async (data: { dj_name: string }) => {
 
   return dj;
 };
+
+export const guiGetLogoPermissions = async (data: { sub_dirs: string[]}) => {
+  return getLocalLogoFiles(data.sub_dirs);
+}
+
+export const guiGetRecordingPermissions = async (data: { sub_dirs: string[]}) => {
+  return getLocalRecordingFiles(data.sub_dirs);
+}
