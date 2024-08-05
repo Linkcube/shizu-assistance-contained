@@ -3,6 +3,9 @@ import { buildSchema } from "graphql";
 export const GUI_SCHEMA = buildSchema(`
 type Query {
     guiGetFiles: [fileObject]
+    guiGetLogoFiles: [fileObject]
+    guiGetRecordingFiles: [fileObject]
+    guiGetThemeFiles: [fileObject]
     guiGetThemes: [themeObject]
     guiGetEvents: [eventObject]
     guiGetDjs: [djObject]
@@ -21,19 +24,19 @@ type Mutation {
         name: String!,
         root: String,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewLogoFile(
         name: String!,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewRecordingFile(
         name: String!,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewThemeFile(
         name: String!,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewTheme(
         name: String!,
         overlay_file: String,
@@ -75,7 +78,7 @@ type Mutation {
         root: String,
         file_path: String,
         url_path: String
-    ): [fileObject]
+    ): fileObject
     guiUpdateTheme(
         name: String!,
         overlay_file: String,

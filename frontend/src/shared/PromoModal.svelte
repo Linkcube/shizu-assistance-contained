@@ -17,12 +17,16 @@
         fetchDeletePromo,
         fetchAddPromoToLineup,
         RECORDING_TYPE,
-        error_stack
+        error_stack,
+        fetchFileExists,
+        fetchAddRecordingFile,
+        fetchUpdateFile
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import { get } from 'svelte/store';
     import FileDialog from './FileDialog.svelte';
     import ErrorMessage from './ErrorMessage.svelte';
+    import FileObjectsDialog from './FileObjectsDialog.svelte';
 
     const dispatch = createEventDispatcher();
     const close = () => dispatch('close');
@@ -67,11 +71,7 @@
     }
 
     function updateFile(event) {
-        if (event.detail) {
-            let full_path = event.detail;
-            file_name = toFileName(full_path);
-            file_path = full_path;
-        }
+        file_name = event.detail.file_name;
     }
 
     function removePromo() {
@@ -116,7 +116,11 @@
 </style>
 
 {#if show_file_dialog}
-    <FileDialog file_type={RECORDING_TYPE} on:close={() => show_file_dialog = false} on:submission={updateFile}/>
+    <FileObjectsDialog
+        file_type={RECORDING_TYPE}
+        selected_file_name={file_name}
+        on:close={() => show_file_dialog = false}
+        on:submission={updateFile}/>
 {:else}
     <Modal on:close={close} on:submission={savePromo}>
         <div class="central-column">

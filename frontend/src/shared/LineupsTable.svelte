@@ -204,6 +204,7 @@
     }
 
     function exportLineup() {
+        // TODO: Just export instead of dialogue?
         last_action = EXPORT_FAILED;
         show_export_dialog = true;
         show_export_error = true;

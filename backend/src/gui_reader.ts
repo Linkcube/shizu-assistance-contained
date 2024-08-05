@@ -7,7 +7,10 @@ import {
   read_app_themes_table,
   read_djs_table,
   read_events_table,
+  read_files_logos,
+  read_files_recordings,
   read_files_table,
+  read_files_themes,
   read_promos_table,
   read_themes_table,
 } from "./database";
@@ -16,6 +19,18 @@ import { getLocalLogoFiles, getLocalRecordingFiles } from "./file_helpers";
 
 export const guiGetFiles = async () => {
   return await read_files_table();
+};
+
+export const guiGetLogoFiles = async () => {
+  return await read_files_logos();
+};
+
+export const guiGetRecordingFiles = async () => {
+  return await read_files_recordings();
+};
+
+export const guiGetThemeFiles = async () => {
+  return await read_files_themes();
 };
 
 export const guiGetThemes = async () => {

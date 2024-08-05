@@ -155,7 +155,37 @@ query {
         name,
         root,
         file_path,
-        ending_file
+        url_path
+    }
+}`;
+
+const logoFilesQuery = `
+query {
+    guiGetLogoFiles {
+        name,
+        root,
+        file_path,
+        url_path
+    }
+}`;
+
+const recordingFilesQuery = `
+query {
+    guiGetRecordingFiles {
+        name,
+        root,
+        file_path,
+        url_path
+    }
+}`;
+
+const themeFilesQuery = `
+query {
+    guiGetThemeFiles {
+        name,
+        root,
+        file_path,
+        url_path
     }
 }`;
 
@@ -191,6 +221,75 @@ query {
         public
     }
 }`;
+
+const fileSingleQuery = (name) => `
+query {
+    guiGetFile(file_name: "${name}") {
+        name,
+        root,
+        file_path,
+        url_path
+    }
+}`;
+
+const logoFileCreateMutation = (name, file_path = null, url_path = null) => {
+    let input = `name: "${name}"`;
+    if (file_path) {
+        input += `, file_path: "${file_path}"`
+    }
+    if (url_path) {
+        input += `, url_path: "${url_path}"`
+    }
+
+    return `
+    mutation {
+        guiAddNewLogoFile(${input}) {
+            name,
+            root,
+            file_path,
+            url_path
+        }
+    }`;
+}
+
+const recordingFileCreateMutation = (name, file_path = null, url_path = null) => {
+    let input = `name: "${name}"`;
+    if (file_path) {
+        input += `, file_path: "${file_path}"`
+    }
+    if (url_path) {
+        input += `, url_path: "${url_path}"`
+    }
+
+    return `
+    mutation {
+        guiAddNewRecordingFile(${input}) {
+            name,
+            root,
+            file_path,
+            url_path
+        }
+    }`;
+}
+
+const fileUpdateMutation = (name, root, file_path, url_path) => {
+    let input = `name: "${name}", root: "${root}"`;
+    if (file_path) {
+        input += `, file_path: "${file_path}"`
+    }
+    if (url_path) {
+        input += `, url_path: "${url_path}"`
+    }
+    return `
+    mutation {
+        guiUpdateFile(${input}) {
+            name,
+            root,
+            file_path,
+            url_path
+        }
+    }`;
+}
 
 
 
@@ -580,6 +679,42 @@ export function fetchEvents() {
     })
 }
 
+export function fetchLogoFiles() {
+    return fetch(logoFilesQuery).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetLogoFiles);
+            }
+        })
+    })
+}
+
+export function fetchRecordingFiles() {
+    return fetch(recordingFilesQuery).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetRecordingFiles);
+            }
+        })
+    })
+}
+
+export function fetchThemeFiles() {
+    return fetch(themeFilesQuery).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetThemeFiles);
+            }
+        })
+    })
+}
+
 export function fetchSingleDj(name) {
     return fetch(djSingleQuery(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
@@ -616,6 +751,68 @@ export function fetchSingleEvent(name) {
     })
 }
 
+export function fetchSingleFile(name) {
+    return fetch(fileSingleQuery(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetFile);
+            }
+        })
+    })
+}
+
+export function fetchFileExists(name) {
+    return fetch(fileSingleQuery(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                return Promise.resolve(false);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetFile);
+            }
+        })
+    })
+}
+
+export function fetchAddLogoFile(name, file_path=null, url_path=null) {
+    return fetch(logoFileCreateMutation(name, file_path, url_path)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+                return Promise.resolve(false);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiAddNewLogoFile);
+			}
+		})
+    });
+}
+
+export function fetchAddRecordingFile(name, file_path=null, url_path=null) {
+    return fetch(recordingFileCreateMutation(name, file_path, url_path)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+                return Promise.resolve(false);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiAddNewRecordingFile);
+			}
+		})
+    });
+}
+
+export function fetchUpdateFile(name, root, file_path, url_path) {
+    return fetch(fileUpdateMutation(name, root, file_path, url_path)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+                return Promise.resolve(false);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiUpdateFile);
+			}
+		})
+    });
+}
 
 // Legacy fetch
 

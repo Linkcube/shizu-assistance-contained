@@ -92,3 +92,21 @@ export const internal_delete_file = async (
 
   await pool.query(delete_query);
 };
+
+export const internal_read_all_logo_files = async (
+  pool: PoolClient
+) => {
+  return await pool.query(`SELECT * FROM ${FILES_TABLE.name} WHERE root = 'LOGOS';`);
+}
+
+export const internal_read_all_recording_files = async (
+  pool: PoolClient
+) => {
+  return await pool.query(`SELECT * FROM ${FILES_TABLE.name} WHERE root = 'RECORDINGS';`);
+}
+
+export const internal_read_all_theme_files = async (
+  pool: PoolClient
+) => {
+  return await pool.query(`SELECT * FROM ${FILES_TABLE.name} WHERE root = 'THEMES';`);
+}

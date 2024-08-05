@@ -30,6 +30,9 @@ import {
 import {
   internal_delete_file,
   internal_insert_into_files,
+  internal_read_all_logo_files,
+  internal_read_all_recording_files,
+  internal_read_all_theme_files,
   internal_update_file,
 } from "./database_helpers/file_db_helpers";
 import {
@@ -84,6 +87,27 @@ export const database_pool = new Pool(pool_config);
 export const read_files_table = async () => {
   const pool = await database_pool.connect();
   const retval = await internal_read_entire_table(FILES_TABLE, pool);
+  await pool.release();
+  return retval.rows;
+};
+
+export const read_files_logos = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_all_logo_files(pool);
+  await pool.release();
+  return retval.rows;
+};
+
+export const read_files_recordings = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_all_recording_files(pool);
+  await pool.release();
+  return retval.rows;
+};
+
+export const read_files_themes = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_all_theme_files(pool);
   await pool.release();
   return retval.rows;
 };
@@ -173,7 +197,7 @@ export const create_tables = async () => {
     await internal_create_table_helper(client, table);
   }
 
-  create_new_app_theme("Default");
+  // create_new_app_theme("Default");
 
   await client.end();
 };

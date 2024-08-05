@@ -20,6 +20,7 @@
     const close = () => dispatch('close');
     
     let selected_file = false;
+    let selected_file_ext = "";
     let preview_path = "";
     /**
      * @type {string[]}
@@ -131,22 +132,27 @@
         } else {
             // Update preview and selected item
             selected_file = file_name;
+            selected_file_ext = ext;
             if (file_type == LOGO_TYPE) {
-                preview_path = `${graphqlBase}/logos/${current_path.join("/")}/${selected_file + ext}`;
+                preview_path = `${graphqlBase}/logos/${current_path.join("/")}/${file_name + ext}`;
             } else {
-                preview_path = `${graphqlBase}/recordings/${current_path.join("/")}/${selected_file + ext}`;
+                preview_path = `${graphqlBase}/recordings/${current_path.join("/")}/${file_name + ext}`;
             }
             
         }
     }
 
     function submission() {
-        if (file_type == LOGO_TYPE) {
-            dispatch('submission', selected_file);
-            close();
-        }
-        if (file_type == RECORDING_TYPE) {
-            dispatch('submission', selected_file);
+        if (file_type === LOGO_TYPE || file_type === RECORDING_TYPE) {
+            let return_path = "";
+            if (current_path.length > 0) {
+                return_path = current_path.join("/") + "/"
+            }
+            return_path += `${selected_file + selected_file_ext}`
+            dispatch('submission', {
+                file_name: selected_file,
+                file_path: return_path
+            });
             close();
         }
         if (file_type == EXPORT_TYPE) {
@@ -210,7 +216,7 @@
 		width: 100%;
 		height: 100%;
 		background: rgba(0,0,0,0.3);
-		z-index: 1;
+		z-index: 3;
 	}
 
 	.modal {
@@ -226,7 +232,7 @@
 		border-radius: 0.2em;
 		background: var(--background-color, white);
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.29);
-		z-index: 2;
+		z-index: 4;
 	}
 
     .user-actions {

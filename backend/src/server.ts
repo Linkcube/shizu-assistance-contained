@@ -3,6 +3,9 @@ import morgan from "morgan";
 import { port } from "./config";
 import {
   guiGetFiles,
+  guiGetLogoFiles,
+  guiGetRecordingFiles,
+  guiGetThemeFiles,
   guiGetThemes,
   guiGetEvents,
   guiGetPromos,
@@ -63,6 +66,9 @@ import {
 // API server
 const gui_root = {
   guiGetFiles,
+  guiGetLogoFiles,
+  guiGetRecordingFiles,
+  guiGetThemeFiles,
   guiGetThemes,
   guiGetEvents,
   guiGetPromos,
