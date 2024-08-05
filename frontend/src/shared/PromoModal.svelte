@@ -7,24 +7,18 @@
     } from 'linkcube-svelte-components';
     import Modal from './Modal.svelte';
     import {
-        fetchGetFilePath,
         currentLineup,
         lineups,
         fetchLineup,
-        toFileName,
         fetchAddPromo,
         fetchUpdatePromo,
         fetchDeletePromo,
         fetchAddPromoToLineup,
         RECORDING_TYPE,
-        error_stack,
-        fetchFileExists,
-        fetchAddRecordingFile,
-        fetchUpdateFile
+        error_stack
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import { get } from 'svelte/store';
-    import FileDialog from './FileDialog.svelte';
     import ErrorMessage from './ErrorMessage.svelte';
     import FileObjectsDialog from './FileObjectsDialog.svelte';
 
@@ -40,7 +34,6 @@
     let target_lineup = lineup_names[0];
 
     let file_name = promo_data.promo_file;
-    let selecting_file = false;
     let show_file_dialog = false;
     let current_error = null;
     let show_save_message = false;

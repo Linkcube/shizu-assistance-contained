@@ -8,7 +8,7 @@ export const ledger = writable({});
 export const lineups = writable([]);
 export const currentLineup = writable(null);
 export const currentLineupObjects = writable({});
-export const currentThemeIndex = writable(0);
+export const currentThemeIndex = writable(-1);
 export const currentTheme = writable({});
 export const themes = writable([]);
 export const error_stack = writable(null);
@@ -859,7 +859,6 @@ export function fetchGetAppThemes() {
                 let last_theme = localStorage.getItem("theme_index");
                 if (last_theme !== null) {
                     currentThemeIndex.set(parseInt(last_theme));
-                    console.log(`Setting theme to ${last_theme}`);
                 } else {
                     currentThemeIndex.set(0);
                 }

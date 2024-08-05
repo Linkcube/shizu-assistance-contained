@@ -48,7 +48,6 @@
 
     fetchFileExists(logo_name).then(file => {
         if (file) {
-            console.log(file);
             logo_data = file;
         }
     });
@@ -99,7 +98,6 @@
     }
 
     function updateLogo(event) {
-        console.log(event);
         logo_name = event.file_name;
     }
 

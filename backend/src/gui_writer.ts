@@ -121,11 +121,9 @@ export const guiAddEventDj = async (data: {
   event_name: string;
   dj_data: ILineupDjObject;
 }) => {
-  console.log(`Adding DJ ${data.dj_data.name} to Event ${data.event_name}`);
   const error = await add_event_dj(data.event_name, data.dj_data);
   if (error !== undefined) return error;
 
-  console.log("DJ added");
   return await guiGetEvents();
 };
 

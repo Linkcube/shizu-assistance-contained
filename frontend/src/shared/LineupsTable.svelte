@@ -102,7 +102,6 @@
     currentLineup.subscribe(value => current_lineup = value);
 
 	currentLineupObjects.subscribe(value => {
-        console.log(value);
 		lineup_djs = value.djs;
         if (value.promos) lineup_promos = value.promos.map(promo => ({name: promo}));
         loading = false;

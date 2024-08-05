@@ -197,10 +197,31 @@ export const create_tables = async () => {
     await internal_create_table_helper(client, table);
   }
 
-  // create_new_app_theme("Default");
+  const themes = await client.query(`SELECT * FROM ${APP_THEMES_TABLE.name};`);
+  if (themes.rows.length === 0) await initial_data();
 
   await client.end();
 };
+
+const initial_data = async () => {
+  await create_new_app_theme("Default");
+  await create_new_app_theme("Moe");
+  await update_app_theme("Moe", {
+    primaryColor: "#789922",
+    secondaryColor: "#d3d3d3",
+    backgroundColor: "#d9e6ff",
+    primaryTextColor: "#000000",
+    secondaryTextColor: "#789922",
+    highlightColor: "#cc4a4a",
+    focusColor: "#ffffff",
+    activeColor: "#d9e6ff",
+    deleteColor: "#5c3c82",
+    cancelTextColor: "#5c3c82",
+    cancelBackgroundColor: "#7149a24f",
+    submitTextColor: "#789922",
+    submitBackgroundColor: "#97c42252",
+  });
+}
 
 export const insert_into_files = async (file_data: IFileObject) => {
   const pool = await database_pool.connect();
@@ -737,10 +758,8 @@ export const export_event = async (event_name: string) => {
 
 export const import_legacy_ledger = async (ledger_path: string) => {
   const ledger: ILegacyLedger = JSON.parse(readFileSync(ledger_path, "utf-8"));
-  console.log(ledger);
 
   const new_objects = rebuildLegacyObjects(ledger);
-  console.log(new_objects);
   const errors: string[] = [];
   for (const file of new_objects.files) {
     console.log(`Processing File ${file.name}`);
