@@ -51,6 +51,10 @@
             dispatch('dragover', { event: e});
         }
     }
+
+    function isIcon(value) {
+        return value === true || value === "true" || value === false || value === "false";
+    }
 </script>
 
 <!-- Styling: text-color -->
@@ -87,6 +91,14 @@
         -webkit-user-select: none; /* Safari */
         -ms-user-select: none; /* IE 10 and IE 11 */
         user-select: none; /* Standard syntax */
+        display: flex;
+        justify-content: center;
+    }
+
+    .clickable {
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
     }
 
     .clickable:hover {
@@ -127,6 +139,11 @@
     .cancel-color {
         color: var(--delete-color, red);
     }
+
+    .icon-content {
+        display: flex;
+        justify-content: center;
+    }
 </style>
 
 <div
@@ -149,7 +166,7 @@
     {/if}
     {#each values as value, index}
         <span
-            class="content {callback ? 'clickable' : ''}"
+            class="content {callback ? 'clickable' : ''} { isIcon(value) ? 'icon-content' : ''}"
             style="--width: {sizes[index]}"
             title={value}
             on:click={() => makeCallback(index, value)}
@@ -157,7 +174,7 @@
             {#if value === "true" || value === true}
                 <span class="material-icons large-icon check-color">check_circle</span>
             {:else if value === "false" || value === false}
-            <span class="material-icons large-icon cancel-color">cancel</span>
+                <span class="material-icons large-icon cancel-color">cancel</span>
             {:else}
                 {value}
             {/if}

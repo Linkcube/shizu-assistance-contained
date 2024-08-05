@@ -148,7 +148,9 @@ export const internal_add_event_promo = async (
     event_promos.push(promo_name);
   }
 
-  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${event_promos.map((event_promo: string) => `'${event_promo}`).join(", ")}'] WHERE name = '${event_name}';`;
+  console.log(event_promos);
+  const promos_string = event_promos.map((event_promo: string) => `'${event_promo}'`).join(", ");
+  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${promos_string}] WHERE name = '${event_name}';`;
   console.log(update_query);
   await pool.query(update_query);
 };
@@ -262,7 +264,10 @@ export const internal_remove_event_promo = async (
     .filter((promo) => promo !== promo_name)
     .map((promo: string) => `'${promo}`)
     .join(", ");
-  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}'] WHERE name = '${event_name}';`;
+  let update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = DEFAULT WHERE name = '${event_name}';`;;
+  if (new_promo_array.length > 0) {
+    update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}] WHERE name = '${event_name}';`;
+  }
   console.log(update_query);
   await pool.query(update_query);
 };
@@ -332,8 +337,8 @@ export const internal_move_event_promo = async (
 
   if (index_a === index_b) return "Done";
 
-  const moving_value = event.djs[index_a];
-  const target_value = event.djs[index_b];
+  const moving_value = event.promos[index_a];
+  const target_value = event.promos[index_b];
   event.promos.splice(index_a, 1);
   if (index_a > index_b) {
     event.promos.splice(event.promos.indexOf(target_value), 0, moving_value);
@@ -346,9 +351,9 @@ export const internal_move_event_promo = async (
   }
 
   const new_promo_array = event.promos
-    .map((promo: string) => `'${promo}`)
+    .map((promo: string) => `'${promo}'`)
     .join(", ");
-  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}'] WHERE name = '${event_name}';`;
+  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}] WHERE name = '${event_name}';`;
   console.log(update_query);
 
   await pool.query(update_query);

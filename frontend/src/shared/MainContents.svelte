@@ -12,9 +12,9 @@
 	import LineupsTable from "../shared/LineupsTable.svelte"
 
 	fetchGetAppThemes();
-    fetchSettings();
-    fetchLedger();
-    fetchLineups();
+    // fetchSettings();
+    // fetchLedger();
+    // fetchLineups();
 
 	fetchDjs();
 	fetchPromos();

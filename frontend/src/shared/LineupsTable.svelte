@@ -10,13 +10,13 @@
         fetchSwapLineupPromos,
         fetchExportLineup,
         fetchDeleteLineup,
-        fetchLineups,
         EXPORT_TYPE,
         error_stack,
         all_events,
         fetchSingleEvent,
         fetchSingleDj,
-        fetchSinglePromo
+        fetchSinglePromo,
+        fetchEvents
     } from '$lib/store';
     import {
         MaterialTable,
@@ -102,7 +102,7 @@
     currentLineup.subscribe(value => current_lineup = value);
 
 	currentLineupObjects.subscribe(value => {
-		lineup_djs = value.djs;
+		lineup_djs = value.djs ? value.djs : [];
         if (value.promos) lineup_promos = value.promos.map(promo => ({name: promo}));
         loading = false;
 	});
@@ -218,7 +218,7 @@
     }
 
     function deleteLineup() {
-        fetchDeleteLineup(current_lineup).then(() => fetchLineups()).then(() => backToLineups());
+        fetchDeleteLineup(current_lineup).then(() => fetchEvents()).then(() => backToLineups());
     }
 
     function compareBy(field, direction) {
@@ -368,7 +368,7 @@
         <div class="flex-row">
             <MaterialTable items={display_lineups} columnSizes={["10%", "90%"]} height="500px">
                 <div slot="header">
-                    <NewMatTableRow values={["#", "name"]} type="header callback" on:callback={sortLineups}/>
+                    <NewMatTableRow values={["#", "Name"]} type="header callback" on:callback={sortLineups}/>
                 </div>
                 <div slot="item" let:item let:index>
                     <MaterialTableRow
@@ -395,7 +395,7 @@
             {#if show_lineup_djs}
                 <NewMatTable items={lineup_djs} columnSizes={["10%", "70%", "20%"]} height="500px">
                     <div slot="header">
-                        <MaterialTableRow values={["#", "name", "Is Live"]} type="header"/>
+                        <NewMatTableRow values={["#", "Name", "Is Live"]} type="header"/>
                     </div>
                     <div slot="item" let:item let:index>
                         <NewMatTableRow
@@ -411,7 +411,7 @@
             {:else}
                 <NewMatTable items={lineup_promos} columnSizes={["10%", "90%"]} height="500px">
                     <div slot="header">
-                        <MaterialTableRow values={["#", "name"]} type="header"/>
+                        <NewMatTableRow values={["#", "name"]} type="header"/>
                     </div>
                     <div slot="item" let:item let:index>
                         <NewMatTableRow

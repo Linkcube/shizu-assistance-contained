@@ -41,7 +41,7 @@
     if (dj_data.rtmp_server) {
         rtmp_server = rtmp_conversion[dj_data.rtmp_server];
     }
-    stream_key = dj_data.stream_key;
+    stream_key = dj_data.rtmp_key;
 
     export const removeDj = () => {
         fetchRemoveLineupDj(current_lineup, name).then(_ => fetchLineup(current_lineup));

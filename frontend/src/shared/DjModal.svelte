@@ -19,7 +19,6 @@
         error_stack,
         all_events,
         fetchFileExists
-
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import { get } from 'svelte/store';
@@ -28,6 +27,7 @@
 
     export let index = -1;
     export let name = "";
+    export let dj_data;
 
     const current_lineup = get(currentLineup);
     const lineup_names = get(all_events).map(event => event.name);
@@ -37,12 +37,12 @@
     let current_error = null;
     let show_save_message = false;
 
-    export let dj_data;
-
     let logo_name = dj_data.logo;
     let recording_name = dj_data.recording;
     let rtmp_server = dj_data.rtmp_server;
     let stream_key = dj_data.rtmp_key;
+    let public_name = dj_data.public_name;
+    let discord_id = dj_data.discord_id;
     let logo_data = {};
     let recording_data = {};
 
@@ -73,17 +73,20 @@
                 logo_name,
                 recording_name,
                 rtmp_server,
-                stream_key
-            )
+                stream_key,
+                public_name,
+                discord_id
+            );
         } else {
             fetchUpdateDj(
-                index,
                 name,
                 logo_name,
                 recording_name,
                 rtmp_server,
-                stream_key
-            )
+                stream_key,
+                public_name,
+                discord_id
+            );
         }
         setTimeout(() => {
             show_save_message = false;
@@ -98,7 +101,7 @@
     }
 
     function updateLogo(event) {
-        logo_name = event.file_name;
+        logo_name = event.detail.file_name;
     }
 
     function selectRecording() {
@@ -106,11 +109,11 @@
     }
 
     function updateRecording(event) {
-        recording_name = event.file_name;
+        recording_name = event.detail.file_name;
     }
 
     function removeDj() {
-        fetchDeleteDj(index).then(() => {
+        fetchDeleteDj(name).then(() => {
             if (current_lineup) fetchLineup(current_lineup)
         });
         close();
@@ -167,18 +170,24 @@
     <Modal on:close={close} on:submission={saveDj}>
         <div class="central-column">
             <div class="row">
-                <MaterialInput label="DJ Name" bind:value={name}/>
                 {#if index >= 0}
+                    <span>{name}</span>
                     <div class="delete">
                         <IconButton icon="delete_forever" title="Delete DJ" on:click={removeDj} />
                     </div>
+                {:else}
+                    <MaterialInput label="DJ Name" bind:value={name}/>
                 {/if}
+            </div>
+            <div class="row">
+                <MaterialInput label="Public Name" bind:value={public_name}/>
+                <MaterialInput label="Discord ID" bind:value={discord_id}/>
             </div>
             <div class="row">
                 <div class="icon-container">
                     <IconButton icon="photo" title="Select Logo" on:click={selectLogo} />
                 </div>
-                <p>Logo: {dj_data ? logo_name : "Not Set"}</p>
+                <p>Logo: {logo_name ? logo_name : "Not Set"}</p>
             </div>
             <div class="row">
                 <MaterialSelect label="RTMP Server" bind:value={rtmp_server}>

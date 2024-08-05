@@ -15,7 +15,10 @@
         fetchAddLogoFile,
         fetchAddRecordingFile,
         fetchUpdateFile,
-        error_stack
+        error_stack,
+
+        fetchDeleteFile
+
     } from '$lib/store';
 	
     export let file_type = LOGO_TYPE;
@@ -81,6 +84,7 @@
 
     function selectFileItem(file) {
         selected_file = file;
+        selected_file_name = file.name;
         if (!file.file_path) {
             preview_path = "";
             return;
@@ -142,9 +146,24 @@
         adding_file = false;
     }
 
+    async function deleteFile() {
+        await fetchDeleteFile(selected_file_name);
+        selected_file = null;
+        selected_file_name = "";
+        await fetchFiles();
+    }
+
     function submission() {
+        if (!selected_file) return;
         dispatch('submission', {
             file_name: selected_file.name
+        });
+        close();
+    }
+
+    function unset() {
+        dispatch('submission', {
+            file_name: ""
         });
         close();
     }
@@ -375,6 +394,11 @@
     .cancel-color {
         color: var(--delete-color, red);
     }
+
+    .delete {
+        margin-left: auto;
+        --secondary-text-color: var(--delete-color, red);
+    }
 </style>
 
 
@@ -405,7 +429,7 @@
                 <p>Add a New File</p>
             </div>
             <div class="row">
-                <MaterialInput label="URL" bind:value={new_file_name}/>
+                <MaterialInput label="Name" bind:value={new_file_name}/>
             </div>
         </div>
     </Modal>
@@ -474,14 +498,22 @@
                     <span class="preview-text">URL Path</span>
                 </div>
                 <div class="row icon-container">
-                    <IconButton
-                        icon="note_add"
-                        title="Select Logo"
-                        on:click={selectLocalFile} />
-                    <IconButton
-                        icon="add_link"
-                        title="Select URL"
-                        on:click={selectUrl} />
+                    <div class="row">
+                        <IconButton
+                            icon="note_add"
+                            title="Select Logo"
+                            on:click={selectLocalFile} />
+                        <IconButton
+                            icon="add_link"
+                            title="Select URL"
+                            on:click={selectUrl} />
+                    </div>
+                    <div class="delete">
+                        <IconButton
+                            icon="delete_forever"
+                            title="Delete File"
+                            on:click={deleteFile} />
+                    </div>
                 </div>
                 {#if file_type == LOGO_TYPE}
                     <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
@@ -514,6 +546,9 @@
         <div class="user-actions">
             <div class="cancel">
                 <MaterialButton on:click={close} value="Cancel"/>
+            </div>
+            <div class="cancel">
+                <MaterialButton on:click={unset} value="Unset File"/>
             </div>
             <div class={selected_file ? "submit" : "disabled"}>
                 <MaterialButton on:click={submission} value="Select File"/>

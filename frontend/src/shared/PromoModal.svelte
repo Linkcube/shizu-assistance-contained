@@ -8,7 +8,7 @@
     import Modal from './Modal.svelte';
     import {
         currentLineup,
-        lineups,
+        all_events,
         fetchLineup,
         fetchAddPromo,
         fetchUpdatePromo,
@@ -30,25 +30,23 @@
     export let promo_data;
 
     const current_lineup = get(currentLineup);
-    const lineup_names = get(lineups);
+    const lineup_names = get(all_events).map(event => event.name);
     let target_lineup = lineup_names[0];
 
     let file_name = promo_data.promo_file;
     let show_file_dialog = false;
     let current_error = null;
     let show_save_message = false;
-    let file_path = "";
 
     error_stack.subscribe(error => current_error = error);
 
     function savePromo() {
         if (index < 0) {
-            fetchAddPromo(name, file_path);
+            fetchAddPromo(name, file_name);
         } else {
             fetchUpdatePromo(
-                index,
                 name,
-                file_path
+                file_name
             );
         }
         setTimeout(() => {
@@ -68,7 +66,7 @@
     }
 
     function removePromo() {
-        fetchDeletePromo(index).then(() => {
+        fetchDeletePromo(name).then(() => {
             if (current_lineup) fetchLineup(current_lineup)
         });
         close();

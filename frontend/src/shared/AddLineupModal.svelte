@@ -4,7 +4,9 @@
     } from 'linkcube-svelte-components';
     import Modal from './Modal.svelte';
     import { 
-        fetchCreateLineup, fetchLineups, error_stack
+        fetchCreateLineup,
+        error_stack,
+        fetchEvents
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import ErrorMessage from './ErrorMessage.svelte';
@@ -23,7 +25,7 @@
     function createLineup() {
         show_save_message = true;
         current_error = null;
-        fetchCreateLineup(name).then(_ => fetchLineups());
+        fetchCreateLineup(name).then(_ => fetchEvents());
         setTimeout(() => {
             show_save_message = false;
             if (current_error == null) {
@@ -41,7 +43,7 @@
 </style>
 
 <Modal on:close={close} on:submission={createLineup}>
-    <MaterialInput label="Lineup Name" bind:value={name} />
+    <MaterialInput label="Event Name" bind:value={name} />
     {#if current_error}
         <ErrorMessage error={current_error} />
     {/if}

@@ -28,13 +28,14 @@
 
     let dj_modal_index = -1;
 	let dj_modal_name = "";
-    let dj_promise = Promise.resolve();
+    let dj_promise = Promise.resolve({});
 
     let promo_modal_index = -1;
     let promo_modal_name = "";
-    let promo_promise = Promise.resolve();
+    let promo_promise = Promise.resolve({});
 
     all_djs.subscribe(value => {
+        console.log(value);
 		if (value.length > 0) {
 			ledger_djs = value.map((dj, index) => {
                 dj['index'] = index;
@@ -87,10 +88,12 @@
 	const resetDjModal = () => {
 		dj_modal_index = -1;
 		dj_modal_name = "";
+        dj_promise = Promise.resolve({});
 		show_dj_modal = false; 
 	}
 
     const editPromo = (index, name) => {
+        console.log(index, name);
         promo_modal_index = (index !== null) ? index : -1;
         promo_modal_name = (name !== null) ? name : "";
         promo_promise = fetchSinglePromo(name);
@@ -99,6 +102,7 @@
     const resetPromoModal = () => {
 		promo_modal_index = -1;
 		promo_modal_name = "";
+        promo_promise = Promise.resolve({});
         show_promo_modal = false;
 	}
 
@@ -210,7 +214,7 @@
             </div>
             <div slot="item" let:item let:index>
                 <NewMatTableRow
-                    values={[`${item.index + 1}`, item.name, Boolean(item.logo), item.rtmp_server, Boolean(item.recording)]}
+                    values={[`${item.index + 1}`, item.name, Boolean(item.logo), item.rtmp_server ? item.rtmp_server: false, Boolean(item.recording)]}
                     type="click row"
                     on:click={() => editDj(item.index, item.name)} />
             </div>

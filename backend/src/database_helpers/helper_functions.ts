@@ -141,8 +141,9 @@ export const internal_update_table_entry = async (
 ) => {
   const update_pairs: string[][] = [];
   table.definitions.forEach((definition) => {
-    if (!obj_data[definition.name]) return;
-    if (
+    if (!obj_data[definition.name]) {
+      update_pairs.push([definition.name, "DEFAULT"]);
+    } else if (
       definition.type === "TEXT" ||
       definition.type === "TIMESTAMP WITH TIME ZONE"
     ) {

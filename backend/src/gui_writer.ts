@@ -288,8 +288,8 @@ export const guiDeleteDj = async (data: { dj_name: string }) => {
   return await guiGetDjs();
 };
 
-export const guiDeletePromo = async (data: { file_name: string }) => {
-  const error = await delete_promo(data.file_name);
+export const guiDeletePromo = async (data: { promo_name: string }) => {
+  const error = await delete_promo(data.promo_name);
   if (error !== undefined) return error;
 
   return await guiGetPromos();

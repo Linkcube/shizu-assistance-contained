@@ -73,7 +73,8 @@ export const internal_delete_promo = async (
   )) as IEventObject | Error;
   if (promo instanceof Error) return promo;
 
-  const events_with_promo_query = `SELECT * FROM ${EVENTS_TABLE.name} WHERE ${promo_name} = ANY (promos);`;
+  const events_with_promo_query = `SELECT * FROM ${EVENTS_TABLE.name} WHERE '${promo_name}' = ANY (promos);`;
+  console.log(events_with_promo_query);
   const events_with_promo = await pool.query(events_with_promo_query);
 
   if (events_with_promo.rows && events_with_promo.rows.length > 0) {
