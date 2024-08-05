@@ -49,6 +49,7 @@ import {
   internal_move_event_promo,
   internal_remove_event_dj,
   internal_remove_event_promo,
+  internal_set_event_theme,
   internal_update_event,
   internal_update_event_dj,
 } from "./database_helpers/event_db_helpers";
@@ -62,7 +63,7 @@ import {
   internal_insert_into_djs,
   internal_update_dj,
 } from "./database_helpers/dj_db_helpers";
-import { InvalidFileError } from "./errors";
+import { InvalidFileError, InvalidLineupError } from "./errors";
 import {
   fetchFile,
   getResolution,
@@ -410,6 +411,16 @@ export const move_event_promo = async (
   await pool.release();
   return error;
 };
+
+export const set_event_theme = async (
+  event_name: string,
+  theme_name: string
+) => {
+  const pool = await database_pool.connect();
+  const error = await internal_set_event_theme(event_name, theme_name, pool);
+  pool.release();
+  return error;
+}
 
 export const delete_event = async (event_name: string) => {
   const pool = await database_pool.connect();

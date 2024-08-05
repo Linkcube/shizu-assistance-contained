@@ -118,6 +118,9 @@ export const internal_insert_into_table = async (
         name: definition.name,
         json: obj_data[definition.name],
       });
+    } else if (definition.type === "SMALLINT") {
+      columns_string += `, ${definition.name}`;
+      values_string += `, ${obj_data[definition.name]}`;
     }
   });
 
@@ -160,6 +163,8 @@ export const internal_update_table_entry = async (
         definition.name,
         `'${JSON.stringify(obj_data[definition.name])}'`,
       ]);
+    } else if (definition.type === "SMALLINT") {
+      update_pairs.push([definition.name, obj_data[definition.name]]);
     }
   });
 

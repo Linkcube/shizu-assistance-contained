@@ -17,7 +17,8 @@ import {
   guiGetDj,
   guiGetAppThemes,
   guiGetLogoPermissions,
-  guiGetRecordingPermissions
+  guiGetRecordingPermissions,
+  guiGetThemePermissions
 } from "./gui_reader";
 import {
   guiAddNewFile,
@@ -40,6 +41,7 @@ import {
   guiRemoveEventPromo,
   guiMoveEventDj,
   guiMoveEventPromo,
+  guiSetEventTheme,
   guiDeleteFile,
   guiDeleteTheme,
   guiDeleteDj,
@@ -98,6 +100,7 @@ const gui_root = {
   guiRemoveEventPromo,
   guiMoveEventDj,
   guiMoveEventPromo,
+  guiSetEventTheme,
   guiDeleteFile,
   guiDeleteTheme,
   guiDeleteDj,
@@ -111,7 +114,8 @@ const gui_root = {
   guiEditAppTheme,
   guiDeleteAppTheme,
   guiGetLogoPermissions,
-  guiGetRecordingPermissions
+  guiGetRecordingPermissions,
+  guiGetThemePermissions
 };
 const app = express();
 const logo_permissions = staticLogoPermission();

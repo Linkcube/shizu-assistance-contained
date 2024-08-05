@@ -16,8 +16,10 @@
         fetchAddRecordingFile,
         fetchUpdateFile,
         error_stack,
+        fetchAddThemeFile,
+        fetchDeleteFile,
 
-        fetchDeleteFile
+        THEME_TYPE
 
     } from '$lib/store';
 	
@@ -47,6 +49,10 @@
 
     let sort_direction = false;
     let search_value = "";
+    let file_type_title = "Logo";
+
+    if (file_type === RECORDING_TYPE) file_type_title = "Recording";
+    if (file_type === THEME_TYPE) file_type_title = "Theme File";
 
 	const handle_keydown = e => {
 		if (e.key === 'Escape') {
@@ -91,8 +97,10 @@
         }
         if (file_type == LOGO_TYPE) {
             preview_path = `${graphqlBase}/logos/${file.file_path}`;
-        } else {
+        } else if (file_type === RECORDING_TYPE) {
             preview_path = `${graphqlBase}/recordings/${file.file_path}`;
+        } else {
+            preview_path = `${graphqlBase}/themes/${file.file_path}`;
         }
     }
 
@@ -138,8 +146,7 @@
         } else if (file_type === RECORDING_TYPE) {
             await fetchAddRecordingFile(new_file_name, null, null);
         } else {
-            // Replace with add theme file
-            await fetchAddLogoFile(new_file_name, null, null);
+            await fetchAddThemeFile(new_file_name, null, null);
         }
         selected_file_name = new_file_name;
         await fetchFiles();
@@ -439,7 +446,7 @@
 
 <div class="modal" role="dialog" aria-modal="true" bind:this={modal}>
 	<div class="nav-header row">
-        <p>Select { file_type === LOGO_TYPE ? "Logo" : "Recording"}</p>
+        <p>Select {file_type_title}</p>
         <div class="display-button icon-container">
             <IconButton icon="add" title="Add File" on:click={openAddFile} />
         </div>
@@ -515,9 +522,10 @@
                             on:click={deleteFile} />
                     </div>
                 </div>
-                {#if file_type == LOGO_TYPE}
+                {#if file_type !== RECORDING_TYPE}
                     <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
-                {:else}
+                {/if}
+                {#if file_type !== LOGO_TYPE}
                     <video controls src={preview_path} height=200px/>
                 {/if}
                 <div class="row">

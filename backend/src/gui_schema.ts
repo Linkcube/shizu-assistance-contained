@@ -18,6 +18,7 @@ type Query {
     guiGetAppThemes: [appThemeObject]
     guiGetLogoPermissions(sub_dirs: [String]): fileDialogBlob
     guiGetRecordingPermissions(sub_dirs: [String]): fileDialogBlob
+    guiGetThemePermissions(sub_dirs: [String]): fileDialogBlob
 }
 type Mutation {
     guiAddNewFile(
@@ -42,7 +43,11 @@ type Mutation {
         overlay_file: String,
         stinger_file: String,
         starting_file: String,
-        ending_file: String
+        ending_file: String,
+        target_video_width: Int,
+        target_video_height: Int,
+        video_offset_x: Int,
+        video_offset_y: Int
     ): [themeObject]
     guiAddDj(
         name: String!,
@@ -84,7 +89,11 @@ type Mutation {
         overlay_file: String,
         stinger_file: String,
         starting_file: String,
-        ending_file: String
+        ending_file: String,
+        target_video_width: Int,
+        target_video_height: Int,
+        video_offset_x: Int,
+        video_offset_y: Int
     ): [themeObject]
     guiUpdateDj(
         name: String!,
@@ -131,6 +140,10 @@ type Mutation {
         index_a: Int!,
         index_b: Int!
     ): [eventObject]
+    guiSetEventTheme(
+        event_name: String!,
+        theme_name: String!
+    ): eventObject
     guiDeleteFile(file_name: String!): [fileObject]
     guiDeleteTheme(theme_name: String!): [themeObject]
     guiDeleteEvent(event_name: String!): [eventObject]
@@ -173,7 +186,11 @@ type themeObject {
     overlay_file: String,
     stinger_file: String,
     starting_file: String,
-    ending_file: String
+    ending_file: String,
+    target_video_width: Int,
+    target_video_height: Int,
+    video_offset_x: Int,
+    video_offset_y: Int
 },
 type fileObject {
     name: String,

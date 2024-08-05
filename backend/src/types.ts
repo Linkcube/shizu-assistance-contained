@@ -19,6 +19,10 @@ export interface IThemeObject {
   stinger_file?: string;
   starting_file?: string;
   ending_file?: string;
+  target_video_width?: number;
+  target_video_height?: number;
+  video_offset_x?: number;
+  video_offset_y?: number;
 }
 
 export interface IEventObject {

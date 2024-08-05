@@ -9,9 +9,11 @@
         fetchRecordingPermissions,
         graphqlBase,
         fetchExportPermissions,
-        fetchReconstructLogoPath,
-        fetchReconstructRecordingPath,
-        fetchReconstructExportPath
+        fetchReconstructExportPath,
+        THEME_TYPE,
+
+        fetchThemePermissions
+
     } from '$lib/store';
 	
     export let file_type = LOGO_TYPE;
@@ -92,6 +94,17 @@
                 }
             })
         }
+        if (file_type == THEME_TYPE) {
+            fetchThemePermissions(current_path).then(res => {
+                if (res.hasOwnProperty("data")) {
+                    let file_blob = res.data.guiGetThemePermissions;
+                    current_files = file_blob.files;
+                    display_files = current_files;
+                    current_path = file_blob.path;
+                    top_level_dir = file_blob.top_dir;
+                }
+            })
+        }
         if (file_type == EXPORT_TYPE) {
             fetchExportPermissions(current_path).then(res => {
                 if (res.hasOwnProperty("data")) {
@@ -133,17 +146,19 @@
             // Update preview and selected item
             selected_file = file_name;
             selected_file_ext = ext;
-            if (file_type == LOGO_TYPE) {
+            if (file_type === LOGO_TYPE) {
                 preview_path = `${graphqlBase}/logos/${current_path.join("/")}/${file_name + ext}`;
-            } else {
+            } else if (file_type === RECORDING_TYPE) {
                 preview_path = `${graphqlBase}/recordings/${current_path.join("/")}/${file_name + ext}`;
+            } else {
+                preview_path = `${graphqlBase}/themes/${current_path.join("/")}/${file_name + ext}`;
             }
             
         }
     }
 
     function submission() {
-        if (file_type === LOGO_TYPE || file_type === RECORDING_TYPE) {
+        if (file_type === LOGO_TYPE || file_type === RECORDING_TYPE || file_type === THEME_TYPE) {
             let return_path = "";
             if (current_path.length > 0) {
                 return_path = current_path.join("/") + "/"
@@ -437,9 +452,10 @@
                 <span class="row">File Preview</span>
                 {#if selected_file}
                     <span class="preview-text">{selected_file}</span>
-                    {#if file_type == LOGO_TYPE}
+                    {#if file_type !== RECORDING_TYPE}
                         <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
-                    {:else}
+                    {/if}
+                    {#if file_type !== LOGO_TYPE}
                         <video controls src={preview_path} height=200px/>
                     {/if}
                 {/if}

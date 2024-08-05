@@ -114,11 +114,19 @@ export const getLocalThemeFiles = (sub_dirs: string[]) => {
   const new_path = join(THEMES_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files: Dirent[]; path: string[]; top_dir: string } = {
-    files: new_items,
+  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
+    files: [],
     path: sub_dirs,
     top_dir: "Themes",
   };
+  retval.files = new_items.map((file) => {
+    const parsed = parse(file.name);
+    return {
+      name: parsed.name,
+      ext: parsed.ext,
+      is_dir: file.isDirectory()
+    }
+  });
 
   return retval;
 };

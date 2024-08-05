@@ -375,3 +375,21 @@ export const internal_delete_event = async (
 
   await pool.query(query);
 };
+
+export const internal_set_event_theme = async (
+  event_name: string,
+  theme_name: string,
+  pool: PoolClient
+) => {
+  const event = (await internal_get_row_from_table(
+    EVENTS_TABLE,
+    event_name,
+    pool,
+  )) as IEventObject | Error;
+  if (event instanceof Error) return event;
+
+  const query = `UPDATE ${EVENTS_TABLE.name} SET theme = '${theme_name}' WHERE name = '${event_name}';`;
+  console.log(query);
+
+  await pool.query(query);
+}

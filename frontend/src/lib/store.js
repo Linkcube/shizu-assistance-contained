@@ -34,6 +34,7 @@ export const RTMP_BASE = (server) => `rtmp://rtmp-${server}anisonhijack.com/live
 export const LOGO_TYPE = 1
 export const RECORDING_TYPE = 2
 export const EXPORT_TYPE = 3
+export const THEME_TYPE = 4
 
 export function toFileName(file_path) {
     if (file_path !== "") {
@@ -128,7 +129,11 @@ query {
         overlay_file,
         stinger_file,
         starting_file,
-        ending_file
+        ending_file,
+        target_video_height,
+        target_video_width,
+        video_offset_x,
+        video_offset_y
     }
 }`;
 
@@ -273,6 +278,26 @@ const recordingFileCreateMutation = (name, file_path = null, url_path = null) =>
     }`;
 }
 
+const themeFileCreateMutation = (name, file_path = null, url_path = null) => {
+    let input = `name: "${name}"`;
+    if (file_path) {
+        input += `, file_path: "${file_path}"`
+    }
+    if (url_path) {
+        input += `, url_path: "${url_path}"`
+    }
+
+    return `
+    mutation {
+        guiAddNewThemeFile(${input}) {
+            name,
+            root,
+            file_path,
+            url_path
+        }
+    }`;
+}
+
 const fileUpdateMutation = (name, root, file_path, url_path) => {
     let input = `name: "${name}", root: "${root}"`;
     if (file_path) {
@@ -302,6 +327,48 @@ mutation {
     }
 }`;
 
+const themeCreateMutation = (name) => `
+mutation {
+    guiAddNewTheme(name: "${name}") { name }
+}`
+
+const themeUpdateMutation = (
+    name,
+    overlay_file,
+    stinger_file,
+    starting_file,
+    ending_file,
+    target_video_height,
+    target_video_width,
+    video_offset_x,
+    video_offset_y
+) => {
+    let input = `name: "${name}"`;
+    if (overlay_file) input += `, overlay_file: "${overlay_file}"`;
+    if (stinger_file) input += `, stinger_file: "${stinger_file}"`;
+    if (starting_file) input += `, starting_file: "${starting_file}"`;
+    if (ending_file) input += `, ending_file: "${ending_file}"`;
+    if (target_video_height) input += `, target_video_height: ${target_video_height}`;
+    if (target_video_width) input += `, target_video_width: ${target_video_width}`;
+    if (video_offset_x) input += `, video_offset_x: ${video_offset_x}`;
+    if (video_offset_y) input += `, video_offset_y: ${video_offset_y}`;
+    console.log(input);
+
+    return `
+    mutation {
+        guiUpdateTheme(${input}) { name }
+    }`
+}
+
+const themeDeleteMutation = (name) => `
+mutation {
+    guiDeleteTheme(theme_name: "${name}") { name }
+}`;
+
+const eventSetThemeMutation = (event_name, theme_name) => `
+mutation {
+    guiSetEventTheme(event_name: "${event_name}", theme_name: "${theme_name}") { name }
+}`;
 
 
 // Legacy
@@ -670,6 +737,7 @@ const getPermissionsQueryHelper = (query_head, sub_dirs) => {
 const getLogoPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetLogoPermissions", sub_dirs);
 const getRecordingPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetRecordingPermissions", sub_dirs);
 const getExportPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("getExportPermissions", sub_dirs);
+const getThemePermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetThemePermissions", sub_dirs);
 
 const reconstructPathHelper = (query_head, dirs) => {
     let dirs_string = dirs.map(dir => `"${dir}"`).join(',');
@@ -764,6 +832,18 @@ export function fetchThemeFiles() {
     })
 }
 
+export function fetchThemes() {
+    return fetch(themesQuery).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetThemes);
+            }
+        })
+    })
+}
+
 export function fetchSingleDj(name) {
     return fetch(djSingleQuery(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
@@ -850,6 +930,19 @@ export function fetchAddRecordingFile(name, file_path=null, url_path=null) {
     });
 }
 
+export function fetchAddThemeFile(name, file_path=null, url_path=null) {
+    return fetch(themeFileCreateMutation(name, file_path, url_path)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+                return Promise.resolve(false);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiAddNewThemeFile);
+			}
+		})
+    });
+}
+
 export function fetchUpdateFile(name, root, file_path, url_path) {
     return fetch(fileUpdateMutation(name, root, file_path, url_path)).then(promise => {
         return Promise.resolve(promise).then(response => {
@@ -868,6 +961,73 @@ export function fetchDeleteFile(name) {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            }
+		})
+    });
+}
+
+export function fetchAddTheme(name) {
+    return fetch(themeCreateMutation(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+                return Promise.resolve(false);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiAddNewTheme);
+			}
+		})
+    });
+}
+
+export function fetchUpdateTheme(
+    name,
+    overlay_file,
+    stinger_file,
+    starting_file,
+    ending_file,
+    target_video_height,
+    target_video_width,
+    video_offset_x,
+    video_offset_y) {
+    return fetch(themeUpdateMutation(
+        name,
+        overlay_file,
+        stinger_file,
+        starting_file,
+        ending_file,
+        target_video_height,
+        target_video_width,
+        video_offset_x,
+        video_offset_y)
+    ).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+                return Promise.resolve(false);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiUpdateTheme);
+			}
+		})
+    });
+}
+
+export function fetchDeleteTheme(name) {
+    return fetch(themeDeleteMutation(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            }
+		})
+    });
+}
+
+export function fetchEventSetTheme(event_name, theme_name) {
+    return fetch(eventSetThemeMutation(event_name, theme_name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiSetEventTheme)
             }
 		})
     });
@@ -1171,6 +1331,9 @@ export function fetchLogoPermissions(sub_dirs) {
 }
 export function fetchRecordingPermissions(sub_dirs) {
     return fetch(getRecordingPermissionsQuery(sub_dirs));
+}
+export function fetchThemePermissions(sub_dirs) {
+    return fetch(getThemePermissionsQuery(sub_dirs));
 }
 export function fetchExportPermissions(sub_dirs) {
     return fetch(getExportPermissionsQuery(sub_dirs));

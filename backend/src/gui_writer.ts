@@ -23,6 +23,7 @@ import {
   move_event_promo,
   remove_event_dj,
   remove_event_promo,
+  set_event_theme,
   update_app_theme,
   update_dj,
   update_event,
@@ -34,6 +35,7 @@ import {
 import {
   guiGetAppThemes,
   guiGetDjs,
+  guiGetEvent,
   guiGetEvents,
   guiGetFile,
   guiGetFiles,
@@ -266,6 +268,16 @@ export const guiMoveEventPromo = async (data: {
 
   return await guiGetEvents();
 };
+
+export const guiSetEventTheme = async (data: {
+  event_name: string;
+  theme_name: string;
+}) => {
+  const error = await set_event_theme(data.event_name, data.theme_name);
+  if (error !== undefined) return error;
+
+  return await guiGetEvent(data);
+}
 
 export const guiDeleteFile = async (data: { file_name: string }) => {
   const error = await delete_file(data.file_name);

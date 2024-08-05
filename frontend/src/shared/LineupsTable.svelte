@@ -16,7 +16,8 @@
         fetchSingleEvent,
         fetchSingleDj,
         fetchSinglePromo,
-        fetchEvents
+        fetchEvents,
+        fetchEventSetTheme
     } from '$lib/store';
     import {
         MaterialTable,
@@ -31,6 +32,7 @@
     import NewMatTable from './NewMatTable.svelte';
     import FileDialog from './FileDialog.svelte';
     import ErrorPopup from './ErrorPopup.svelte';
+    import ThemesModal from './ThemesModal.svelte';
 
     const EDIT_DJ_FAILED = "Edit DJ Failed";
     const EDIT_PROMO_FAILED = "Edit Promo Failed";
@@ -48,6 +50,7 @@
 	let lineup_promos = [];
     let current_lineup = null;
     let search_value = null;
+    let event_theme = "";
 
     let edit_dj_index = 0;
     let edit_dj_name = "";
@@ -69,6 +72,7 @@
     let show_export_error = false;
     let current_error = null;
     let last_action = "";
+    let show_themes_dialog = false;
 
     error_stack.subscribe(error => current_error = error);
     const close_error = () => {
@@ -102,6 +106,8 @@
     currentLineup.subscribe(value => current_lineup = value);
 
 	currentLineupObjects.subscribe(value => {
+        console.log(value);
+        event_theme = value.theme;
 		lineup_djs = value.djs ? value.djs : [];
         if (value.promos) lineup_promos = value.promos.map(promo => ({name: promo}));
         loading = false;
@@ -275,6 +281,10 @@
         }, 500);
     }
 
+    async function changeTheme(event) {
+        fetchEventSetTheme(current_lineup, event.detail.theme_name).then(_ => fetchSingleEvent(current_lineup));
+    }
+
     
 </script>
 
@@ -352,6 +362,9 @@
 {#if show_export_dialog}
     <FileDialog file_type={EXPORT_TYPE} on:close={() => show_export_dialog = false} on:submission={exportSelected}/>
 {/if}
+{#if show_themes_dialog}
+    <ThemesModal selected_theme_name={event_theme} on:close={() => show_themes_dialog = false} on:submission={changeTheme}/>
+{/if}
 
 <div class="flex-column">
     <div class="flex-row">
@@ -381,9 +394,10 @@
         </div>
     {:else}
         <div class="flex-row space-between">
-            <p>{current_lineup}</p>
+            <p>{current_lineup} {event_theme ? `, Theme: ${event_theme}` : ''}</p>
             <div class="display-button icon-container">
                 <IconButton icon="sync_alt" title="Show {show_lineup_djs ? 'Promos' : 'DJs'}" on:click={toggleLineupObjects} />
+                <IconButton icon="wallpaper" title="Event Theme" on:click={() => show_themes_dialog = true} />
                 <IconButton icon="download" title="Export Event" on:click={exportLineup} />
                 <IconButton icon="reply" title="Back to Events" on:click={backToLineups} />
                 <div class="delete">
