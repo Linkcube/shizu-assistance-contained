@@ -19,9 +19,11 @@ Run `docker compose up -d` in the root directory.
 
 This program is intended to be interracted with either through the included GUI service, or through a 3rd party bot (TBD), allowing flexibility of use.
 
-GUI: Under development.
+GUI: Default access http://localhost:5000/
 
 Bot API: Under development.
+
+OBS script: Run inside OBS, pointing at an exported event using the path translation option.
 
 ## Environment Setup
 The `.env` file manages shared file mounts and secrets for the services.
