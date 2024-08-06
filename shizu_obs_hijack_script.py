@@ -23,6 +23,12 @@ PROMOS_SCENE = "promos"
 RENDER_WIDTH = 1920
 RENDER_HEIGHT = 1080
 
+# Tailor to your use case
+CHAT_CSS = (
+    "body {background-color: rgba(0,0,0,0);font-family: 'Comic Sans MS';" + 
+    "margin: 0px auto;overflow: hidden;}.name {font-family: 'Comic Sans MS';}"
+)
+
 IMG_EXTS = [*Image.registered_extensions()]
 
 
@@ -37,6 +43,10 @@ class Hijack:
     target_video_height = 857
     video_offset_x = 20
     video_offset_y = 20
+    chat_width = 300
+    chat_height = 800
+    chat_offset_x = 0
+    chat_offset_y = 0
 
     overlay_scene = None
 
@@ -129,11 +139,16 @@ class Hijack:
         theme_items = []
         if lineup_data.get(THEME_KEY):
             theme_data = lineup_data.get(THEME_KEY)
+            print(theme_data)
             # Update overlay offset and scale
             self.target_video_width = theme_data.get("video_width", self.target_video_width)
             self.target_video_height = theme_data.get("video_height", self.target_video_height)
             self.video_offset_x = theme_data.get("video_x_offset", self.video_offset_x)
             self.video_offset_y = theme_data.get("video_y_offset", self.video_offset_y)
+            self.chat_width = theme_data.get("chat_width", self.chat_width)
+            self.chat_height = theme_data.get("chat_height", self.chat_height)
+            self.chat_offset_x = theme_data.get("chat_x_offset", self.chat_offset_x)
+            self.chat_offset_y = theme_data.get("chat_y_offset", self.chat_offset_y)
 
             # Theme scenes
             if (theme_data.get("overlay")):
@@ -214,7 +229,26 @@ class Hijack:
             video_settings = S.obs_data_create_from_json(json.dumps(json_settings))
             video_source = S.obs_source_create("ffmpeg_source", scene_values.type, video_settings, None)
             S.obs_scene_add(scene, video_source)
-        if scene_values.type != "Overlay":
+        if scene_values.type == "Overlay":
+            if self.path_translation_map.get("OBS_CHAT_URL"):
+                json_settings = {
+                    "url": self.path_translation_map.get("OBS_CHAT_URL"),
+                    "height": self.chat_height,
+                    "width": self.chat_width,
+                    "css": CHAT_CSS
+                }
+                chat_settings = S.obs_data_create_from_json(json.dumps(json_settings))
+                chat_source = S.obs_source_create("browser_source", "Chat", chat_settings, None)
+                chat_item = S.obs_scene_add(scene, chat_source)
+                pos = S.vec2()
+                # Offset for overlay
+                pos.x = self.chat_offset_x
+                pos.y = self.chat_offset_y
+                print(pos)
+                S.obs_sceneitem_set_pos(chat_item, pos)
+                S.obs_data_release(chat_settings)
+                S.obs_source_release(chat_source)
+        else:
             S.obs_scene_release(scene)
 
     

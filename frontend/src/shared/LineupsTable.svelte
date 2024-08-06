@@ -396,7 +396,7 @@
         </div>
     {:else}
         <div class="flex-row space-between">
-            <p>{current_lineup} {event_theme ? `, Theme: ${event_theme}` : ''}</p>
+            <p>{current_lineup}. {event_theme ? `Using Theme: ${event_theme}` : 'No Theme Set'}</p>
             <div class="display-button icon-container">
                 <IconButton icon="sync_alt" title="Show {show_lineup_djs ? 'Promos' : 'DJs'}" on:click={toggleLineupObjects} />
                 <IconButton icon="wallpaper" title="Event Theme" on:click={() => show_themes_dialog = true} />

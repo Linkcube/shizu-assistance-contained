@@ -18,9 +18,8 @@
         error_stack,
         fetchAddThemeFile,
         fetchDeleteFile,
-
-        THEME_TYPE
-
+        THEME_TYPE,
+        isImageSource
     } from '$lib/store';
 	
     export let file_type = LOGO_TYPE;
@@ -35,7 +34,7 @@
     let preview_path = "";
     let new_url_path = "";
     let new_file_name = "";
-    let selected_file = {};
+    let selected_file = null;
     let current_error = null;
 
     let selecting_local_file = false;
@@ -522,11 +521,12 @@
                             on:click={deleteFile} />
                     </div>
                 </div>
-                {#if file_type !== RECORDING_TYPE}
-                    <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
-                {/if}
-                {#if file_type !== LOGO_TYPE}
-                    <video controls src={preview_path} height=200px/>
+                {#if preview_path}
+                    {#if isImageSource(preview_path)}
+                        <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
+                    {:else}
+                        <video controls src={preview_path}/>
+                    {/if}
                 {/if}
                 <div class="row">
                     <span>Full Paths:</span>

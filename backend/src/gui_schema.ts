@@ -47,7 +47,11 @@ type Mutation {
         target_video_width: Int,
         target_video_height: Int,
         video_offset_x: Int,
-        video_offset_y: Int
+        video_offset_y: Int,
+        chat_width: Int,
+        chat_height: Int,
+        chat_offset_x: Int,
+        chat_offset_y: Int
     ): [themeObject]
     guiAddDj(
         name: String!,
@@ -93,7 +97,11 @@ type Mutation {
         target_video_width: Int,
         target_video_height: Int,
         video_offset_x: Int,
-        video_offset_y: Int
+        video_offset_y: Int,
+        chat_width: Int,
+        chat_height: Int,
+        chat_offset_x: Int,
+        chat_offset_y: Int
     ): [themeObject]
     guiUpdateDj(
         name: String!,
@@ -190,7 +198,11 @@ type themeObject {
     target_video_width: Int,
     target_video_height: Int,
     video_offset_x: Int,
-    video_offset_y: Int
+    video_offset_y: Int,
+    chat_width: Int,
+    chat_height: Int,
+    chat_offset_x: Int,
+    chat_offset_y: Int
 },
 type fileObject {
     name: String,

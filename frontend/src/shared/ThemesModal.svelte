@@ -88,17 +88,7 @@
         selected_theme[selecting_file_property] = event.detail.file_name
         
         show_save_message = true;
-        await fetchUpdateTheme(
-            selected_theme.name,
-            selected_theme.overlay_file,
-            selected_theme.stinger_file,
-            selected_theme.starting_file,
-            selected_theme.ending_file,
-            selected_theme.target_video_height,
-            selected_theme.target_video_width,
-            selected_theme.video_offset_x,
-            selected_theme.video_offset_y
-        );
+        await makeUpdateCall();
         show_save_message = false;
 
         await getThemes();
@@ -114,17 +104,7 @@
     function submitTheme() {
         current_error = null;
         show_save_message = true;
-        fetchUpdateTheme(
-            selected_theme.name,
-            selected_theme.overlay_file,
-            selected_theme.stinger_file,
-            selected_theme.starting_file,
-            selected_theme.ending_file,
-            selected_theme.target_video_height,
-            selected_theme.target_video_width,
-            selected_theme.video_offset_x,
-            selected_theme.video_offset_y
-        );
+        makeUpdateCall();
         setTimeout(() => {
             show_save_message = false;
             if (current_error == null) {
@@ -134,6 +114,24 @@
                 close();
             }
         }, 500);
+    }
+
+    function makeUpdateCall() {
+        return fetchUpdateTheme(
+            selected_theme.name,
+            selected_theme.overlay_file,
+            selected_theme.stinger_file,
+            selected_theme.starting_file,
+            selected_theme.ending_file,
+            selected_theme.target_video_height,
+            selected_theme.target_video_width,
+            selected_theme.video_offset_x,
+            selected_theme.video_offset_y,
+            selected_theme.chat_width,
+            selected_theme.chat_height,
+            selected_theme.chat_offset_x,
+            selected_theme.chat_offset_y
+        );
     }
 
     function selectionChanged() {
@@ -212,12 +210,12 @@
                     </div>
                     <p>Overlay: {selected_theme.overlay_file ? selected_theme.overlay_file : "Not Set"}</p>
                 </div>
-                <div class="row">
+                <!-- <div class="row">
                     <div class="icon-container">
                         <IconButton icon="note_add" title="Select Stinger" on:click={selectStinger} />
                     </div>
                     <p>Stinger: {selected_theme.stinger_file ? selected_theme.stinger_file : "Not Set"}</p>
-                </div>
+                </div> -->
                 <div class="row">
                     <div class="icon-container">
                         <IconButton icon="note_add" title="Select Starting File" on:click={selectStarting} />
@@ -237,6 +235,14 @@
                 <div class="row">
                     <MaterialInput label="Video X Offset" bind:value={selected_theme.video_offset_x}/>
                     <MaterialInput label="Video Y Offset" bind:value={selected_theme.video_offset_y}/>
+                </div>
+                <div class="row">
+                    <MaterialInput label="Chat Height" bind:value={selected_theme.chat_height}/>
+                    <MaterialInput label="Chat Width" bind:value={selected_theme.chat_width}/>
+                </div>
+                <div class="row">
+                    <MaterialInput label="Chat X Offset" bind:value={selected_theme.chat_offset_x}/>
+                    <MaterialInput label="Chat Y Offset" bind:value={selected_theme.chat_offset_y}/>
                 </div>
             {/if}
             {#if current_error}

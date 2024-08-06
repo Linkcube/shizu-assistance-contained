@@ -11,9 +11,8 @@
         fetchExportPermissions,
         fetchReconstructExportPath,
         THEME_TYPE,
-
-        fetchThemePermissions
-
+        fetchThemePermissions,
+        isImageSource
     } from '$lib/store';
 	
     export let file_type = LOGO_TYPE;
@@ -452,11 +451,10 @@
                 <span class="row">File Preview</span>
                 {#if selected_file}
                     <span class="preview-text">{selected_file}</span>
-                    {#if file_type !== RECORDING_TYPE}
+                    {#if isImageSource(preview_path)}
                         <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
-                    {/if}
-                    {#if file_type !== LOGO_TYPE}
-                        <video controls src={preview_path} height=200px/>
+                    {:else}
+                        <video controls src={preview_path}/>
                     {/if}
                 {/if}
             </div>

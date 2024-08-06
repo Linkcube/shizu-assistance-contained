@@ -165,6 +165,22 @@ export const THEMES_TABLE: Table = new Table(THEMES, [
     name: "video_offset_y",
     type: "SMALLINT"
   },
+  {
+    name: "chat_width",
+    type: "SMALLINT"
+  },
+  {
+    name: "chat_height",
+    type: "SMALLINT"
+  },
+  {
+    name: "chat_offset_x",
+    type: "SMALLINT"
+  },
+  {
+    name: "chat_offset_y",
+    type: "SMALLINT"
+  },
 ]);
 export const FILES_TABLE: Table = new Table(FILES, [
   {

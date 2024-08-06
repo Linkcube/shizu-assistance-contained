@@ -767,6 +767,14 @@ export const export_event = async (event_name: string) => {
       theme_data.video_x_offset = event_objects.theme.video_offset_x;
     if (event_objects.theme.video_offset_y)
       theme_data.video_y_offset = event_objects.theme.video_offset_y;
+    if (event_objects.theme.chat_width)
+      theme_data.chat_width = event_objects.theme.chat_width;
+    if (event_objects.theme.chat_height)
+      theme_data.chat_height = event_objects.theme.chat_height;
+    if (event_objects.theme.chat_offset_x)
+      theme_data.chat_x_offset = event_objects.theme.chat_offset_x;
+    if (event_objects.theme.chat_offset_y)
+      theme_data.chat_y_offset = event_objects.theme.chat_offset_y;
     export_data.theme = theme_data;
   }
 

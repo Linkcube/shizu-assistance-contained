@@ -36,6 +36,7 @@ The `.env` file manages shared file mounts and secrets for the services.
 | `LOCAL_IMPORT_PATH` | Host machine path to mount for [Shizu OBS Assisstant](https://github.com/Linkcube/ShizuObsAssistant) ledger and exported lineups |
 | `RTMP_SERVER` | Format string for DJ RTMP live stream, is formatted with `rtmp-zone, dj-key` |
 | `FILE_SERVER_AUTHORIZATION` | Authorization header for downloading URL assets |
+| `OBS_CHAT_URL` | Link for OBS browser scene source, only used if a theme is configured for the event |
 
 <br>**System definitions, change at your own risk:**
 | Key | Description |

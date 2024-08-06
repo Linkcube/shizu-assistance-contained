@@ -47,6 +47,10 @@ export function toFileName(file_path) {
     return "";
 }
 
+export function isImageSource(source_path) {
+    return(source_path.match(/\.(jpeg|jpg|gif|png)$/) != null);
+}
+
 function fetch(query) {
     return fetchGraphQL(graphqlUrl, query);
 }
@@ -133,7 +137,11 @@ query {
         target_video_height,
         target_video_width,
         video_offset_x,
-        video_offset_y
+        video_offset_y,
+        chat_width,
+        chat_height,
+        chat_offset_x,
+        chat_offset_y
     }
 }`;
 
@@ -341,7 +349,11 @@ const themeUpdateMutation = (
     target_video_height,
     target_video_width,
     video_offset_x,
-    video_offset_y
+    video_offset_y,
+    chat_width,
+    chat_height,
+    chat_offset_x,
+    chat_offset_y
 ) => {
     let input = `name: "${name}"`;
     if (overlay_file) input += `, overlay_file: "${overlay_file}"`;
@@ -352,6 +364,10 @@ const themeUpdateMutation = (
     if (target_video_width) input += `, target_video_width: ${target_video_width}`;
     if (video_offset_x) input += `, video_offset_x: ${video_offset_x}`;
     if (video_offset_y) input += `, video_offset_y: ${video_offset_y}`;
+    if (chat_width) input += `, chat_width: ${chat_width}`;
+    if (chat_height) input += `, chat_height: ${chat_height}`;
+    if (chat_offset_x) input += `, chat_offset_x: ${chat_offset_x}`;
+    if (chat_offset_y) input += `, chat_offset_y: ${chat_offset_y}`;
     console.log(input);
 
     return `
@@ -988,7 +1004,11 @@ export function fetchUpdateTheme(
     target_video_height,
     target_video_width,
     video_offset_x,
-    video_offset_y) {
+    video_offset_y,
+    chat_width,
+    chat_height,
+    chat_offset_x,
+    chat_offset_y) {
     return fetch(themeUpdateMutation(
         name,
         overlay_file,
@@ -998,7 +1018,11 @@ export function fetchUpdateTheme(
         target_video_height,
         target_video_width,
         video_offset_x,
-        video_offset_y)
+        video_offset_y,
+        chat_width,
+        chat_height,
+        chat_offset_x,
+        chat_offset_y)
     ).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
