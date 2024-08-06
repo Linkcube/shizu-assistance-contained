@@ -29,7 +29,7 @@
     <div class="text-row">
         <div class="fit">
             <p>
-                Shizu Assistance Ver. 0.1.0
+                Shizu Assistance (Contained) Ver. 1.0.0
             </p>
         </div>
     </div>

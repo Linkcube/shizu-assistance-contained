@@ -1,7 +1,6 @@
 <script>
     import { IconButton } from "linkcube-svelte-components";
     import ThemeMenu from "./ThemeMenu.svelte";
-    import Settings from "./Settings.svelte";
     import Readme from "./Readme.svelte";
     import Checklist from "./Checklist.svelte";
 
@@ -100,9 +99,6 @@
 {#if themes_open}
     <ThemeMenu on:close={closeThemes} />
 {/if}
-<!-- {#if settings_open}
-    <Settings on:close={closeSettings} />
-{/if} -->
 {#if readme_open}
     <Readme on:close={closeReadme} />
 {/if}
@@ -116,7 +112,6 @@
     {#if menu_open}
         <div class="dropdown-content">
             <span on:click={openThemes}>Change Styling</span>
-            <!-- <span on:click={openSettings}>Settings</span> -->
             <span on:click={openReadme}>ReadMe</span>
             <span on:click={openChecklist}>Checklist</span>
         </div>

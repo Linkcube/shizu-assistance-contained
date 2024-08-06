@@ -3,11 +3,9 @@
 	import { MaterialButton, MaterialInput, IconButton } from 'linkcube-svelte-components';
     import Modal from './Modal.svelte';
     import FileDialog from './FileDialog.svelte';
-    import ErrorMessage from './ErrorMessage.svelte';
     import {
         LOGO_TYPE,
         RECORDING_TYPE,
-        EXPORT_TYPE,
         graphqlBase,
         fetchLogoFiles,
         fetchRecordingFiles,

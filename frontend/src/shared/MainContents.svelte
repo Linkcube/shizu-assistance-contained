@@ -1,8 +1,5 @@
 <script>
 	import {
-        fetchSettings,
-        fetchLedger,
-        fetchLineups,
 		fetchGetAppThemes,
 		fetchDjs,
 		fetchPromos,
@@ -12,9 +9,6 @@
 	import LineupsTable from "../shared/LineupsTable.svelte"
 
 	fetchGetAppThemes();
-    // fetchSettings();
-    // fetchLedger();
-    // fetchLineups();
 
 	fetchDjs();
 	fetchPromos();

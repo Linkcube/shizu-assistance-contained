@@ -5,13 +5,9 @@
     import Modal from './Modal.svelte';
     import { 
         fetchLineup,
-        ledger,
-        toFileName,
         fetchRemoveLineupPromo,
-        error_stack
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
-    import { get } from 'svelte/store';
 
     export let index = 0;
     export let current_lineup = "";

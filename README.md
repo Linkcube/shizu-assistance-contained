@@ -1,6 +1,6 @@
 # Shizu Assistance (Contained)
 
-Status: **Do not use**
+Status: **Basic Functionality**
 
 Manage organization members, assets, events and themes for OBS DJ steams. 
 

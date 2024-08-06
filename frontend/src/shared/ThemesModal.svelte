@@ -17,7 +17,6 @@
     import { createEventDispatcher } from 'svelte';
     import ErrorMessage from './ErrorMessage.svelte';
     import FileObjectsDialog from './FileObjectsDialog.svelte';
-    import { blur } from 'svelte/transition';
 
     export let selected_theme_name;
 
@@ -120,7 +119,6 @@
         return fetchUpdateTheme(
             selected_theme.name,
             selected_theme.overlay_file,
-            selected_theme.stinger_file,
             selected_theme.starting_file,
             selected_theme.ending_file,
             selected_theme.target_video_height,
@@ -210,12 +208,6 @@
                     </div>
                     <p>Overlay: {selected_theme.overlay_file ? selected_theme.overlay_file : "Not Set"}</p>
                 </div>
-                <!-- <div class="row">
-                    <div class="icon-container">
-                        <IconButton icon="note_add" title="Select Stinger" on:click={selectStinger} />
-                    </div>
-                    <p>Stinger: {selected_theme.stinger_file ? selected_theme.stinger_file : "Not Set"}</p>
-                </div> -->
                 <div class="row">
                     <div class="icon-container">
                         <IconButton icon="note_add" title="Select Starting File" on:click={selectStarting} />

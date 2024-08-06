@@ -10,7 +10,6 @@
         fetchSwapLineupPromos,
         fetchExportLineup,
         fetchDeleteLineup,
-        EXPORT_TYPE,
         error_stack,
         all_events,
         fetchSingleEvent,
@@ -30,7 +29,6 @@
     import PromoLineupModal from '../shared/PromoLineupModal.svelte';
     import NewMatTableRow from './NewMatTableRow.svelte';
     import NewMatTable from './NewMatTable.svelte';
-    import FileDialog from './FileDialog.svelte';
     import ErrorPopup from './ErrorPopup.svelte';
     import ThemesModal from './ThemesModal.svelte';
 
@@ -217,14 +215,6 @@
         });
     }
 
-    function exportSelected(event) {
-        if (event.detail) {
-            fetchExportLineup(current_lineup).then(response => {
-                if (response) show_export_error = false;
-            });
-        }
-    }
-
     function deleteLineup() {
         fetchDeleteLineup(current_lineup).then(() => fetchEvents()).then(() => backToLineups());
     }
@@ -360,9 +350,6 @@
             on:close={() => show_edit_promo = false}
         />
     {/await}
-{/if}
-{#if show_export_dialog}
-    <FileDialog file_type={EXPORT_TYPE} on:close={() => show_export_dialog = false} on:submission={exportSelected}/>
 {/if}
 {#if show_themes_dialog}
     <ThemesModal selected_theme_name={event_theme} on:close={() => show_themes_dialog = false} on:submission={changeTheme}/>

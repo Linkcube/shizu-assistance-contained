@@ -1,7 +1,6 @@
 <script>
     import { get } from 'svelte/store';
     import {
-        MaterialInput,
         IconButton,
         MaterialTable,
         MaterialTableRow,

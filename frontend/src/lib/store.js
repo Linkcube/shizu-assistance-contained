@@ -33,19 +33,7 @@ export const RTMP_BASE = (server) => `rtmp://rtmp-${server}anisonhijack.com/live
 
 export const LOGO_TYPE = 1
 export const RECORDING_TYPE = 2
-export const EXPORT_TYPE = 3
-export const THEME_TYPE = 4
-
-export function toFileName(file_path) {
-    if (file_path !== "") {
-        if (file_path.includes("/")) {
-            return file_path.split("/").pop();
-        } else {
-            return file_path.split("\\").pop();
-        }
-    }
-    return "";
-}
+export const THEME_TYPE = 3
 
 export function isImageSource(source_path) {
     return(source_path.match(/\.(jpeg|jpg|gif|png)$/) != null);
@@ -85,22 +73,7 @@ currentThemeIndex.subscribe((newTheme) => {
 });
 
 
-// New Queries
-
-const djsQuery = `
-query {
-    guiGetDjs {
-        name,
-        logo,
-        recording,
-        rtmp_server,
-        rtmp_key,
-        public_name,
-        discord_id,
-        past_events
-    }
-}`;
-
+// Queries
 const djsMinQuery = `
 query {
     guiGetDjs {
@@ -108,14 +81,6 @@ query {
         logo,
         recording,
         rtmp_server
-    }
-}`;
-
-const promosQuery = `
-query {
-    guiGetPromos {
-        name,
-        promo_file
     }
 }`;
 
@@ -145,31 +110,10 @@ query {
     }
 }`;
 
-const eventsQuery = `
-query {
-    guiGetEvents {
-        name,
-        djs { name, is_live, vj },
-        promos,
-        theme,
-        public
-    }
-}`;
-
 const eventsMinQuery = `
 query {
     guiGetEvents {
         name
-    }
-}`;
-
-const filesQuery = `
-query {
-    guiGetFiles {
-        name,
-        root,
-        file_path,
-        url_path
     }
 }`;
 
@@ -343,7 +287,6 @@ mutation {
 const themeUpdateMutation = (
     name,
     overlay_file,
-    stinger_file,
     starting_file,
     ending_file,
     target_video_height,
@@ -357,7 +300,6 @@ const themeUpdateMutation = (
 ) => {
     let input = `name: "${name}"`;
     if (overlay_file) input += `, overlay_file: "${overlay_file}"`;
-    if (stinger_file) input += `, stinger_file: "${stinger_file}"`;
     if (starting_file) input += `, starting_file: "${starting_file}"`;
     if (ending_file) input += `, ending_file: "${ending_file}"`;
     if (target_video_height) input += `, target_video_height: ${target_video_height}`;
@@ -385,31 +327,6 @@ const eventSetThemeMutation = (event_name, theme_name) => `
 mutation {
     guiSetEventTheme(event_name: "${event_name}", theme_name: "${theme_name}") { name }
 }`;
-
-
-// Legacy
-
-const settingsQuery = `
-query {
-    getSettings {
-        ledger_path,
-        lineups_dir,
-        theme_index
-    }
-}`
-
-const ledgerQuery = `
-query {
-    getLedger {
-        djs {name, logo_path, recording_path, rtmp_server, stream_key},
-        promos {name, path}
-    }
-}`
-
-const lineupsQuery = `
-query {
-    getLineups
-}`
 
 const getAppThemesQuery = `
 query {
@@ -522,11 +439,6 @@ mutation {
     updateSettings(theme_index: ${index})
 }`
 
-const updateSettingsMutation = (ledger_path, lineups_dir) => `
-mutation {
-    updateSettings(ledger_path: "${ledger_path}", lineups_dir: "${lineups_dir}")
-}`
-
 const addDjMutation = (
         name,
         logo_name,
@@ -612,16 +524,6 @@ mutation {
     }
 }`
 
-const getFilePathQuery = `
-query {
-    getFilePath
-}`;
-
-const getDirPathQuery = `
-query {
-    getDirPath
-}`;
-
 const createLineupQuery = (name) => `
 mutation {
     guiAddEvent(name: "${name}") {
@@ -638,15 +540,6 @@ query {
         theme,
         public
     }
-}`
-
-const updateLineupMutation = (name, djs, promos) => `
-mutation {
-    updateLineup(
-        name: "${name}",
-        djs: [${djs}],
-        promos: [${promos}]
-    )
 }`
 
 const addDjToLineupMutation = (event_name, dj_name) => `
@@ -752,7 +645,6 @@ const getPermissionsQueryHelper = (query_head, sub_dirs) => {
 
 const getLogoPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetLogoPermissions", sub_dirs);
 const getRecordingPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetRecordingPermissions", sub_dirs);
-const getExportPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("getExportPermissions", sub_dirs);
 const getThemePermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetThemePermissions", sub_dirs);
 
 const reconstructPathHelper = (query_head, dirs) => {
@@ -768,13 +660,8 @@ const errorStackPushHelper = (error) => {
     error_stack.set(error);
 }
 
-const getReconstructLogoPathQuery = (dirs) => reconstructPathHelper("reconstructLogoPath", dirs);
-const getReconstructRecordingPathQuery = (dirs) => reconstructPathHelper("reconstructRecordingPath", dirs);
-const getReconstructExportPathQuery = (dirs) => reconstructPathHelper("reconstructExportPath", dirs);
 
-
-
-// New fetch
+// fetch
 
 export function fetchDjs() {
     fetch(djsMinQuery).then(promise => {
@@ -896,18 +783,6 @@ export function fetchSingleEvent(name) {
     })
 }
 
-export function fetchSingleFile(name) {
-    return fetch(fileSingleQuery(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetFile);
-            }
-        })
-    })
-}
-
 export function fetchFileExists(name) {
     return fetch(fileSingleQuery(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
@@ -998,7 +873,6 @@ export function fetchAddTheme(name) {
 export function fetchUpdateTheme(
     name,
     overlay_file,
-    stinger_file,
     starting_file,
     ending_file,
     target_video_height,
@@ -1012,7 +886,6 @@ export function fetchUpdateTheme(
     return fetch(themeUpdateMutation(
         name,
         overlay_file,
-        stinger_file,
         starting_file,
         ending_file,
         target_video_height,
@@ -1053,43 +926,6 @@ export function fetchEventSetTheme(event_name, theme_name) {
             } else {
                 return Promise.resolve(response.data.guiSetEventTheme)
             }
-		})
-    });
-}
-
-// Legacy fetch
-
-export function fetchSettings() {
-    fetch(settingsQuery).then(promise => {
-        Promise.resolve(promise).then(resp => {
-            if (resp.hasOwnProperty("data")) {
-                settings.set(resp.data.getSettings);
-                currentThemeIndex.set(resp.data.getSettings.theme_index);
-            }
-        })
-    });
-}
-
-export function fetchLedger() {
-    fetch(ledgerQuery).then(promise => {
-        Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				ledger.set(response.data.getLedger);
-			}
-		})
-    });
-}
-
-export function fetchLineups() {
-    fetch(lineupsQuery).then(promise => {
-        Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				lineups.set(response.data.getLineups);
-			}
 		})
     });
 }
@@ -1169,14 +1005,6 @@ export function fetchDeleteDj(dj_name) {
     });
 }
 
-export function fetchGetFilePath() {
-    return fetch(getFilePathQuery);
-}
-
-export function fetchGetDirPath() {
-    return fetch(getDirPathQuery);
-}
-
 
 export function fetchCreateLineup(name) {
     return fetch(createLineupQuery(name)).then(promise => {
@@ -1197,22 +1025,6 @@ export function fetchLineup(name) {
 				currentLineupObjects.set(response.data.guiGetEvent);
 			}
 		})
-    });
-}
-
-export function updateLineupHelper(lineup_name, dj_objects, promos) {
-    let djs_string = dj_objects.map(dj => `{name: "${dj.name}", is_live: ${dj.is_live}}`).join(',');
-    let promos_string = promos.map(promo => `"${promo}"`).join(',');
-    return fetch(updateLineupMutation(
-        lineup_name,
-        djs_string,
-        promos_string
-    )).then(promise => {
-        Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            }
-		});
     });
 }
 
@@ -1346,10 +1158,6 @@ export function fetchDeleteLineup(lineup_name) {
     return fetch(deleteLineupMutation(lineup_name));
 }
 
-export function fetchUpdateSettings(ledger_path, lineups_dir) {
-    return fetch(updateSettingsMutation(ledger_path, lineups_dir));
-}
-
 export function fetchLogoPermissions(sub_dirs) {
     return fetch(getLogoPermissionsQuery(sub_dirs));
 }
@@ -1358,17 +1166,4 @@ export function fetchRecordingPermissions(sub_dirs) {
 }
 export function fetchThemePermissions(sub_dirs) {
     return fetch(getThemePermissionsQuery(sub_dirs));
-}
-export function fetchExportPermissions(sub_dirs) {
-    return fetch(getExportPermissionsQuery(sub_dirs));
-}
-
-export function fetchReconstructLogoPath(dirs) {
-    return fetch(getReconstructLogoPathQuery(dirs));
-}
-export function fetchReconstructRecordingPath(dirs) {
-    return fetch(getReconstructRecordingPathQuery(dirs));
-}
-export function fetchReconstructExportPath(dirs) {
-    return fetch(getReconstructExportPathQuery(dirs));
 }

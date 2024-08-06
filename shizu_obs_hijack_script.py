@@ -143,12 +143,12 @@ class Hijack:
             # Update overlay offset and scale
             self.target_video_width = theme_data.get("video_width", self.target_video_width)
             self.target_video_height = theme_data.get("video_height", self.target_video_height)
-            self.video_offset_x = theme_data.get("video_x_offset", self.video_offset_x)
-            self.video_offset_y = theme_data.get("video_y_offset", self.video_offset_y)
+            self.video_offset_x = theme_data.get("video_offset_x", self.video_offset_x)
+            self.video_offset_y = theme_data.get("video_offset_y", self.video_offset_y)
             self.chat_width = theme_data.get("chat_width", self.chat_width)
             self.chat_height = theme_data.get("chat_height", self.chat_height)
-            self.chat_offset_x = theme_data.get("chat_x_offset", self.chat_offset_x)
-            self.chat_offset_y = theme_data.get("chat_y_offset", self.chat_offset_y)
+            self.chat_offset_x = theme_data.get("chat_offset_x", self.chat_offset_x)
+            self.chat_offset_y = theme_data.get("chat_offset_y", self.chat_offset_y)
 
             # Theme scenes
             if (theme_data.get("overlay")):

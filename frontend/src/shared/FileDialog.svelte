@@ -4,12 +4,9 @@
     import {
         LOGO_TYPE,
         RECORDING_TYPE,
-        EXPORT_TYPE,
         fetchLogoPermissions,
         fetchRecordingPermissions,
         graphqlBase,
-        fetchExportPermissions,
-        fetchReconstructExportPath,
         THEME_TYPE,
         fetchThemePermissions,
         isImageSource
@@ -104,17 +101,6 @@
                 }
             })
         }
-        if (file_type == EXPORT_TYPE) {
-            fetchExportPermissions(current_path).then(res => {
-                if (res.hasOwnProperty("data")) {
-                    let file_blob = res.data.getExportPermissions;
-                    current_files = file_blob.files;
-                    display_files = current_files;
-                    current_path = file_blob.path;
-                    top_level_dir = file_blob.top_dirs;
-                }
-            })
-        }
         sort_direction = false;
         sort_type = "name";
     }
@@ -168,16 +154,6 @@
                 file_path: return_path
             });
             close();
-        }
-        if (file_type == EXPORT_TYPE) {
-            fetchReconstructExportPath(current_path).then(res => {
-                if (res.hasOwnProperty("data")) {
-                    let path = res.data.reconstructExportPath;
-                    path.replaceAll("\\", "/");
-                    dispatch('submission', path.replaceAll("\\", "/"));
-                    close();
-                }
-            })
         }
     }
 
@@ -446,33 +422,25 @@
                 {/each}
             </div>
         </div>
-        {#if file_type != EXPORT_TYPE}
-            <div class="preview column">
-                <span class="row">File Preview</span>
-                {#if selected_file}
-                    <span class="preview-text">{selected_file}</span>
-                    {#if isImageSource(preview_path)}
-                        <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
-                    {:else}
-                        <video controls src={preview_path}/>
-                    {/if}
+        <div class="preview column">
+            <span class="row">File Preview</span>
+            {#if selected_file}
+                <span class="preview-text">{selected_file}</span>
+                {#if isImageSource(preview_path)}
+                    <div class="preview-image" style={`background: url("${preview_path}"); background-size: contain; background-repeat: no-repeat;`} />
+                {:else}
+                    <video controls src={preview_path}/>
                 {/if}
-            </div>
-        {/if}
+            {/if}
+        </div>
     </div>
     <br>
     <div class="user-actions">
         <div class="cancel">
             <MaterialButton on:click={close} value="Cancel"/>
         </div>
-		{#if file_type != EXPORT_TYPE}
-			<div class={selected_file ? "submit" : "disabled"}>
-				<MaterialButton on:click={submission} value="Select File"/>
-			</div>
-		{:else}
-			<div class="submit">
-				<MaterialButton on:click={submission} value="Select Folder"/>
-			</div>
-		{/if}
+        <div class={selected_file ? "submit" : "disabled"}>
+            <MaterialButton on:click={submission} value="Select File"/>
+        </div>
     </div>
 </div>

@@ -83,12 +83,12 @@ export interface IExportThemeData {
   ending?: string;
   video_width?: number;
   video_height?: number;
-  video_x_offset?: number;
-  video_y_offset?: number;
+  video_offset_x?: number;
+  video_offset_y?: number;
   chat_width?: number;
   chat_height?: number;
-  chat_x_offset?: number;
-  chat_y_offset?: number;
+  chat_offset_x?: number;
+  chat_offset_y?: number;
 }
 
 export interface ILegacyLedger {
