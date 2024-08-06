@@ -209,15 +209,17 @@
     }
 
     function exportLineup() {
-        // TODO: Just export instead of dialogue?
         last_action = EXPORT_FAILED;
-        show_export_dialog = true;
+        // show_export_dialog = true;
         show_export_error = true;
+        fetchExportLineup(current_lineup).then(response => {
+            if (response) show_export_error = false;
+        });
     }
 
     function exportSelected(event) {
         if (event.detail) {
-            fetchExportLineup(current_lineup, event.detail).then(response => {
+            fetchExportLineup(current_lineup).then(response => {
                 if (response) show_export_error = false;
             });
         }

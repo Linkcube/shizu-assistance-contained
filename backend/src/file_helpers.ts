@@ -201,7 +201,8 @@ export const fetchFile = (url: string, local_path: string) => {
     options.auth = process.env.FILE_SERVER_AUTHORIZATION;
     // TODO: switch on http/https
     const file = createWriteStream(local_path);
-    const request = get(options, (response) => {
+    get(options, (response) => {
+      // TODO: error on 403
       response.pipe(file);
 
       file.on("finish", () => {
@@ -212,7 +213,6 @@ export const fetchFile = (url: string, local_path: string) => {
         file.destroy();
         promise_resolve(err);
       });
-      request.end();
     });
   });
 };

@@ -72,8 +72,9 @@ import {
   rebuildLegacyObjects,
   LOGOS_ROOT,
   RECORDINGS_ROOT,
+  THEMES_ROOT,
 } from "./file_helpers";
-import { join, normalize, parse } from "path";
+import { join, parse } from "path";
 import { accessSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import util from "node:util";
 import { internal_delete_app_themes, internal_insert_into_app_themes, internal_update_app_themes } from "./database_helpers/app_themes_db_helpers";
@@ -577,12 +578,12 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
   let has_local_file = false;
   const root = root_map.get(file.root!)!;
   if (file.file_path) {
-    local_file_path = file.file_path;
+    local_file_path = join(root, file.file_path);
     try {
-      accessSync(file.file_path);
+      accessSync(local_file_path);
       has_local_file = true;
     } catch (err) {
-      console.log(`Local file ${file.file_path} not found.`);
+      console.log(`Local file ${local_file_path} not found.`);
     }
   } else {
     const file_name = parse(file.url_path!).base;
@@ -658,12 +659,12 @@ export const export_event = async (event_name: string) => {
     const dj = event_objects.djs![index];
 
     const dj_export_data: IExportDjineupData = {
-      name: dj.name,
+      name: dj.public_name ? dj.public_name : dj.name,
       logo_path: "",
       recording_path: "",
       resolution: Promise.resolve([]),
       url: "",
-      vj: "",
+      vj: lineup_dj.vj ? lineup_dj.vj : "",
     };
     if (dj.logo) dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
     if (lineup_dj.is_live) {
@@ -680,7 +681,6 @@ export const export_event = async (event_name: string) => {
         );
       }
     }
-    if (lineup_dj.vj) dj_export_data.vj = lineup_dj.vj;
     return dj_export_data;
   });
 
@@ -707,8 +707,8 @@ export const export_event = async (event_name: string) => {
     dj_promises.map(async (dj) => {
       return {
         name: dj.name,
-        logo_path: normalize(dj.logo_path),
-        recording_path: normalize(dj.recording_path),
+        logo_path: dj.logo_path,
+        recording_path: dj.recording_path,
         resolution: await dj.resolution,
         url: dj.url,
         vj: dj.vj,
@@ -719,7 +719,7 @@ export const export_event = async (event_name: string) => {
     promo_promises.map(async (promo) => {
       return {
         name: promo.name,
-        path: normalize(promo.path),
+        path: promo.path,
         resolution: await promo.resolution,
       };
     }),
@@ -739,7 +739,7 @@ export const export_event = async (event_name: string) => {
     return new InvalidFileError(ffmpeg_errors.toString());
 
   // Wrtite {event_name}.json to exports mount
-  const DOCKER_EXPORT_PATH = join(normalize(EXPORT_ROOT), event_name + ".json");
+  const DOCKER_EXPORT_PATH = join(EXPORT_ROOT, event_name + ".json");
 
   console.log(`Exporting to ${DOCKER_EXPORT_PATH}`);
 
@@ -752,13 +752,21 @@ export const export_event = async (event_name: string) => {
   if (event_objects.theme && !(event_objects.theme instanceof Error)) {
     const theme_data: IExportThemeData = { name: event_objects.theme.name };
     if (event_objects.theme.overlay_file)
-      theme_data.overlay = files_map.get(event_objects.theme.overlay_file);
+      theme_data.overlay = join(THEMES_ROOT, files_map.get(event_objects.theme.overlay_file)!);
     if (event_objects.theme.starting_file)
-      theme_data.starting = files_map.get(event_objects.theme.starting_file);
+      theme_data.starting = join(THEMES_ROOT, files_map.get(event_objects.theme.starting_file)!);
     if (event_objects.theme.stinger_file)
-      theme_data.stinger = files_map.get(event_objects.theme.stinger_file);
+      theme_data.stinger = join(THEMES_ROOT, files_map.get(event_objects.theme.stinger_file)!);
     if (event_objects.theme.ending_file)
-      theme_data.ending = files_map.get(event_objects.theme.ending_file);
+      theme_data.ending = join(THEMES_ROOT, files_map.get(event_objects.theme.ending_file)!);
+    if (event_objects.theme.target_video_width)
+      theme_data.video_width = event_objects.theme.target_video_width;
+    if (event_objects.theme.target_video_height)
+      theme_data.video_height = event_objects.theme.target_video_height;
+    if (event_objects.theme.video_offset_x)
+      theme_data.video_x_offset = event_objects.theme.video_offset_x;
+    if (event_objects.theme.video_offset_y)
+      theme_data.video_y_offset = event_objects.theme.video_offset_y;
     export_data.theme = theme_data;
   }
 

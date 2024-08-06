@@ -77,6 +77,10 @@ export interface IExportThemeData {
   starting?: string;
   stinger?: string;
   ending?: string;
+  video_width?: number;
+  video_height?: number;
+  video_x_offset?: number;
+  video_y_offset?: number;
 }
 
 export interface ILegacyLedger {

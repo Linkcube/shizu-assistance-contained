@@ -659,11 +659,11 @@ mutation {
 const updateLineupDjMutation = (event_name, dj_name, is_live, vj) => {
     let input = `event_name: "${event_name}", dj_name: "${dj_name}"`;
     if (is_live) {
-        input += "is_live: true";
+        input += ", is_live: true";
     } else {
-        input += "is_live: false";
+        input += ", is_live: false";
     }
-    if (vj) input += `vj: "${vj}"`;
+    if (vj) input += `, vj: "${vj}"`;
     return `
     mutation {
         guiUpdateEventDj(${input}) { name }
@@ -704,9 +704,9 @@ mutation {
     ) { name }
 }`
 
-const exportLineupMutation = (lineup_name, dir) => `
+const exportLineupMutation = (event_name) => `
 mutation {
-    exportLineup(lineup_name: "${lineup_name}", export_dir: "${dir}")
+    guiExportEvent(event_name: "${event_name}")
 }`
 
 const deleteLineupMutation = (name) => `
@@ -1305,8 +1305,8 @@ export function fetchRemoveLineupPromo(lineup_name, promo_name) {
     });
 }
 
-export function fetchExportLineup(lineup_name, dir) {
-    return fetch(exportLineupMutation(lineup_name, dir)).then(promise => {
+export function fetchExportLineup(lineup_name) {
+    return fetch(exportLineupMutation(lineup_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
