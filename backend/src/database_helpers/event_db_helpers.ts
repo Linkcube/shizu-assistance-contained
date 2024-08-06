@@ -1,8 +1,8 @@
 import { PoolClient } from "pg";
 import {
-  interna_insert_into_table,
-  interna_get_row_from_table,
-  interna_update_table_entry,
+  internal_insert_into_table,
+  internal_get_row_from_table,
+  internal_update_table_entry,
 } from "./helper_functions";
 import { InvalidFileError, InvalidDjError } from "../errors";
 import { EVENTS_TABLE, DJS_TABLE, PROMOS_TABLE, THEMES_TABLE } from "../tables";
@@ -80,7 +80,7 @@ export const internal_insert_into_events = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_insert_into_table(EVENTS_TABLE, event_data, pool);
+  await internal_insert_into_table(EVENTS_TABLE, event_data, pool);
 };
 
 export const internal_add_event_dj = async (
@@ -88,9 +88,9 @@ export const internal_add_event_dj = async (
   dj_data: ILineupDjObject,
   pool: PoolClient,
 ) => {
-  const dj = await interna_get_row_from_table(DJS_TABLE, dj_data.name, pool);
+  const dj = await internal_get_row_from_table(DJS_TABLE, dj_data.name, pool);
   if (dj instanceof Error) return dj;
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -121,13 +121,13 @@ export const internal_add_event_promo = async (
   promo_name: string,
   pool: PoolClient,
 ) => {
-  const promo = await interna_get_row_from_table(
+  const promo = await internal_get_row_from_table(
     PROMOS_TABLE,
     promo_name,
     pool,
   );
   if (promo instanceof Error) return promo;
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -148,7 +148,9 @@ export const internal_add_event_promo = async (
     event_promos.push(promo_name);
   }
 
-  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${event_promos.map((event_promo: string) => `'${event_promo}`).join(", ")}'] WHERE name = '${event_name}';`;
+  console.log(event_promos);
+  const promos_string = event_promos.map((event_promo: string) => `'${event_promo}'`).join(", ");
+  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${promos_string}] WHERE name = '${event_name}';`;
   console.log(update_query);
   await pool.query(update_query);
 };
@@ -162,7 +164,7 @@ export const internal_update_event = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_update_table_entry(EVENTS_TABLE, event_data, pool);
+  await internal_update_table_entry(EVENTS_TABLE, event_data, pool);
 };
 
 export const internal_update_event_dj = async (
@@ -172,7 +174,7 @@ export const internal_update_event_dj = async (
   is_live?: boolean,
   vj?: string,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -206,7 +208,7 @@ export const internal_remove_event_dj = async (
   dj_name: string,
   pool: PoolClient,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -237,7 +239,7 @@ export const internal_remove_event_promo = async (
   promo_name: string,
   pool: PoolClient,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -262,7 +264,10 @@ export const internal_remove_event_promo = async (
     .filter((promo) => promo !== promo_name)
     .map((promo: string) => `'${promo}`)
     .join(", ");
-  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}'] WHERE name = '${event_name}';`;
+  let update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = DEFAULT WHERE name = '${event_name}';`;;
+  if (new_promo_array.length > 0) {
+    update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}] WHERE name = '${event_name}';`;
+  }
   console.log(update_query);
   await pool.query(update_query);
 };
@@ -273,7 +278,7 @@ export const internal_move_event_dj = async (
   index_b: number,
   pool: PoolClient,
 ) => {
-  const event = await interna_get_row_from_table(
+  const event = await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -313,7 +318,7 @@ export const internal_move_event_promo = async (
   index_b: number,
   pool: PoolClient,
 ) => {
-  const event = await interna_get_row_from_table(
+  const event = await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -332,8 +337,8 @@ export const internal_move_event_promo = async (
 
   if (index_a === index_b) return "Done";
 
-  const moving_value = event.djs[index_a];
-  const target_value = event.djs[index_b];
+  const moving_value = event.promos[index_a];
+  const target_value = event.promos[index_b];
   event.promos.splice(index_a, 1);
   if (index_a > index_b) {
     event.promos.splice(event.promos.indexOf(target_value), 0, moving_value);
@@ -346,9 +351,9 @@ export const internal_move_event_promo = async (
   }
 
   const new_promo_array = event.promos
-    .map((promo: string) => `'${promo}`)
+    .map((promo: string) => `'${promo}'`)
     .join(", ");
-  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}'] WHERE name = '${event_name}';`;
+  const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}] WHERE name = '${event_name}';`;
   console.log(update_query);
 
   await pool.query(update_query);
@@ -358,7 +363,7 @@ export const internal_delete_event = async (
   event_name: string,
   pool: PoolClient,
 ) => {
-  const event = (await interna_get_row_from_table(
+  const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -370,3 +375,21 @@ export const internal_delete_event = async (
 
   await pool.query(query);
 };
+
+export const internal_set_event_theme = async (
+  event_name: string,
+  theme_name: string,
+  pool: PoolClient
+) => {
+  const event = (await internal_get_row_from_table(
+    EVENTS_TABLE,
+    event_name,
+    pool,
+  )) as IEventObject | Error;
+  if (event instanceof Error) return event;
+
+  const query = `UPDATE ${EVENTS_TABLE.name} SET theme = '${theme_name}' WHERE name = '${event_name}';`;
+  console.log(query);
+
+  await pool.query(query);
+}

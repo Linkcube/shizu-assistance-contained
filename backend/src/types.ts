@@ -19,6 +19,14 @@ export interface IThemeObject {
   stinger_file?: string;
   starting_file?: string;
   ending_file?: string;
+  target_video_width?: number;
+  target_video_height?: number;
+  video_offset_x?: number;
+  video_offset_y?: number;
+  chat_width?: number;
+  chat_height?: number;
+  chat_offset_x?: number;
+  chat_offset_y?: number;
 }
 
 export interface IEventObject {
@@ -73,6 +81,14 @@ export interface IExportThemeData {
   starting?: string;
   stinger?: string;
   ending?: string;
+  video_width?: number;
+  video_height?: number;
+  video_x_offset?: number;
+  video_y_offset?: number;
+  chat_width?: number;
+  chat_height?: number;
+  chat_x_offset?: number;
+  chat_y_offset?: number;
 }
 
 export interface ILegacyLedger {
@@ -105,4 +121,10 @@ export interface ILegacyLineupDj {
 export interface ILegacyLineup {
   djs: ILegacyLineupDj[];
   promos: string[];
+}
+
+export interface IFileBlob {
+  name: string;
+  ext: string;
+  is_dir: boolean;
 }

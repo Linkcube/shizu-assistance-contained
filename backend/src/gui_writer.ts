@@ -4,6 +4,8 @@ import {
   add_logo_file,
   add_recording_file,
   add_theme_file,
+  create_new_app_theme,
+  delete_app_theme,
   delete_dj,
   delete_event,
   delete_file,
@@ -21,6 +23,8 @@ import {
   move_event_promo,
   remove_event_dj,
   remove_event_promo,
+  set_event_theme,
+  update_app_theme,
   update_dj,
   update_event,
   update_event_dj,
@@ -29,8 +33,11 @@ import {
   update_theme,
 } from "./database";
 import {
+  guiGetAppThemes,
   guiGetDjs,
+  guiGetEvent,
   guiGetEvents,
+  guiGetFile,
   guiGetFiles,
   guiGetPromos,
   guiGetThemes,
@@ -48,7 +55,7 @@ export const guiAddNewFile = async (file_data: IFileObject) => {
   const error = await insert_into_files(file_data);
   if (error !== undefined) return error;
 
-  return await guiGetFiles();
+  return await guiGetFile({file_name: file_data.name});
 };
 
 export const guiAddNewLogoFile = async (file_data: IFileObject) => {
@@ -59,7 +66,7 @@ export const guiAddNewLogoFile = async (file_data: IFileObject) => {
   );
   if (error !== undefined) return error;
 
-  return await guiGetFiles();
+  return await guiGetFile({file_name: file_data.name});
 };
 
 export const guiAddNewRecordingFile = async (file_data: IFileObject) => {
@@ -70,7 +77,7 @@ export const guiAddNewRecordingFile = async (file_data: IFileObject) => {
   );
   if (error !== undefined) return error;
 
-  return await guiGetFiles();
+  return await guiGetFile({file_name: file_data.name});
 };
 
 export const guiAddNewThemeFile = async (file_data: IFileObject) => {
@@ -81,7 +88,7 @@ export const guiAddNewThemeFile = async (file_data: IFileObject) => {
   );
   if (error !== undefined) return error;
 
-  return await guiGetFiles();
+  return await guiGetFile({file_name: file_data.name});
 };
 
 export const guiAddNewTheme = async (theme_data: IThemeObject) => {
@@ -116,11 +123,9 @@ export const guiAddEventDj = async (data: {
   event_name: string;
   dj_data: ILineupDjObject;
 }) => {
-  console.log(`Adding DJ ${data.dj_data.name} to Event ${data.event_name}`);
   const error = await add_event_dj(data.event_name, data.dj_data);
   if (error !== undefined) return error;
 
-  console.log("DJ added");
   return await guiGetEvents();
 };
 
@@ -134,11 +139,39 @@ export const guiAddEventPromo = async (data: {
   return await guiGetEvents();
 };
 
+export const guiAddAppTheme = async (data: {
+  name: string
+}) => {
+  const error = await create_new_app_theme(data.name);
+  if (error !== undefined) return error;
+
+  return await guiGetAppThemes();
+}
+
+export const guiEditAppTheme = async (data: {
+  name: string,
+  style: any
+}) => {
+  const error = await update_app_theme(data.name, data.style);
+  if (error !== undefined) return error;
+
+  return await guiGetAppThemes();
+}
+
+export const guiDeleteAppTheme = async (data: {
+  name: string
+}) => {
+  const error = await delete_app_theme(data.name);
+  if (error !== undefined) return error;
+
+  return await guiGetAppThemes();
+}
+
 export const guiUpdateFile = async (file_data: IFileObject) => {
   const error = await update_file(file_data);
   if (error !== undefined) return error;
 
-  return await guiGetFiles();
+  return await guiGetFile({file_name: file_data.name});
 };
 
 export const guiUpdateTheme = async (theme_data: IThemeObject) => {
@@ -236,6 +269,16 @@ export const guiMoveEventPromo = async (data: {
   return await guiGetEvents();
 };
 
+export const guiSetEventTheme = async (data: {
+  event_name: string;
+  theme_name: string;
+}) => {
+  const error = await set_event_theme(data.event_name, data.theme_name);
+  if (error !== undefined) return error;
+
+  return await guiGetEvent(data);
+}
+
 export const guiDeleteFile = async (data: { file_name: string }) => {
   const error = await delete_file(data.file_name);
   if (error !== undefined) return error;
@@ -257,8 +300,8 @@ export const guiDeleteDj = async (data: { dj_name: string }) => {
   return await guiGetDjs();
 };
 
-export const guiDeletePromo = async (data: { file_name: string }) => {
-  const error = await delete_promo(data.file_name);
+export const guiDeletePromo = async (data: { promo_name: string }) => {
+  const error = await delete_promo(data.promo_name);
   if (error !== undefined) return error;
 
   return await guiGetPromos();

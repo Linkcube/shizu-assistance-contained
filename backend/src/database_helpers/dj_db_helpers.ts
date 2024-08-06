@@ -1,7 +1,7 @@
 import {
-  interna_insert_into_table,
-  interna_update_table_entry,
-  interna_get_row_from_table,
+  internal_insert_into_table,
+  internal_update_table_entry,
+  internal_get_row_from_table,
 } from "./helper_functions";
 import { DjNotFoundError, InvalidDjError, InvalidFileError } from "../errors";
 import { DJS_TABLE, FILES_TABLE, EVENTS_TABLE } from "../tables";
@@ -57,7 +57,7 @@ export const internal_insert_into_djs = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_insert_into_table(DJS_TABLE, dj_data, pool);
+  await internal_insert_into_table(DJS_TABLE, dj_data, pool);
 };
 
 export const internal_update_dj = async (
@@ -69,11 +69,11 @@ export const internal_update_dj = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_update_table_entry(DJS_TABLE, dj_data, pool);
+  await internal_update_table_entry(DJS_TABLE, dj_data, pool);
 };
 
 export const internal_delete_dj = async (dj_name: string, pool: PoolClient) => {
-  const promo = (await interna_get_row_from_table(DJS_TABLE, dj_name, pool)) as
+  const promo = (await internal_get_row_from_table(DJS_TABLE, dj_name, pool)) as
     | IEventObject
     | Error;
   if (promo instanceof Error) return promo;

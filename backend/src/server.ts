@@ -3,6 +3,9 @@ import morgan from "morgan";
 import { port } from "./config";
 import {
   guiGetFiles,
+  guiGetLogoFiles,
+  guiGetRecordingFiles,
+  guiGetThemeFiles,
   guiGetThemes,
   guiGetEvents,
   guiGetPromos,
@@ -12,6 +15,10 @@ import {
   guiGetEvent,
   guiGetPromo,
   guiGetDj,
+  guiGetAppThemes,
+  guiGetLogoPermissions,
+  guiGetRecordingPermissions,
+  guiGetThemePermissions
 } from "./gui_reader";
 import {
   guiAddNewFile,
@@ -34,6 +41,7 @@ import {
   guiRemoveEventPromo,
   guiMoveEventDj,
   guiMoveEventPromo,
+  guiSetEventTheme,
   guiDeleteFile,
   guiDeleteTheme,
   guiDeleteDj,
@@ -42,6 +50,9 @@ import {
   guiExportEvent,
   guiImportLegacyLedger,
   guiImportLegacyEvents,
+  guiAddAppTheme,
+  guiEditAppTheme,
+  guiDeleteAppTheme
 } from "./gui_writer";
 import { create_tables, database_pool } from "./database";
 import cors from "cors";
@@ -57,6 +68,9 @@ import {
 // API server
 const gui_root = {
   guiGetFiles,
+  guiGetLogoFiles,
+  guiGetRecordingFiles,
+  guiGetThemeFiles,
   guiGetThemes,
   guiGetEvents,
   guiGetPromos,
@@ -86,6 +100,7 @@ const gui_root = {
   guiRemoveEventPromo,
   guiMoveEventDj,
   guiMoveEventPromo,
+  guiSetEventTheme,
   guiDeleteFile,
   guiDeleteTheme,
   guiDeleteDj,
@@ -94,6 +109,13 @@ const gui_root = {
   guiExportEvent,
   guiImportLegacyLedger,
   guiImportLegacyEvents,
+  guiGetAppThemes,
+  guiAddAppTheme,
+  guiEditAppTheme,
+  guiDeleteAppTheme,
+  guiGetLogoPermissions,
+  guiGetRecordingPermissions,
+  guiGetThemePermissions
 };
 const app = express();
 const logo_permissions = staticLogoPermission();
@@ -115,14 +137,17 @@ export const create_server = () => {
     `/${encodeURIComponent(logo_permissions.id)}`,
     express.static(logo_permissions.path),
   );
+  console.log(`Logos: localhost:${port}/${encodeURIComponent(logo_permissions.id)}`);
   app.use(
     `/${encodeURIComponent(rec_permissions.id)}`,
     express.static(rec_permissions.path),
   );
+  console.log(`Recordings: localhost:${port}/${encodeURIComponent(rec_permissions.id)}`);
   app.use(
     `/${encodeURIComponent(themes_permissions.id)}`,
     express.static(themes_permissions.path),
   );
+  console.log(`Themes: localhost:${port}/${encodeURIComponent(themes_permissions.id)}`);
   app.get("/healthz", (req, res) => {
     // do app logic here to determine if app is truly healthy
     // you should return 200 if healthy, and anything else will fail

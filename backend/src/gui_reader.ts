@@ -4,16 +4,33 @@ import {
   get_file,
   get_promo,
   get_theme,
+  read_app_themes_table,
   read_djs_table,
   read_events_table,
+  read_files_logos,
+  read_files_recordings,
   read_files_table,
+  read_files_themes,
   read_promos_table,
   read_themes_table,
 } from "./database";
 import { InvalidFileError } from "./errors";
+import { getLocalLogoFiles, getLocalRecordingFiles, getLocalThemeFiles } from "./file_helpers";
 
 export const guiGetFiles = async () => {
   return await read_files_table();
+};
+
+export const guiGetLogoFiles = async () => {
+  return await read_files_logos();
+};
+
+export const guiGetRecordingFiles = async () => {
+  return await read_files_recordings();
+};
+
+export const guiGetThemeFiles = async () => {
+  return await read_files_themes();
 };
 
 export const guiGetThemes = async () => {
@@ -31,6 +48,10 @@ export const guiGetPromos = async () => {
 export const guiGetDjs = async () => {
   return await read_djs_table();
 };
+
+export const guiGetAppThemes = async () => {
+  return await read_app_themes_table();
+}
 
 export const guiGetFile = async (data: { file_name: string }) => {
   const file = await get_file(data.file_name);
@@ -71,3 +92,15 @@ export const guiGetDj = async (data: { dj_name: string }) => {
 
   return dj;
 };
+
+export const guiGetLogoPermissions = async (data: { sub_dirs: string[]}) => {
+  return getLocalLogoFiles(data.sub_dirs);
+}
+
+export const guiGetRecordingPermissions = async (data: { sub_dirs: string[]}) => {
+  return getLocalRecordingFiles(data.sub_dirs);
+}
+
+export const guiGetThemePermissions = async (data: { sub_dirs: string[]}) => {
+  return getLocalThemeFiles(data.sub_dirs);
+}

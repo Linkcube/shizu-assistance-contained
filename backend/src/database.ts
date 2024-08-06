@@ -7,6 +7,7 @@ import {
   THEMES_TABLE,
   ALL_TABLES,
   PROMOS_TABLE,
+  APP_THEMES_TABLE,
 } from "./tables";
 import {
   IDjObject,
@@ -23,12 +24,15 @@ import {
 } from "./types";
 import {
   internal_create_table_helper,
-  interna_get_row_from_table,
+  internal_get_row_from_table,
   internal_read_entire_table,
 } from "./database_helpers/helper_functions";
 import {
   internal_delete_file,
   internal_insert_into_files,
+  internal_read_all_logo_files,
+  internal_read_all_recording_files,
+  internal_read_all_theme_files,
   internal_update_file,
 } from "./database_helpers/file_db_helpers";
 import {
@@ -45,6 +49,7 @@ import {
   internal_move_event_promo,
   internal_remove_event_dj,
   internal_remove_event_promo,
+  internal_set_event_theme,
   internal_update_event,
   internal_update_event_dj,
 } from "./database_helpers/event_db_helpers";
@@ -58,17 +63,21 @@ import {
   internal_insert_into_djs,
   internal_update_dj,
 } from "./database_helpers/dj_db_helpers";
-import { InvalidFileError } from "./errors";
+import { InvalidFileError, InvalidLineupError } from "./errors";
 import {
   fetchFile,
   getResolution,
   EXPORT_ROOT,
   root_map,
   rebuildLegacyObjects,
+  LOGOS_ROOT,
+  RECORDINGS_ROOT,
+  THEMES_ROOT,
 } from "./file_helpers";
-import { join, normalize, parse } from "path";
+import { join, parse } from "path";
 import { accessSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import util from "node:util";
+import { internal_delete_app_themes, internal_insert_into_app_themes, internal_update_app_themes } from "./database_helpers/app_themes_db_helpers";
 
 // File for accessing SQL, handles client/pool lifecycles.
 
@@ -80,6 +89,27 @@ export const database_pool = new Pool(pool_config);
 export const read_files_table = async () => {
   const pool = await database_pool.connect();
   const retval = await internal_read_entire_table(FILES_TABLE, pool);
+  await pool.release();
+  return retval.rows;
+};
+
+export const read_files_logos = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_all_logo_files(pool);
+  await pool.release();
+  return retval.rows;
+};
+
+export const read_files_recordings = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_all_recording_files(pool);
+  await pool.release();
+  return retval.rows;
+};
+
+export const read_files_themes = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_all_theme_files(pool);
   await pool.release();
   return retval.rows;
 };
@@ -112,40 +142,54 @@ export const read_djs_table = async () => {
   return retval.rows;
 };
 
+export const read_app_themes_table = async () => {
+  const pool = await database_pool.connect();
+  const retval = await internal_read_entire_table(APP_THEMES_TABLE, pool);
+  await pool.release();
+  return retval.rows;
+}
+
 export const get_file = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(FILES_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(FILES_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_theme = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(THEMES_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(THEMES_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_event = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(EVENTS_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(EVENTS_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_promo = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(PROMOS_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(PROMOS_TABLE, name, pool);
   await pool.release();
   return retval;
 };
 
 export const get_dj = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await interna_get_row_from_table(DJS_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(DJS_TABLE, name, pool);
   await pool.release();
   return retval;
 };
+
+export const get_app_theme = async (name: string) => {
+  const pool = await database_pool.connect();
+  const retval = await internal_get_row_from_table(APP_THEMES_TABLE, name, pool);
+  await pool.release();
+  return retval;
+}
 
 export const create_tables = async () => {
   const client = database_client();
@@ -155,8 +199,31 @@ export const create_tables = async () => {
     await internal_create_table_helper(client, table);
   }
 
+  const themes = await client.query(`SELECT * FROM ${APP_THEMES_TABLE.name};`);
+  if (themes.rows.length === 0) await initial_data();
+
   await client.end();
 };
+
+const initial_data = async () => {
+  await create_new_app_theme("Default");
+  await create_new_app_theme("Moe");
+  await update_app_theme("Moe", {
+    primaryColor: "#789922",
+    secondaryColor: "#d3d3d3",
+    backgroundColor: "#d9e6ff",
+    primaryTextColor: "#000000",
+    secondaryTextColor: "#789922",
+    highlightColor: "#cc4a4a",
+    focusColor: "#ffffff",
+    activeColor: "#d9e6ff",
+    deleteColor: "#5c3c82",
+    cancelTextColor: "#5c3c82",
+    cancelBackgroundColor: "#7149a24f",
+    submitTextColor: "#789922",
+    submitBackgroundColor: "#97c42252",
+  });
+}
 
 export const insert_into_files = async (file_data: IFileObject) => {
   const pool = await database_pool.connect();
@@ -346,6 +413,16 @@ export const move_event_promo = async (
   return error;
 };
 
+export const set_event_theme = async (
+  event_name: string,
+  theme_name: string
+) => {
+  const pool = await database_pool.connect();
+  const error = await internal_set_event_theme(event_name, theme_name, pool);
+  pool.release();
+  return error;
+}
+
 export const delete_event = async (event_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_event(event_name, pool);
@@ -395,6 +472,27 @@ export const delete_dj = async (dj_name: string) => {
   return error;
 };
 
+export const create_new_app_theme = async (app_theme_name: string) => {
+  const pool = await database_pool.connect();
+  const error = await internal_insert_into_app_themes(app_theme_name, pool);
+  await pool.release();
+  return error;
+}
+
+export const update_app_theme = async (app_theme_name: string, style: any) => {
+  const pool = await database_pool.connect();
+  const error = await internal_update_app_themes(app_theme_name, style, pool);
+  await pool.release();
+  return error;
+}
+
+export const delete_app_theme = async (app_theme_name: string) => {
+  const pool = await database_pool.connect();
+  const error = await internal_delete_app_themes(app_theme_name, pool);
+  await pool.release();
+  return error;
+}
+
 const find_event_objects = async (event_name: string) => {
   const files_to_check: string[] = [];
   const errors = [];
@@ -403,7 +501,7 @@ const find_event_objects = async (event_name: string) => {
   const djs: IDjObject[] = [];
 
   const pool = await database_pool.connect();
-  const event: IEventObject | Error = await interna_get_row_from_table(
+  const event: IEventObject | Error = await internal_get_row_from_table(
     EVENTS_TABLE,
     event_name,
     pool,
@@ -411,7 +509,7 @@ const find_event_objects = async (event_name: string) => {
   if (event instanceof Error) return { file_names: [], errors: [event] };
 
   if (event.theme) {
-    theme = await interna_get_row_from_table(THEMES_TABLE, event.theme, pool);
+    theme = await internal_get_row_from_table(THEMES_TABLE, event.theme, pool);
     if (theme instanceof Error || theme === undefined) {
       errors.push(theme);
     } else {
@@ -424,7 +522,7 @@ const find_event_objects = async (event_name: string) => {
 
   if (event.promos) {
     for (const promo_name of event.promos) {
-      const promo: IPromoObject | Error = await interna_get_row_from_table(
+      const promo: IPromoObject | Error = await internal_get_row_from_table(
         PROMOS_TABLE,
         promo_name,
         pool,
@@ -446,7 +544,7 @@ const find_event_objects = async (event_name: string) => {
 
   if (event.djs) {
     for (const lineup_dj of event.djs) {
-      const dj: IDjObject | Error = await interna_get_row_from_table(
+      const dj: IDjObject | Error = await internal_get_row_from_table(
         DJS_TABLE,
         lineup_dj.name,
         pool,
@@ -478,17 +576,17 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
     return new InvalidFileError(`No local path or url set for ${file.name}`);
   let local_file_path;
   let has_local_file = false;
+  const root = root_map.get(file.root!)!;
   if (file.file_path) {
-    local_file_path = file.file_path;
+    local_file_path = join(root, file.file_path);
     try {
-      accessSync(file.file_path);
+      accessSync(local_file_path);
       has_local_file = true;
     } catch (err) {
-      console.log(`Local file ${file.file_path} not found.`);
+      console.log(`Local file ${local_file_path} not found.`);
     }
   } else {
     const file_name = parse(file.url_path!).base;
-    const root = root_map.get(file.root!)!;
     local_file_path = join(root, decodeURI(file_name));
   }
 
@@ -502,7 +600,7 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
     const fetch_result = await fetchFile(file.url_path, local_file_path);
     if (fetch_result instanceof Error) return fetch_result;
     if (!file.file_path) {
-      file.file_path = local_file_path;
+      file.file_path = local_file_path.slice(root.length + 1);
       await internal_update_file(file, pool);
     }
   }
@@ -513,7 +611,7 @@ const gather_files_for_export = async (files_to_check: string[]) => {
   const errors = [];
   const pool = await database_pool.connect();
   for (const file_name of files_to_check) {
-    const file: IFileObject | Error = await interna_get_row_from_table(
+    const file: IFileObject | Error = await internal_get_row_from_table(
       FILES_TABLE,
       file_name,
       pool,
@@ -561,14 +659,14 @@ export const export_event = async (event_name: string) => {
     const dj = event_objects.djs![index];
 
     const dj_export_data: IExportDjineupData = {
-      name: dj.name,
+      name: dj.public_name ? dj.public_name : dj.name,
       logo_path: "",
       recording_path: "",
       resolution: Promise.resolve([]),
       url: "",
-      vj: "",
+      vj: lineup_dj.vj ? lineup_dj.vj : "",
     };
-    if (dj.logo) dj_export_data.logo_path = files_map.get(dj.logo)!;
+    if (dj.logo) dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
     if (lineup_dj.is_live) {
       dj_export_data.url = util.format(
         process.env.RTMP_SERVER,
@@ -577,13 +675,12 @@ export const export_event = async (event_name: string) => {
       );
     } else {
       if (dj.recording) {
-        dj_export_data.recording_path = files_map.get(dj.recording)!;
+        dj_export_data.recording_path = join(RECORDINGS_ROOT, files_map.get(dj.recording)!);
         dj_export_data.resolution = getResolution(
           dj_export_data.recording_path,
         );
       }
     }
-    if (lineup_dj.vj) dj_export_data.vj = lineup_dj.vj;
     return dj_export_data;
   });
 
@@ -598,7 +695,7 @@ export const export_event = async (event_name: string) => {
         resolution: Promise.resolve([]),
       };
       if (promo.promo_file) {
-        promo_export_data.path = files_map.get(promo.promo_file)!;
+        promo_export_data.path = join(RECORDINGS_ROOT, files_map.get(promo.promo_file)!);
         promo_export_data.resolution = getResolution(promo_export_data.path);
       }
 
@@ -610,8 +707,8 @@ export const export_event = async (event_name: string) => {
     dj_promises.map(async (dj) => {
       return {
         name: dj.name,
-        logo_path: normalize(dj.logo_path),
-        recording_path: normalize(dj.recording_path),
+        logo_path: dj.logo_path,
+        recording_path: dj.recording_path,
         resolution: await dj.resolution,
         url: dj.url,
         vj: dj.vj,
@@ -622,7 +719,7 @@ export const export_event = async (event_name: string) => {
     promo_promises.map(async (promo) => {
       return {
         name: promo.name,
-        path: normalize(promo.path),
+        path: promo.path,
         resolution: await promo.resolution,
       };
     }),
@@ -642,7 +739,7 @@ export const export_event = async (event_name: string) => {
     return new InvalidFileError(ffmpeg_errors.toString());
 
   // Wrtite {event_name}.json to exports mount
-  const DOCKER_EXPORT_PATH = join(normalize(EXPORT_ROOT), event_name + ".json");
+  const DOCKER_EXPORT_PATH = join(EXPORT_ROOT, event_name + ".json");
 
   console.log(`Exporting to ${DOCKER_EXPORT_PATH}`);
 
@@ -655,13 +752,29 @@ export const export_event = async (event_name: string) => {
   if (event_objects.theme && !(event_objects.theme instanceof Error)) {
     const theme_data: IExportThemeData = { name: event_objects.theme.name };
     if (event_objects.theme.overlay_file)
-      theme_data.overlay = files_map.get(event_objects.theme.overlay_file);
+      theme_data.overlay = join(THEMES_ROOT, files_map.get(event_objects.theme.overlay_file)!);
     if (event_objects.theme.starting_file)
-      theme_data.starting = files_map.get(event_objects.theme.starting_file);
+      theme_data.starting = join(THEMES_ROOT, files_map.get(event_objects.theme.starting_file)!);
     if (event_objects.theme.stinger_file)
-      theme_data.stinger = files_map.get(event_objects.theme.stinger_file);
+      theme_data.stinger = join(THEMES_ROOT, files_map.get(event_objects.theme.stinger_file)!);
     if (event_objects.theme.ending_file)
-      theme_data.ending = files_map.get(event_objects.theme.ending_file);
+      theme_data.ending = join(THEMES_ROOT, files_map.get(event_objects.theme.ending_file)!);
+    if (event_objects.theme.target_video_width)
+      theme_data.video_width = event_objects.theme.target_video_width;
+    if (event_objects.theme.target_video_height)
+      theme_data.video_height = event_objects.theme.target_video_height;
+    if (event_objects.theme.video_offset_x)
+      theme_data.video_x_offset = event_objects.theme.video_offset_x;
+    if (event_objects.theme.video_offset_y)
+      theme_data.video_y_offset = event_objects.theme.video_offset_y;
+    if (event_objects.theme.chat_width)
+      theme_data.chat_width = event_objects.theme.chat_width;
+    if (event_objects.theme.chat_height)
+      theme_data.chat_height = event_objects.theme.chat_height;
+    if (event_objects.theme.chat_offset_x)
+      theme_data.chat_x_offset = event_objects.theme.chat_offset_x;
+    if (event_objects.theme.chat_offset_y)
+      theme_data.chat_y_offset = event_objects.theme.chat_offset_y;
     export_data.theme = theme_data;
   }
 
@@ -672,10 +785,8 @@ export const export_event = async (event_name: string) => {
 
 export const import_legacy_ledger = async (ledger_path: string) => {
   const ledger: ILegacyLedger = JSON.parse(readFileSync(ledger_path, "utf-8"));
-  console.log(ledger);
 
   const new_objects = rebuildLegacyObjects(ledger);
-  console.log(new_objects);
   const errors: string[] = [];
   for (const file of new_objects.files) {
     console.log(`Processing File ${file.name}`);

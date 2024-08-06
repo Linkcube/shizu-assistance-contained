@@ -1,7 +1,7 @@
 import {
-  interna_insert_into_table,
-  interna_update_table_entry,
-  interna_get_row_from_table,
+  internal_insert_into_table,
+  internal_update_table_entry,
+  internal_get_row_from_table,
 } from "./helper_functions";
 import { InvalidFileError } from "../errors";
 import { EVENTS_TABLE, FILES_TABLE, THEMES_TABLE } from "../tables";
@@ -76,7 +76,7 @@ export const internal_insert_into_themes = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_insert_into_table(THEMES_TABLE, theme_data, pool);
+  await internal_insert_into_table(THEMES_TABLE, theme_data, pool);
 };
 
 export const internal_update_theme = async (
@@ -88,14 +88,14 @@ export const internal_update_theme = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_update_table_entry(THEMES_TABLE, theme_data, pool);
+  await internal_update_table_entry(THEMES_TABLE, theme_data, pool);
 };
 
 export const internal_delete_theme = async (
   theme_name: string,
   pool: PoolClient,
 ) => {
-  const theme = (await interna_get_row_from_table(
+  const theme = (await internal_get_row_from_table(
     THEMES_TABLE,
     theme_name,
     pool,

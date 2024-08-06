@@ -1,7 +1,7 @@
 import {
-  interna_insert_into_table,
-  interna_update_table_entry,
-  interna_get_row_from_table,
+  internal_insert_into_table,
+  internal_update_table_entry,
+  internal_get_row_from_table,
 } from "./helper_functions";
 import { PromoNotFoundError, InvalidFileError } from "../errors";
 import { PROMOS_TABLE, FILES_TABLE, EVENTS_TABLE } from "../tables";
@@ -47,7 +47,7 @@ export const internal_insert_into_promos = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_insert_into_table(PROMOS_TABLE, promo_data, pool);
+  await internal_insert_into_table(PROMOS_TABLE, promo_data, pool);
 };
 
 export const internal_update_promo = async (
@@ -59,21 +59,22 @@ export const internal_update_promo = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await interna_update_table_entry(PROMOS_TABLE, promo_data, pool);
+  await internal_update_table_entry(PROMOS_TABLE, promo_data, pool);
 };
 
 export const internal_delete_promo = async (
   promo_name: string,
   pool: PoolClient,
 ) => {
-  const promo = (await interna_get_row_from_table(
+  const promo = (await internal_get_row_from_table(
     PROMOS_TABLE,
     promo_name,
     pool,
   )) as IEventObject | Error;
   if (promo instanceof Error) return promo;
 
-  const events_with_promo_query = `SELECT * FROM ${EVENTS_TABLE.name} WHERE ${promo_name} = ANY (promos);`;
+  const events_with_promo_query = `SELECT * FROM ${EVENTS_TABLE.name} WHERE '${promo_name}' = ANY (promos);`;
+  console.log(events_with_promo_query);
   const events_with_promo = await pool.query(events_with_promo_query);
 
   if (events_with_promo.rows && events_with_promo.rows.length > 0) {

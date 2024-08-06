@@ -3,7 +3,7 @@ import { basename, extname, join, resolve, normalize, parse } from "path";
 import { get } from "https";
 import { ffprobe } from "fluent-ffmpeg";
 import { urlToHttpOptions } from "url";
-import { IDjObject, IFileObject, ILegacyLedger, IPromoObject } from "./types";
+import { IDjObject, IFileBlob, IFileObject, ILegacyLedger, IPromoObject } from "./types";
 
 if (process.env.DOCKER_LOGOS_PATH === undefined)
   throw new Error("DOCKER_LOGOS_PATH is not set!");
@@ -32,12 +32,12 @@ export const getLocalLogoFiles = (sub_dirs: string[]) => {
   const new_path = join(LOGOS_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files: Dirent[]; path: string[]; top_dir: string } = {
+  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
     files: [],
     path: [],
     top_dir: "",
   };
-  retval.files = new_items.filter((file) => {
+  const filtered_files = new_items.filter((file) => {
     return (
       [
         ".png",
@@ -51,8 +51,16 @@ export const getLocalLogoFiles = (sub_dirs: string[]) => {
       ].includes(extname(file.name)) || file.isDirectory()
     );
   });
+  retval.files = filtered_files.map((file) => {
+    const parsed = parse(file.name);
+    return {
+      name: parsed.name,
+      ext: parsed.ext,
+      is_dir: file.isDirectory()
+    }
+  });
   retval.path = sub_dirs;
-  retval.top_dir = LOGOS_ROOT;
+  retval.top_dir = "Logos";
 
   return retval;
 };
@@ -65,12 +73,12 @@ export const getLocalRecordingFiles = (sub_dirs: string[]) => {
   const new_path = join(RECORDINGS_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files: Dirent[]; path: string[]; top_dir: string } = {
+  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
     files: [],
     path: [],
     top_dir: "",
   };
-  retval.files = new_items.filter((file) => {
+  const filtered_files = new_items.filter((file) => {
     return (
       [
         ".mkv",
@@ -84,8 +92,16 @@ export const getLocalRecordingFiles = (sub_dirs: string[]) => {
       ].includes(extname(file.name)) || file.isDirectory()
     );
   });
+  retval.files = filtered_files.map((file) => {
+    const parsed = parse(file.name);
+    return {
+      name: parsed.name,
+      ext: parsed.ext,
+      is_dir: file.isDirectory()
+    }
+  });
   retval.path = sub_dirs;
-  retval.top_dir = RECORDINGS_ROOT;
+  retval.top_dir = "Recordings";
 
   return retval;
 };
@@ -98,11 +114,19 @@ export const getLocalThemeFiles = (sub_dirs: string[]) => {
   const new_path = join(THEMES_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files: Dirent[]; path: string[]; top_dir: string } = {
-    files: new_items,
+  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
+    files: [],
     path: sub_dirs,
-    top_dir: THEMES_ROOT,
+    top_dir: "Themes",
   };
+  retval.files = new_items.map((file) => {
+    const parsed = parse(file.name);
+    return {
+      name: parsed.name,
+      ext: parsed.ext,
+      is_dir: file.isDirectory()
+    }
+  });
 
   return retval;
 };
@@ -115,14 +139,22 @@ export const getLocalExportDirs = (sub_dirs: string[]) => {
   const new_path = join(EXPORT_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files: Dirent[]; path: string[]; top_dir: string } = {
+  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
     files: [],
     path: [],
     top_dir: "",
   };
-  retval.files = new_items.filter((file) => file.isDirectory());
+  const filtered_files = new_items.filter((file) => file.isDirectory());
+  retval.files = filtered_files.map((file) => {
+    const parsed = parse(file.name);
+    return {
+      name: parsed.name,
+      ext: parsed.ext,
+      is_dir: file.isDirectory()
+    }
+  });
   retval.path = sub_dirs;
-  retval.top_dir = EXPORT_ROOT;
+  retval.top_dir = "Export";
 
   return retval;
 };
@@ -169,7 +201,8 @@ export const fetchFile = (url: string, local_path: string) => {
     options.auth = process.env.FILE_SERVER_AUTHORIZATION;
     // TODO: switch on http/https
     const file = createWriteStream(local_path);
-    const request = get(options, (response) => {
+    get(options, (response) => {
+      // TODO: error on 403
       response.pipe(file);
 
       file.on("finish", () => {
@@ -180,7 +213,6 @@ export const fetchFile = (url: string, local_path: string) => {
         file.destroy();
         promise_resolve(err);
       });
-      request.end();
     });
   });
 };
@@ -256,10 +288,11 @@ export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
       const parsed_file = parse(dj.logo_path);
       const file = logos_file_map.get(parsed_file.base);
       if (file) {
+        let trimmed_parent_path = file.parentPath.slice(LOGOS_ROOT.length+1)
         const new_file: IFileObject = {
           name: parsed_file.name,
           root: "LOGOS",
-          file_path: join(file.parentPath, file.name),
+          file_path: join(trimmed_parent_path, file.name),
         };
         new_files.push(new_file);
         new_dj.logo = new_file.name;
@@ -269,10 +302,11 @@ export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
       const parsed_file = parse(dj.recording_path);
       const file = recordings_file_map.get(parsed_file.base);
       if (file) {
+        let trimmed_parent_path = file.parentPath.slice(RECORDINGS_ROOT.length+1)
         const new_file: IFileObject = {
           name: parsed_file.name,
           root: "RECORDINGS",
-          file_path: join(file.parentPath, file.name),
+          file_path: join(trimmed_parent_path, file.name),
         };
         new_files.push(new_file);
         new_dj.recording = new_file.name;
@@ -288,10 +322,11 @@ export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
       const parsed_file = parse(promo.path);
       const file = recordings_file_map.get(parsed_file.base);
       if (file) {
+        let trimmed_parent_path = file.parentPath.slice(RECORDINGS_ROOT.length+1)
         const new_file: IFileObject = {
           name: parsed_file.name,
-          root: "LOGOS",
-          file_path: join(file.parentPath, file.name),
+          root: "RECORDINGS",
+          file_path: join(trimmed_parent_path, file.name),
         };
         new_files.push(new_file);
         new_promo.promo_file = new_file.name;

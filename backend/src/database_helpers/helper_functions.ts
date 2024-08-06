@@ -73,7 +73,7 @@ export const internal_read_entire_table = async (
   return retval;
 };
 
-export const interna_get_row_from_table = async (
+export const internal_get_row_from_table = async (
   table: Table,
   primary_key: string,
   pool: PoolClient,
@@ -88,7 +88,7 @@ export const interna_get_row_from_table = async (
   return retval.rows[0];
 };
 
-export const interna_insert_into_table = async (
+export const internal_insert_into_table = async (
   table: Table,
   obj_data: any,
   pool: PoolClient,
@@ -118,6 +118,9 @@ export const interna_insert_into_table = async (
         name: definition.name,
         json: obj_data[definition.name],
       });
+    } else if (definition.type === "SMALLINT") {
+      columns_string += `, ${definition.name}`;
+      values_string += `, ${obj_data[definition.name]}`;
     }
   });
 
@@ -134,15 +137,16 @@ export const interna_insert_into_table = async (
   }
 };
 
-export const interna_update_table_entry = async (
+export const internal_update_table_entry = async (
   table: Table,
   obj_data: any,
   pool: PoolClient,
 ) => {
   const update_pairs: string[][] = [];
   table.definitions.forEach((definition) => {
-    if (!obj_data[definition.name]) return;
-    if (
+    if (!obj_data[definition.name]) {
+      update_pairs.push([definition.name, "DEFAULT"]);
+    } else if (
       definition.type === "TEXT" ||
       definition.type === "TIMESTAMP WITH TIME ZONE"
     ) {
@@ -159,6 +163,8 @@ export const interna_update_table_entry = async (
         definition.name,
         `'${JSON.stringify(obj_data[definition.name])}'`,
       ]);
+    } else if (definition.type === "SMALLINT") {
+      update_pairs.push([definition.name, obj_data[definition.name]]);
     }
   });
 

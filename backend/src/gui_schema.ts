@@ -3,6 +3,9 @@ import { buildSchema } from "graphql";
 export const GUI_SCHEMA = buildSchema(`
 type Query {
     guiGetFiles: [fileObject]
+    guiGetLogoFiles: [fileObject]
+    guiGetRecordingFiles: [fileObject]
+    guiGetThemeFiles: [fileObject]
     guiGetThemes: [themeObject]
     guiGetEvents: [eventObject]
     guiGetDjs: [djObject]
@@ -12,31 +15,43 @@ type Query {
     guiGetEvent(event_name: String!): eventObject
     guiGetDj(dj_name: String!): djObject
     guiGetPromo(promo_name: String!): promoObject
+    guiGetAppThemes: [appThemeObject]
+    guiGetLogoPermissions(sub_dirs: [String]): fileDialogBlob
+    guiGetRecordingPermissions(sub_dirs: [String]): fileDialogBlob
+    guiGetThemePermissions(sub_dirs: [String]): fileDialogBlob
 }
 type Mutation {
     guiAddNewFile(
         name: String!,
         root: String,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewLogoFile(
         name: String!,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewRecordingFile(
         name: String!,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewThemeFile(
         name: String!,
         file_path: String,
-        url_path: String): [fileObject]
+        url_path: String): fileObject
     guiAddNewTheme(
         name: String!,
         overlay_file: String,
         stinger_file: String,
         starting_file: String,
-        ending_file: String
+        ending_file: String,
+        target_video_width: Int,
+        target_video_height: Int,
+        video_offset_x: Int,
+        video_offset_y: Int,
+        chat_width: Int,
+        chat_height: Int,
+        chat_offset_x: Int,
+        chat_offset_y: Int
     ): [themeObject]
     guiAddDj(
         name: String!,
@@ -72,13 +87,21 @@ type Mutation {
         root: String,
         file_path: String,
         url_path: String
-    ): [fileObject]
+    ): fileObject
     guiUpdateTheme(
         name: String!,
         overlay_file: String,
         stinger_file: String,
         starting_file: String,
-        ending_file: String
+        ending_file: String,
+        target_video_width: Int,
+        target_video_height: Int,
+        video_offset_x: Int,
+        video_offset_y: Int,
+        chat_width: Int,
+        chat_height: Int,
+        chat_offset_x: Int,
+        chat_offset_y: Int
     ): [themeObject]
     guiUpdateDj(
         name: String!,
@@ -125,6 +148,10 @@ type Mutation {
         index_a: Int!,
         index_b: Int!
     ): [eventObject]
+    guiSetEventTheme(
+        event_name: String!,
+        theme_name: String!
+    ): eventObject
     guiDeleteFile(file_name: String!): [fileObject]
     guiDeleteTheme(theme_name: String!): [themeObject]
     guiDeleteEvent(event_name: String!): [eventObject]
@@ -133,7 +160,13 @@ type Mutation {
     guiExportEvent(event_name: String!): String
     guiImportLegacyLedger(ledger_path: String!): String
     guiImportLegacyEvents(lineups_path: String!): String
-}
+    guiAddAppTheme(name: String): [appThemeObject]
+    guiEditAppTheme(
+        name: String!,
+        style: appThemeObjectInput!
+    ): [appThemeObject]
+    guiDeleteAppTheme(name: String!): [appThemeObject]
+},
 type djObject {
     name: String,
     logo: String,
@@ -143,39 +176,91 @@ type djObject {
     public_name: String,
     discord_id: String,
     past_events: [String]
-}
+},
 type djLineupObject {
     name: String,
     is_live: Boolean,
     vj: String
-}
+},
 type eventObject {
     name: String,
     djs: [djLineupObject],
     promos: [String],
     theme: String,
     public: Boolean
-}
+},
 type themeObject {
     name: String,
     overlay_file: String,
     stinger_file: String,
     starting_file: String,
-    ending_file: String
-}
+    ending_file: String,
+    target_video_width: Int,
+    target_video_height: Int,
+    video_offset_x: Int,
+    video_offset_y: Int,
+    chat_width: Int,
+    chat_height: Int,
+    chat_offset_x: Int,
+    chat_offset_y: Int
+},
 type fileObject {
     name: String,
     root: String,
     file_path: String,
     url_path: String
-}
+},
 type promoObject {
     name: String,
     promo_file: String
-}
+},
+type appThemeObject {
+    name: String,
+    style: themeStyle
+},
+type themeStyle {
+    primaryColor: String,
+    secondaryColor: String,
+    backgroundColor: String,
+    primaryTextColor: String,
+    secondaryTextColor: String,
+    highlightColor: String,
+    focusColor: String,
+    activeColor: String,
+    deleteColor: String,
+    cancelTextColor: String,
+    cancelBackgroundColor: String,
+    submitTextColor: String,
+    submitBackgroundColor: String
+},
+type fileDialogBlob {
+    files: [fileBlob],
+    path: [String],
+    top_dir: String
+},
+type fileBlob {
+    name: String,
+    ext: String
+    is_dir: Boolean
+},
 input djLineupInput {
     name: String,
     is_live: Boolean,
     vj: String
+},
+input appThemeObjectInput {
+    primaryColor: String,
+    secondaryColor: String,
+    backgroundColor: String,
+    primaryTextColor: String,
+    secondaryTextColor: String,
+    highlightColor: String,
+    focusColor: String,
+    activeColor: String,
+    deleteColor: String,
+    cancelTextColor: String,
+    cancelBackgroundColor: String,
+    submitTextColor: String,
+    submitBackgroundColor: String
 }
 `);
