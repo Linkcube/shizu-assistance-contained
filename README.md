@@ -23,7 +23,7 @@ GUI: Default access http://localhost:5000/
 
 Bot API: Under development.
 
-OBS script: Run inside OBS, pointing at an exported event using the path translation option.
+OBS script: Run inside OBS, checkout the [ReadMe](https://github.com/Linkcube/shizu-assistance-contained/blob/main/OBS%20Script/README.md) for detailed execution.
 
 ## Environment Setup
 The `.env` file manages shared file mounts and secrets for the services.
