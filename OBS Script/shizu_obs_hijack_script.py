@@ -7,17 +7,20 @@ import json
 import os
 from pathlib import Path
 from PIL import Image
+from copy import deepcopy
 
 # Export json properties
 DJ_KEY = "djs"
 PROMO_KEY = "promos"
 THEME_KEY = "theme"
+ENV_FILE_NAME = ".env"
+ASS_DEFAULT_OBS = "advanced_scene_switcher_obs.json"
 
 # Expected existing scenes if not supplying a theme
 OVERLAY_SCENE = "# - Overlay"
 STARTING_SCENE = "! - Starting"
 ENDING_SCENE = "! - Ending"
-PROMOS_SCENE = "promos"
+PROMOS_SCENE = "Promotional Videos"
 
 # OBS output
 RENDER_WIDTH = 1920
@@ -37,6 +40,7 @@ class Hijack:
     lineup_path = None
     host_paths = False
     path_translation_map = {}
+    generate_macros = False
 
     # Theme default values
     target_video_width = 1530
@@ -49,6 +53,9 @@ class Hijack:
     chat_offset_y = 0
 
     overlay_scene = None
+    promos_scene = None
+    ending_scene = None
+    ass_manager = None
 
     def begin(self):
         if self.lineup_path:
@@ -58,6 +65,9 @@ class Hijack:
 
         if self.host_paths:
             self.parse_env_paths()
+        
+        if self.generate_macros:
+            self.parse_ass_objs()
 
         
         print("Retreived lineup data, processing..")
@@ -69,6 +79,9 @@ class Hijack:
         self.generate_scenes(lineup)
 
         print(f"Generation is done! {len(lineup)} scenes created.")
+
+        if self.generate_macros:
+            self.generate_ass_file()
     
     def validate_json_file(self, path):
         # Validate file exists, and load JSON data
@@ -80,7 +93,7 @@ class Hijack:
     
     def parse_env_paths(self):
         # Prepare translation map for docker->host paths
-        env_fp = Path(__file__).absolute().parent.joinpath(".env")
+        env_fp = Path(__file__).absolute().parent.parent.joinpath(ENV_FILE_NAME)
         if not env_fp.exists():
             raise Exception("Could not find .env file for path translation: " + str(env_fp))
         
@@ -96,6 +109,20 @@ class Hijack:
         host_root = self.path_translation_map[host_key]
         val = str(Path(host_root).joinpath(raw_path[len(docker_root)+1:]))
         return val
+    
+    def parse_ass_objs(self):
+        self.ass_manager = AdvancedSceneSwitchManager()
+    
+    def generate_ass_file(self):
+        print("Generating Automatic Scene Switch Macros")
+        json_data = self.ass_manager.generate_objects(self.promos_scene, self.ending_scene)
+
+        macro_file_name = ''.join(Path(self.lineup_path).name.split(".")[:-1]) + "_macro.txt"
+        new_macro_path = Path(self.lineup_path).absolute().parent.joinpath(macro_file_name)
+        with open(new_macro_path, "w") as f:
+            f.write(json_data)
+        
+        print("Wrote new macro to: " + str(new_macro_path))
 
     
     def init_lineup_data(self, lineup_data):
@@ -183,6 +210,8 @@ class Hijack:
                         "DOCKER_THEMES_PATH", "LOCAL_THEMES_PATH", ending_scene.path
                     )
                 lineup_scenes.append(ending_scene)
+            else:
+                self.ending_scene = S.obs_get_scene_by_name(ENDING_SCENE)
             
             # Prepend theme items
             lineup_scenes = theme_items + lineup_scenes
@@ -203,8 +232,8 @@ class Hijack:
                 self.setup_dj_scene_items(scene, scene_values)
                 S.obs_scene_release(scene)
             elif scene_values.type == "Promos":
-                scene = S.obs_scene_create(scene_values.name)
-                self.setup_promo_scene_items(scene, scene_values)
+                self.promos_scene = S.obs_scene_create(scene_values.name)
+                self.setup_promo_scene_items(self.promos_scene, scene_values)
                 S.obs_scene_release(scene)
             else:
                 self.setup_theme_scene_items(scene_values)
@@ -215,6 +244,8 @@ class Hijack:
             scene = self.overlay_scene
         else:
             scene = S.obs_scene_create(scene_values.name)
+            if (scene_values.name == ENDING_SCENE):
+                self.ending_scene = scene
         if ("." + scene_values.path.split(".")[-1]) in IMG_EXTS:
             image_settings = S.obs_data_create()
             S.obs_data_set_string(image_settings, "file", scene_values.path)
@@ -262,6 +293,7 @@ class Hijack:
             }
             video_settings = S.obs_data_create_from_json(json.dumps(json_settings))
             video_source = S.obs_source_create("ffmpeg_source", video_source_name, video_settings, None)
+            self.ass_manager.add_dj(scene_values.name, S.obs_source_get_name(S.obs_scene_get_source(scene)))
         else:
             video_source_name = f"{scene_values.name}_live"
             json_settings = {
@@ -388,7 +420,7 @@ class Hijack:
     def setup_promo_scene_items(self, scene, promotion: 'ObsPromoScene'):
         # Load all promos into a single VLC playlist
         video_source_name = f"promo_videos"
-        json_settings = {"playlist": []}
+        json_settings = {"playlist": [], "loop": False}
         for path in promotion.paths:
             json_settings["playlist"].append({
                 "hidden": False,
@@ -438,7 +470,7 @@ class ObsPromoScene(ObsSceneValue):
     def __init__(self, paths):
         self.paths = paths
         self.type = "Promos"
-        self.name = "Promotional Videos"
+        self.name = PROMOS_SCENE
 
 class ObsThemeScene(ObsDjScene):
     path = None
@@ -447,6 +479,55 @@ class ObsThemeScene(ObsDjScene):
         self.name = name
         self.type = type
         self.path = path
+
+class AdvancedSceneSwitchManager:
+    switch_macro = None
+    default_action = None
+    djs = []
+
+    def __init__(self):
+        ass_fp = Path(__file__).absolute().parent.joinpath(ASS_DEFAULT_OBS)
+        if not ass_fp.exists():
+            raise Exception("Could not find default advanced scene switcher file for macros: " + str(ass_fp))
+        
+        with open(ass_fp, 'r') as f:
+            data = json.load(f)
+
+        self.switch_macro = data["switch_macro"]
+        self.default_action = data["switch_from_action"]
+    
+    def add_dj(self, dj_name, scene_name) -> None:
+        print(f"Adding {dj_name} pointing to scene {scene_name}")
+        self.djs.append([
+            dj_name,
+            scene_name
+        ])
+    
+    def generate_objects(self, promos_scene, ending_scene):
+        actions = []
+        total_actions = len(self.djs)
+        self.switch_macro["actions"][0]["macros"] = []
+
+        for index, dj in enumerate(self.djs):
+            action = deepcopy(self.default_action)
+            action["name"] = "switch_from_" + dj[0]
+            if index < total_actions - 1:
+                action["actions"][0]["sceneSelection"]["name"] = self.djs[index+1][1]
+            else:
+                action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(promos_scene))
+            self.switch_macro["actions"][0]["macros"].append({ "macro": action["name"]})
+            actions.append(action)
+        
+        promos_action = deepcopy(self.default_action)
+        promos_action["name"] = "switch_from_promos"
+        promos_action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
+        self.switch_macro["actions"][0]["macros"].append({ "macro": promos_action["name"]})
+        actions.append(promos_action)
+
+        return json.dumps({
+            "macros": [ self.switch_macro, *actions ]
+        })
+
 
 
 hijack = Hijack()
@@ -461,12 +542,14 @@ def update_lineup(props, prop):
 def script_update(settings):
     hijack.lineup_path = S.obs_data_get_string(settings, "_lineup_path")
     hijack.host_paths = S.obs_data_get_bool(settings, "_host_bool")
+    hijack.generate_macros = S.obs_data_get_bool(settings, "_ass_bool")
 
 def script_properties():  # ui
     props = S.obs_properties_create()
     S.obs_properties_add_path(props, "_lineup_path", "Location of the Lineup:", S.OBS_PATH_FILE, "*.json", None)
     bool_prop = S.obs_properties_add_bool(props, "_host_bool", "Translate to Host Paths");
     S.obs_property_set_long_description(bool_prop, "Leave unchecked if running in Docker")
+    S.obs_properties_add_bool(props, "_ass_bool", "Generate OBS Macros");
     S.obs_properties_add_button(
         props, "button", "Update Lineup", update_lineup
     )
