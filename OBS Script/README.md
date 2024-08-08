@@ -24,3 +24,6 @@ If a theme was configured for the event before export, new `Overlay`, `Starting 
 When macros are generated and imported into Advanced Scene Switcher, they will automatically switch to the next scene on prerecorded sets, going from the first DJ through promotional videos and the ending scene.
 Macros have no handling for live DJs, and as such those scenes will need to be transitioned manually.
 <br>Note: Macros are saved in the same folder as the exported lineup was selected from.
+
+**Since OBS has no scene cleanup options, all generated scenes must be deleted before running the script.**
+<br>**Importing in Advanced Scene Switcher does not overwrite previous macros, all previous imported macros must be deleted first.**

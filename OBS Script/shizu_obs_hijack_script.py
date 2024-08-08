@@ -53,6 +53,8 @@ class Hijack:
     chat_offset_y = 0
 
     overlay_scene = None
+    promos_scene = None
+    ending_scene = None
     ass_manager = None
 
     def begin(self):
@@ -113,7 +115,7 @@ class Hijack:
     
     def generate_ass_file(self):
         print("Generating Automatic Scene Switch Macros")
-        json_data = self.ass_manager.generate_objects()
+        json_data = self.ass_manager.generate_objects(self.promos_scene, self.ending_scene)
 
         macro_file_name = ''.join(Path(self.lineup_path).name.split(".")[:-1]) + "_macro.txt"
         new_macro_path = Path(self.lineup_path).absolute().parent.joinpath(macro_file_name)
@@ -208,6 +210,8 @@ class Hijack:
                         "DOCKER_THEMES_PATH", "LOCAL_THEMES_PATH", ending_scene.path
                     )
                 lineup_scenes.append(ending_scene)
+            else:
+                self.ending_scene = S.obs_get_scene_by_name(ENDING_SCENE)
             
             # Prepend theme items
             lineup_scenes = theme_items + lineup_scenes
@@ -228,8 +232,8 @@ class Hijack:
                 self.setup_dj_scene_items(scene, scene_values)
                 S.obs_scene_release(scene)
             elif scene_values.type == "Promos":
-                scene = S.obs_scene_create(scene_values.name)
-                self.setup_promo_scene_items(scene, scene_values)
+                self.promos_scene = S.obs_scene_create(scene_values.name)
+                self.setup_promo_scene_items(self.promos_scene, scene_values)
                 S.obs_scene_release(scene)
             else:
                 self.setup_theme_scene_items(scene_values)
@@ -240,6 +244,8 @@ class Hijack:
             scene = self.overlay_scene
         else:
             scene = S.obs_scene_create(scene_values.name)
+            if (scene_values.name == ENDING_SCENE):
+                self.ending_scene = scene
         if ("." + scene_values.path.split(".")[-1]) in IMG_EXTS:
             image_settings = S.obs_data_create()
             S.obs_data_set_string(image_settings, "file", scene_values.path)
@@ -497,7 +503,7 @@ class AdvancedSceneSwitchManager:
             scene_name
         ])
     
-    def generate_objects(self):
+    def generate_objects(self, promos_scene, ending_scene):
         actions = []
         total_actions = len(self.djs)
         self.switch_macro["actions"][0]["macros"] = []
@@ -508,13 +514,13 @@ class AdvancedSceneSwitchManager:
             if index < total_actions - 1:
                 action["actions"][0]["sceneSelection"]["name"] = self.djs[index+1][1]
             else:
-                action["actions"][0]["sceneSelection"]["name"] = PROMOS_SCENE
+                action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(promos_scene))
             self.switch_macro["actions"][0]["macros"].append({ "macro": action["name"]})
             actions.append(action)
         
         promos_action = deepcopy(self.default_action)
         promos_action["name"] = "switch_from_promos"
-        promos_action["actions"][0]["sceneSelection"]["name"] = ENDING_SCENE
+        promos_action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
         self.switch_macro["actions"][0]["macros"].append({ "macro": promos_action["name"]})
         actions.append(promos_action)
 
