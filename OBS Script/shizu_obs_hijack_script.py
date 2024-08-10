@@ -285,6 +285,11 @@ class Hijack:
     
     def setup_dj_scene_items(self, scene, scene_values: 'ObsDjScene'):
         # Load recording or setup vlc stream
+        self.ass_manager.add_dj(
+            scene_values.name,
+            S.obs_source_get_name(S.obs_scene_get_source(scene)),
+            not bool(scene_values.recording_path)
+        )
         if scene_values.recording_path:
             video_source_name = f"{scene_values.name}_recording"
             json_settings = {
@@ -293,7 +298,6 @@ class Hijack:
             }
             video_settings = S.obs_data_create_from_json(json.dumps(json_settings))
             video_source = S.obs_source_create("ffmpeg_source", video_source_name, video_settings, None)
-            self.ass_manager.add_dj(scene_values.name, S.obs_source_get_name(S.obs_scene_get_source(scene)))
         else:
             video_source_name = f"{scene_values.name}_live"
             json_settings = {
@@ -496,11 +500,11 @@ class AdvancedSceneSwitchManager:
         self.switch_macro = data["switch_macro"]
         self.default_action = data["switch_from_action"]
     
-    def add_dj(self, dj_name, scene_name) -> None:
-        print(f"Adding {dj_name} pointing to scene {scene_name}")
+    def add_dj(self, dj_name, scene_name, is_live) -> None:
         self.djs.append([
             dj_name,
-            scene_name
+            scene_name,
+            is_live
         ])
     
     def generate_objects(self, promos_scene, ending_scene):
@@ -509,6 +513,9 @@ class AdvancedSceneSwitchManager:
         self.switch_macro["actions"][0]["macros"] = []
 
         for index, dj in enumerate(self.djs):
+            # Skip waiting on media end for live DJs
+            if dj[2]:
+                continue
             action = deepcopy(self.default_action)
             action["name"] = "switch_from_" + dj[0]
             if index < total_actions - 1:
@@ -517,6 +524,7 @@ class AdvancedSceneSwitchManager:
                 action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(promos_scene))
             self.switch_macro["actions"][0]["macros"].append({ "macro": action["name"]})
             actions.append(action)
+            print(f"Added {dj[0]} pointing to scene {action['actions'][0]['sceneSelection']['name']}")
         
         promos_action = deepcopy(self.default_action)
         promos_action["name"] = "switch_from_promos"
