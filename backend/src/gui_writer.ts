@@ -27,6 +27,7 @@ import {
   update_app_theme,
   update_dj,
   update_event,
+  update_event_date_time,
   update_event_dj,
   update_file,
   update_promo,
@@ -138,6 +139,17 @@ export const guiAddEventPromo = async (data: {
 
   return await guiGetEvents();
 };
+
+export const guiUpdateEventDateTime = async (data: {
+  event_name: string;
+  date: string;
+  start_time: string;
+}) => {
+  const error = await update_event_date_time(data.event_name, data.date, data.start_time);
+  if (error !== undefined) return error;
+
+  return await guiGetEvent(data);
+}
 
 export const guiAddAppTheme = async (data: {
   name: string

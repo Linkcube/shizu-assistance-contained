@@ -73,8 +73,7 @@
     }
 
     function addToLineup() {
-        let lineup_name = current_lineup ? current_lineup : target_lineup;
-        fetchAddPromoToLineup(lineup_name, name).then(_ => {
+        fetchAddPromoToLineup(target_lineup, name).then(_ => {
             if (current_lineup) fetchLineup(current_lineup)
         });
     }
@@ -131,14 +130,12 @@
             </div>
             {#if index >= 0 && lineup_names.length != 0}
                 <div class="row">
-                    <MaterialButton value="Add to{current_lineup ? ' current ' : ' '}Lineup" on:click={addToLineup} />
-                    {#if !current_lineup}
-                        <MaterialSelect label="Lineups" bind:value={target_lineup}>
-                            {#each lineup_names as name}
-                                <option value={name}>{name}</option>
-                            {/each}
-                        </MaterialSelect>
-                    {/if}
+                    <MaterialButton value="Add to Lineup" on:click={addToLineup} />
+                    <MaterialSelect label="Lineups" bind:value={target_lineup}>
+                        {#each lineup_names as name}
+                            <option value={name}>{name}</option>
+                        {/each}
+                    </MaterialSelect>
                 </div>
             {/if}
         </div>

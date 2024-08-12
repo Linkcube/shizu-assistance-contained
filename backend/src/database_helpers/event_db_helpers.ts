@@ -393,3 +393,29 @@ export const internal_set_event_theme = async (
 
   await pool.query(query);
 }
+
+export const internal_set_event_date_time = async (
+  event_name: string,
+  date: string,
+  start_time: string,
+  pool: PoolClient
+) => {
+  const event = (await internal_get_row_from_table(
+    EVENTS_TABLE,
+    event_name,
+    pool,
+  )) as IEventObject | Error;
+  if (event instanceof Error) return event;
+
+  if (date) {
+    const query = `UPDATE ${EVENTS_TABLE.name} SET date = '${date}' WHERE name = '${event_name}';`;
+    console.log(query);
+    await pool.query(query);
+  }
+
+  if (start_time) {
+    const query = `UPDATE ${EVENTS_TABLE.name} SET start_time = '${start_time}' WHERE name = '${event_name}';`;
+    console.log(query);
+    await pool.query(query);
+  }
+}

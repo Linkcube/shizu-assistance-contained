@@ -72,7 +72,9 @@ type Mutation {
         djs: [djLineupInput],
         promos: [String],
         theme: String,
-        public: Boolean
+        public: Boolean,
+        date: String,
+        start_time: String
     ): [eventObject]
     guiAddEventDj(
         event_name: String!,
@@ -82,6 +84,11 @@ type Mutation {
         event_name: String!,
         promo_name: String!
     ): [eventObject]
+    guiUpdateEventDateTime(
+        event_name: String!,
+        date: String,
+        start_time: String
+    ): eventObject
     guiUpdateFile(
         name: String!,
         root: String,
@@ -122,7 +129,9 @@ type Mutation {
         djs: [djLineupInput],
         promos: [String],
         theme: String,
-        public: Boolean
+        public: Boolean,
+        date: String,
+        start_time: String
     ): [eventObject]
     guiUpdateEventDj(
         event_name: String!,
@@ -187,7 +196,9 @@ type eventObject {
     djs: [djLineupObject],
     promos: [String],
     theme: String,
-    public: Boolean
+    public: Boolean,
+    date: String,
+    start_time: String
 },
 type themeObject {
     name: String,

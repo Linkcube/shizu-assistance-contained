@@ -52,7 +52,8 @@ import {
   guiImportLegacyEvents,
   guiAddAppTheme,
   guiEditAppTheme,
-  guiDeleteAppTheme
+  guiDeleteAppTheme,
+  guiUpdateEventDateTime
 } from "./gui_writer";
 import { create_tables, database_pool } from "./database";
 import cors from "cors";
@@ -115,7 +116,8 @@ const gui_root = {
   guiDeleteAppTheme,
   guiGetLogoPermissions,
   guiGetRecordingPermissions,
-  guiGetThemePermissions
+  guiGetThemePermissions,
+  guiUpdateEventDateTime
 };
 const app = express();
 const logo_permissions = staticLogoPermission();

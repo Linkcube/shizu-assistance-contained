@@ -49,6 +49,7 @@ import {
   internal_move_event_promo,
   internal_remove_event_dj,
   internal_remove_event_promo,
+  internal_set_event_date_time,
   internal_set_event_theme,
   internal_update_event,
   internal_update_event_dj,
@@ -419,6 +420,17 @@ export const set_event_theme = async (
 ) => {
   const pool = await database_pool.connect();
   const error = await internal_set_event_theme(event_name, theme_name, pool);
+  pool.release();
+  return error;
+}
+
+export const update_event_date_time = async (
+  event_name: string,
+  date: string,
+  start_time: string
+) => {
+  const pool = await database_pool.connect();
+  const error = await internal_set_event_date_time(event_name, date, start_time, pool);
   pool.release();
   return error;
 }

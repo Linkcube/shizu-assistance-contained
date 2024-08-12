@@ -6,6 +6,7 @@
     } from '$lib/store.js';
 	
 	export let use_submission = true;
+	export let max_width = "38em";
 
 	const dispatch = createEventDispatcher();
     const close = () => dispatch('close');
@@ -54,7 +55,7 @@
 
 <div class="modal-background" on:click={close}></div>
 
-<div class="modal" role="dialog" aria-modal="true" bind:this={modal}>
+<div class="modal" role="dialog" aria-modal="true" bind:this={modal} style="--max_width:{max_width};">
 	<slot name="header"></slot>
     <br>
 	<slot></slot>
@@ -91,7 +92,7 @@
 		left: 50%;
 		top: 50%;
 		width: calc(100vw - 4em);
-		max-width: 38em;
+		max-width: var(--max_width);
 		max-height: 70%;
 		overflow: auto;
 		transform: translate(-50%,-50%);

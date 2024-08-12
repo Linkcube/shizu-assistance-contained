@@ -117,7 +117,11 @@ export const EVENTS_TABLE: Table = new Table(EVENTS, [
   },
   {
     name: "date",
-    type: "TIMESTAMP WITH TIME ZONE",
+    type: "TEXT",
+  },
+  {
+    name: "start_time",
+    type: "TEXT",
   },
   {
     name: "public",

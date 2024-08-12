@@ -176,7 +176,9 @@ query {
         djs { name, is_live, vj },
         promos,
         theme,
-        public
+        public,
+        date,
+        start_time
     }
 }`;
 
@@ -187,6 +189,25 @@ query {
         root,
         file_path,
         url_path
+    }
+}`;
+
+const themeSingleQuery = (name) => `
+query {
+    guiGetTheme(theme_name: "${name}") {
+        name,
+        overlay_file,
+        stinger_file,
+        starting_file,
+        ending_file,
+        target_video_height,
+        target_video_width,
+        video_offset_x,
+        video_offset_y,
+        chat_width,
+        chat_height,
+        chat_offset_x,
+        chat_offset_y
     }
 }`;
 
@@ -310,7 +331,6 @@ const themeUpdateMutation = (
     if (chat_height) input += `, chat_height: ${chat_height}`;
     if (chat_offset_x) input += `, chat_offset_x: ${chat_offset_x}`;
     if (chat_offset_y) input += `, chat_offset_y: ${chat_offset_y}`;
-    console.log(input);
 
     return `
     mutation {
@@ -579,6 +599,28 @@ const updateLineupDjMutation = (event_name, dj_name, is_live, vj) => {
     }`
 }
 
+const updateEventDateTime = (event_name, date, start_time) => {
+    let input = `event_name: "${event_name}"`;
+    if (date) {
+        input += `, date: "${date}"`;
+    }
+    if (start_time) {
+        input += `, start_time: "${start_time}"`;
+    }
+    return `
+    mutation {
+        guiUpdateEventDateTime(${input}) {
+            name,
+            djs { name, is_live, vj },
+            promos,
+            theme,
+            public,
+            date,
+            start_time
+        }
+    }`
+}
+
 const fetchSwapLineupDjsMutation = (event_name, index_a, index_b) => `
 mutation {
     guiMoveEventDj(
@@ -783,6 +825,18 @@ export function fetchSingleEvent(name) {
     })
 }
 
+export function fetchSingleTheme(name) {
+    return fetch(themeSingleQuery(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetTheme);
+            }
+        })
+    })
+}
+
 export function fetchFileExists(name) {
     return fetch(fileSingleQuery(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
@@ -865,6 +919,18 @@ export function fetchAddTheme(name) {
                 return Promise.resolve(false);
             } else if (response.hasOwnProperty("data")) {
 				return Promise.resolve(response.data.guiAddNewTheme);
+			}
+		})
+    });
+}
+
+export function fetchUpdateEventDateTime(name, date, start_time) {
+    return fetch(updateEventDateTime(name, date, start_time)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiUpdateEventDateTime);
 			}
 		})
     });

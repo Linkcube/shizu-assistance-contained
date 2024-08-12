@@ -35,7 +35,6 @@
     let promo_promise = Promise.resolve({});
 
     all_djs.subscribe(value => {
-        console.log(value);
 		if (value.length > 0) {
 			ledger_djs = value.map((dj, index) => {
                 dj['index'] = index;
@@ -93,7 +92,6 @@
 	}
 
     const editPromo = (index, name) => {
-        console.log(index, name);
         promo_modal_index = (index !== null) ? index : -1;
         promo_modal_name = (name !== null) ? name : "";
         promo_promise = fetchSinglePromo(name);
