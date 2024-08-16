@@ -243,8 +243,8 @@ export const internal_remove_event_promo = async (
     EVENTS_TABLE,
     event_name,
     pool,
-  )) as IEventObject | Error;
-  if (event instanceof Error) return event;
+    )) as IEventObject | Error;
+    if (event instanceof Error) return event;
   const event_promos = event.promos;
   if (!event_promos || event_promos.length === 0) {
     return new InvalidDjError(
@@ -262,11 +262,11 @@ export const internal_remove_event_promo = async (
 
   const new_promo_array = event_promos
     .filter((promo) => promo !== promo_name)
-    .map((promo: string) => `'${promo}`)
+    .map((promo: string) => `'${promo}'`)
     .join(", ");
   let update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = DEFAULT WHERE name = '${event_name}';`;;
   if (new_promo_array.length > 0) {
-    update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}] WHERE name = '${event_name}';`;
+    update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}] WHERE name = '${event_name}';`;  
   }
   console.log(update_query);
   await pool.query(update_query);

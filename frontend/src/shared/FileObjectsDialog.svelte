@@ -229,7 +229,7 @@
 		width: 100%;
 		height: 100%;
 		background: rgba(0,0,0,0.3);
-		z-index: 1;
+		z-index: 6;
 	}
 
 	.modal {
@@ -245,7 +245,7 @@
 		border-radius: 0.2em;
 		background: var(--background-color, white);
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.29);
-		z-index: 2;
+		z-index: 7;
 	}
 
     .footer {
@@ -414,7 +414,8 @@
 {:else if selecting_url}
     <Modal
         on:close={() => selecting_url = false}
-        on:submission={updateUrl}>
+        on:submission={updateUrl}
+        z_index={8}>
         <div class="central-column">
             <div class="row">
                 <p>Edit URL for {selected_file.name}</p>
@@ -427,7 +428,8 @@
 {:else if adding_file}
     <Modal
         on:close={() => adding_file = false}
-        on:submission={addFile}>
+        on:submission={addFile}
+        z_index={8}>
         <div class="central-column">
             <div class="row">
                 <p>Add a New File</p>

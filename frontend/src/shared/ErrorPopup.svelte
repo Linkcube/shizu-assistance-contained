@@ -48,7 +48,7 @@
 </style>
 
 {#if show_modal}
-    <Modal on:close={close} use_submission={false}>
+    <Modal on:close={close} use_submission={false} z_index={11}>
         <div class="row">
             <h1>{header}</h1>
             {#if callback}

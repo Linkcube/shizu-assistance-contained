@@ -79,11 +79,11 @@ type Mutation {
     guiAddEventDj(
         event_name: String!,
         dj_data: djLineupInput
-    ): [eventObject]
+    ): eventObject
     guiAddEventPromo(
         event_name: String!,
         promo_name: String!
-    ): [eventObject]
+    ): eventObject
     guiUpdateEventDateTime(
         event_name: String!,
         date: String,
@@ -138,25 +138,25 @@ type Mutation {
         dj_name: String!,
         is_live: Boolean,
         vj: String
-    ): [eventObject]
+    ): eventObject
     guiRemoveEventDj(
         event_name: String!,
         dj_name: String!
-    ): [eventObject]
+    ): eventObject
     guiRemoveEventPromo(
         event_name: String!,
         promo_name: String!
-    ): [eventObject]
+    ): eventObject
     guiMoveEventDj(
         event_name: String!,
         index_a: Int!,
         index_b: Int!
-    ): [eventObject]
+    ): eventObject
     guiMoveEventPromo(
         event_name: String!,
         index_a: Int!,
         index_b: Int!
-    ): [eventObject]
+    ): eventObject
     guiSetEventTheme(
         event_name: String!,
         theme_name: String!

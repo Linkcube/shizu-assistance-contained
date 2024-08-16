@@ -127,7 +127,7 @@ export const guiAddEventDj = async (data: {
   const error = await add_event_dj(data.event_name, data.dj_data);
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent(data);
 };
 
 export const guiAddEventPromo = async (data: {
@@ -137,7 +137,7 @@ export const guiAddEventPromo = async (data: {
   const error = await add_event_promo(data.event_name, data.promo_name);
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent(data);
 };
 
 export const guiUpdateEventDateTime = async (data: {
@@ -211,7 +211,7 @@ export const guiUpdateEvent = async (event_data: IEventObject) => {
   const error = await update_event(event_data);
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent({event_name: event_data.name});
 };
 
 export const guiUpdateEventDj = async (data: {
@@ -228,7 +228,7 @@ export const guiUpdateEventDj = async (data: {
   );
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent(data);
 };
 
 export const guiRemoveEventDj = async (data: {
@@ -238,7 +238,7 @@ export const guiRemoveEventDj = async (data: {
   const error = await remove_event_dj(data.event_name, data.dj_name);
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent(data);
 };
 
 export const guiRemoveEventPromo = async (data: {
@@ -248,7 +248,7 @@ export const guiRemoveEventPromo = async (data: {
   const error = await remove_event_promo(data.event_name, data.promo_name);
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent(data);
 };
 
 export const guiMoveEventDj = async (data: {
@@ -263,7 +263,7 @@ export const guiMoveEventDj = async (data: {
   );
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent(data);
 };
 
 export const guiMoveEventPromo = async (data: {
@@ -278,7 +278,7 @@ export const guiMoveEventPromo = async (data: {
   );
   if (error !== undefined) return error;
 
-  return await guiGetEvents();
+  return await guiGetEvent(data);
 };
 
 export const guiSetEventTheme = async (data: {

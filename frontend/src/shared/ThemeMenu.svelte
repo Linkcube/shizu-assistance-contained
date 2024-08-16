@@ -11,7 +11,7 @@
         currentThemeIndex, currentTheme, 
         fetchGetAppThemes, fetchAddAppTheme, 
         fetchEditAppTheme, fetchDeleteAppTheme,
-        fetchSetLastThemeIndex, themes
+        themes
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
 
@@ -92,12 +92,6 @@
             "submit-background-color": style.submitBackgroundColor
         });
     };
-
-    currentThemeIndex.subscribe((newTheme) => {
-        if (themes_data[newTheme]) {
-            fetchSetLastThemeIndex(newTheme);
-        }
-    });
 
     themes.subscribe(value => themes_data = value);
 

@@ -22,7 +22,13 @@
         fetchEvents,
         fetchEventSetTheme,
         fetchSingleTheme,
-        fetchUpdateEventDateTime
+        fetchUpdateEventDateTime,
+        fetchAddDjToLineup,
+        fetchAddPromoToLineup,
+        all_djs,
+
+        all_promos
+
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import ThemesModal from './ThemesModal.svelte';
@@ -31,6 +37,10 @@
     import DjLineupModal from '../shared/DjLineupModal.svelte';
     import PromoLineupModal from '../shared/PromoLineupModal.svelte';
     import ErrorPopup from './ErrorPopup.svelte';
+    import { get } from 'svelte/store';
+    import ErrorMessage from './ErrorMessage.svelte';
+    import EventChecklistModal from './EventChecklistModal.svelte';
+    import EventAdditemModal from './EventAddItemModal.svelte';
 
     const dispatch = createEventDispatcher();
     const close = () => dispatch('close');
@@ -86,6 +96,8 @@
     let input_date = "";
     let input_time_hours = "00";
     let input_time_minutes = "00";
+    let all_dj_info = [];
+    let all_promo_info = [];
 
     currentLineupObjects.subscribe(objects => {
         event = objects;
@@ -165,7 +177,8 @@
         }
         
         loading = true;
-        fetchSwapLineupDjs(event.name, dragging_index, last_dragover_index).then(_ => fetchLineup(event.name));
+        fetchSwapLineupDjs(event.name, dragging_index, last_dragover_index)
+            .then(updated_event => currentLineupObjects.set(updated_event));
         setTimeout(() => {
             if (current_error == null) show_export_error = false;
         }, 500);
@@ -187,7 +200,8 @@
         }
         
         loading = true;
-        fetchSwapLineupPromos(event.name, dragging_index, last_dragover_index).then(_ => fetchLineup(event.name));
+        fetchSwapLineupPromos(event.name, dragging_index, last_dragover_index)
+            .then(updated_event => currentLineupObjects.set(updated_event));
         setTimeout(() => {
             if (current_error == null) show_export_error = false;
         }, 500);
@@ -196,11 +210,13 @@
     function removeErrorFromLineup() {
         if (last_action == EDIT_DJ_FAILED) {
             console.log(`Lineup: ${event.name}, DJ: ${edit_dj_name}`);
-            fetchRemoveLineupDj(event.name, edit_dj_name).then(_ => fetchLineup(event.name));
+            fetchRemoveLineupDj(event.name, edit_dj_name)
+                .then(updated_event => currentLineupObjects.set(updated_event));
             last_action = REMOVE_DJ_FAILED;
         } else if (last_action == EDIT_PROMO_FAILED) {
             console.log(`Lineup: ${event.name}, Promo: ${edit_promo_name}`);
-            fetchRemoveLineupPromo(event.name, edit_promo_name).then(_ => fetchLineup(event.name));
+            fetchRemoveLineupPromo(event.name, edit_promo_name)
+                .then(updated_event => currentLineupObjects.set(updated_event));
             last_action = REMOVE_PROMO_FAILED
         } else {
             console.log(`Unexpected error callback for ${last_action}`);
@@ -244,6 +260,26 @@
         });
     }
 
+    function openAddDjDialogue() {
+        all_dj_info = get(all_djs);
+        show_add_dj_dialog = true;
+    }
+
+    function addDjToEvent(dj_event) {
+        fetchAddDjToLineup(event.name, dj_event.detail.name)
+            .then(updated_event => currentLineupObjects.set(updated_event));
+    }
+
+    function openAddPromoDialogue() {
+        all_promo_info = get(all_promos);
+        show_add_promo_dialog = true;
+    }
+
+    function addPromoToEvent(promo_event) {
+        fetchAddPromoToLineup(event.name, promo_event.detail.name)
+            .then(updated_event => currentLineupObjects.set(updated_event));
+    }
+
     if (event.theme) getThemeData();
 
 </script>
@@ -273,18 +309,23 @@
 
     .djs {
         width: 35%;
+        margin: 10px;
     }
 
     .promos {
         width: 35%;
+        margin: 10px;
     }
 
     .title {
+        display: flex;
         justify-content: center;
+        width: 100%;
     }
 
     .info {
         width: 30%;
+        margin: 10px;
     }
 
     .check-color {
@@ -300,13 +341,13 @@
     }
 </style>
 
-{#if current_error && show_export_error}
+<!-- {#if current_error && show_export_error}
     {#if last_action && last_action.startsWith("Edit")}
         <ErrorPopup error={current_error} header={last_action} callback="Remove from Event" on:close={close_error} on:callback={removeErrorFromLineup}/>
     {:else}
         <ErrorPopup error={current_error} header={last_action} on:close={close_error} />
-    {/if}
-{:else if show_dj_dialog}
+    {/if} -->
+{#if show_dj_dialog}
     {#await edit_dj_promise then dj_data }
         <DjLineupModal
             index={edit_dj_index}
@@ -331,7 +372,7 @@
 {:else if show_themes_dialog}
     <ThemesModal selected_theme_name={event.theme} on:close={closeThemeDialog} on:submission={changeTheme}/>
 {:else if show_time_dialog}
-    <Modal on:close={() => show_time_dialog = false} on:submission={updateEventTime}>
+    <Modal on:close={() => show_time_dialog = false} on:submission={updateEventTime} z_index={5}>
         <div class="column">
             <span class="row">Event Date and Start Time</span>
             <div class="row date-time">
@@ -355,166 +396,149 @@
         </div>
     </Modal>
 {:else if show_event_checklist}
-    <Modal on:close={() => show_event_checklist = false} use_submission={false}>
-        <div class="column">
-            <div class="title row">
-                <h2>Event Checklist ({days_to_event} Days Remaining)</h2>
-            </div>
-            <div class={days_to_event >= 21 ? "cancel-color" : "check-color"}>
-                <h3 class="row">3 Weeks Before</h3>
-                <span class="row"> - Flyer complete and released</span>
-            </div>
-            <div class={days_to_event > 21 ? "" : days_to_event >= 14 ? "cancel-color" : "check-color"}>
-                <h3 class="row">2 Weeks Before</h3>
-                <span class="row"> - Lineup Complete</span>
-                <span class="row"> - If outsourcing VJing, set due to VJ 2 weeks before unless other arrangements made</span>
-                <span class="row"> - Update name and images of performers on website</span>
-            </div>
-            <div class={days_to_event > 14 ? "" : days_to_event >= 7 ? "cancel-color" : "check-color"}>
-                <h3 class="row">1 Week Before</h3>
-                <span class="row"> - Scheduled soundchecks with live performers</span>
-            </div>
-            <div class={days_to_event > 7 ? "" : days_to_event >= 3 ? "cancel-color" : "check-color"}>
-                <h3 class="row">3 Days Before</h3>
-                <span class="row"> - All sets due</span>
-            </div>
-            <div class={days_to_event > 3 ? "" : days_to_event >= 1 ? "cancel-color" : "check-color"}>
-                <h3 class="row">Day Before the Event</h3>
-                <span class="row"> - All OBS scenes generated and populated</span>
-                <span class="row"> - Change name of stream</span>
-                <span class="row"> - All soundchecks complete unless other arrangements made</span>
-                <span class="row"> - Check audio levels on pre-recorded sets to ensure not redlining</span>
-                <span class="row"> - Check OBS scene alignments</span>
-                <span class="row"> - Add Seasonal Transition Stinger</span>
-            </div>
-            <div class={days_to_event > 1 ? "" : days_to_event === 0 ? "cancel-color" : "check-color"}>
-                <h3 class="row">Day of the Event</h3>
-                <span class="row"> - Tweet/Insta Post an hour before the show</span>
-                <span class="row"> - Commence streaming T-10 minutes prior</span>
-            </div>
-        </div>
-    </Modal>
-{:else}
-    <Modal on:close={close} use_submission={false} max_width="80%">
-        <div class="column">
-            <div class="header row">
-                <span>Event: {event.name}</span>
-                <div class="icon-container row">
-                    <IconButton icon="calendar_month" title="Event Time" on:click={() => show_time_dialog = true} />
-                    <IconButton icon="wallpaper" title="Event Theme" on:click={() => show_themes_dialog = true} />
-                    <IconButton icon="check" title="Event Checklist" on:click={() => show_event_checklist = true} />
-                    <IconButton icon="download" title="Export Event" on:click={exportLineup} />
-                    <div class="delete">
-                        <IconButton icon="delete_forever" title="Delete Event" on:click={deleteLineup} />
-                    </div>
+    <EventChecklistModal days_to_event={days_to_event} on:close={() => show_event_checklist = false} />
+{:else if show_add_dj_dialog}
+    <EventAdditemModal
+        items_type="DJs"
+        all_items={all_dj_info}
+        on:item_added={addDjToEvent}
+        on:close={() => show_add_dj_dialog = false}
+    />
+{:else if show_add_promo_dialog}
+    <EventAdditemModal
+        items_type="Promos"
+        all_items={all_promo_info}
+        on:item_added={addPromoToEvent}
+        on:close={() => show_add_promo_dialog = false}
+    />
+{/if}
+
+
+<Modal on:close={close} use_submission={false} max_width="80%">
+    <div class="column">
+        <div class="header row">
+            <span>Event: {event.name}</span>
+            <div class="icon-container row">
+                <IconButton icon="calendar_month" title="Event Time" on:click={() => show_time_dialog = true} />
+                <IconButton icon="wallpaper" title="Event Theme" on:click={() => show_themes_dialog = true} />
+                <IconButton icon="check" title="Event Checklist" on:click={() => show_event_checklist = true} />
+                <IconButton icon="download" title="Export Event" on:click={exportLineup} />
+                <div class="delete">
+                    <IconButton icon="delete_forever" title="Delete Event" on:click={deleteLineup} />
                 </div>
             </div>
-            <div class="content row">
-                <div class="djs column">
-                    <div class="title row">
+        </div>
+        <div class="content row">
+            <div class="djs column">
+                <div class="header row">
+                    <div class="title">
                         <span>DJs</span>
                     </div>
-                    <div class="row">
-                        <NewMatTable items={lineup_djs} columnSizes={["10%", "70%", "20%"]} height="500px">
-                            <div slot="header">
-                                <NewMatTableRow values={["#", "Name", "Is Live"]} type="header"/>
-                            </div>
-                            <div slot="item" let:item let:index>
-                                <NewMatTableRow
-                                    values={[`${index + 1}`, item.name, item.is_live]}
-                                    type="click row draggable"
-                                    on:click={() => editDj(index, item.name, item.is_live, item.vj)}
-                                    on:dragstart={() => handleDragStart(index)}
-                                    on:dragover={() => handleDragOver(index)}
-                                    on:dragend={() => handleDjDragEnd()}
-                                />
-                            </div>
-                        </NewMatTable>
-                    </div>
+                    <IconButton icon="add" title="Add DJs to Event" on:click={openAddDjDialogue} />
                 </div>
-                <div class="promos column">
-                    <div class="title row">
+                <div class="row">
+                    <NewMatTable items={lineup_djs} columnSizes={["10%", "70%", "20%"]} height="500px">
+                        <div slot="header">
+                            <NewMatTableRow values={["#", "Name", "Is Live"]} type="header"/>
+                        </div>
+                        <div slot="item" let:item let:index>
+                            <NewMatTableRow
+                                values={[`${index + 1}`, item.name, item.is_live]}
+                                type="click row draggable"
+                                on:click={() => editDj(index, item.name, item.is_live, item.vj)}
+                                on:dragstart={() => handleDragStart(index)}
+                                on:dragover={() => handleDragOver(index)}
+                                on:dragend={() => handleDjDragEnd()}
+                            />
+                        </div>
+                    </NewMatTable>
+                </div>
+            </div>
+            <div class="promos column">
+                <div class="header row">
+                    <div class="title">
                         <span>Promos</span>
                     </div>
-                    <div class="row">
-                        <NewMatTable items={lineup_promos} columnSizes={["10%", "90%"]} height="500px">
-                            <div slot="header">
-                                <NewMatTableRow values={["#", "name"]} type="header"/>
-                            </div>
-                            <div slot="item" let:item let:index>
-                                <NewMatTableRow
-                                    values={[`${index + 1}`, item.name]}
-                                    type="click row draggable"
-                                    on:click={() => editPromo(index, item.name)}
-                                    on:dragstart={() => handleDragStart(index)}
-                                    on:dragover={() => handleDragOver(index)}
-                                    on:dragend={() => handlePromoDragEnd()}
-                                />
-                            </div>
-                        </NewMatTable>
-                    </div>
+                    <IconButton icon="add" title="Add Promos to Event" on:click={openAddPromoDialogue} />
                 </div>
-                <div class="info column">
-                    <div class="title row">
-                        <span>Event Info</span>
-                    </div>
-                    {#if theme_data}
-                        <div class="row">
-                            <span>Theme: {theme_data.name}</span>
+                <div class="row">
+                    <NewMatTable items={lineup_promos} columnSizes={["10%", "90%"]} height="500px">
+                        <div slot="header">
+                            <NewMatTableRow values={["#", "name"]} type="header"/>
                         </div>
-                        <div class="row">
-                            <span>- Overlay </span>
-                            {#if theme_data.overlay_file}
-                                <span class="material-icons large-icon check-color">check_circle</span>
-                            {:else}
-                                <span class="material-icons large-icon cancel-color">cancel</span>
-                            {/if}
+                        <div slot="item" let:item let:index>
+                            <NewMatTableRow
+                                values={[`${index + 1}`, item.name]}
+                                type="click row draggable"
+                                on:click={() => editPromo(index, item.name)}
+                                on:dragstart={() => handleDragStart(index)}
+                                on:dragover={() => handleDragOver(index)}
+                                on:dragend={() => handlePromoDragEnd()}
+                            />
                         </div>
-                        <div class="row">
-                            <span>- Starting </span>
-                            {#if theme_data.starting_file}
-                                <span class="material-icons large-icon check-color">check_circle</span>
-                            {:else}
-                                <span class="material-icons large-icon cancel-color">cancel</span>
-                            {/if}
-                        </div>
-                        <div class="row">
-                            <span>- Ending </span>
-                            {#if theme_data.ending_file}
-                                <span class="material-icons large-icon check-color">check_circle</span>
-                            {:else}
-                                <span class="material-icons large-icon cancel-color">cancel</span>
-                            {/if}
-                        </div>
-                        <div class="row">
-                            <span>- Video Settings </span>
-                            {#if theme_data.target_video_width && theme_data.target_video_height && theme_data.video_offset_x && theme_data.video_offset_y}
-                                <span class="material-icons large-icon check-color">check_circle</span>
-                            {:else}
-                                <span class="material-icons large-icon cancel-color">cancel</span>
-                            {/if}
-                        </div>
-                        <div class="row">
-                            <span>- Chat Settings </span>
-                            {#if theme_data.chat_width && theme_data.chat_height && theme_data.chat_offset_x && theme_data.chat_offset_y}
-                                <span class="material-icons large-icon check-color">check_circle</span>
-                            {:else}
-                                <span class="material-icons large-icon cancel-color">cancel</span>
-                            {/if}
-                        </div>
-                    {:else}
-                        <div class="row">
-                            <span>Theme: No Theme Set</span>
-                        </div>
-                    {/if}
+                    </NewMatTable>
+                </div>
+            </div>
+            <div class="info column">
+                <div class="title row">
+                    <span>Event Info</span>
+                </div>
+                {#if theme_data}
                     <div class="row">
-                        <span>Date: {event.date ? event.date : "Not Set"}</span>
+                        <span>Theme: {theme_data.name}</span>
                     </div>
                     <div class="row">
-                        <span>Start Time: {event.start_time ? event.start_time : "Not Set"}</span>
+                        <span>- Overlay </span>
+                        {#if theme_data.overlay_file}
+                            <span class="material-icons large-icon check-color">check_circle</span>
+                        {:else}
+                            <span class="material-icons large-icon cancel-color">cancel</span>
+                        {/if}
                     </div>
+                    <div class="row">
+                        <span>- Starting </span>
+                        {#if theme_data.starting_file}
+                            <span class="material-icons large-icon check-color">check_circle</span>
+                        {:else}
+                            <span class="material-icons large-icon cancel-color">cancel</span>
+                        {/if}
+                    </div>
+                    <div class="row">
+                        <span>- Ending </span>
+                        {#if theme_data.ending_file}
+                            <span class="material-icons large-icon check-color">check_circle</span>
+                        {:else}
+                            <span class="material-icons large-icon cancel-color">cancel</span>
+                        {/if}
+                    </div>
+                    <div class="row">
+                        <span>- Video Settings </span>
+                        {#if theme_data.target_video_width && theme_data.target_video_height && theme_data.video_offset_x && theme_data.video_offset_y}
+                            <span class="material-icons large-icon check-color">check_circle</span>
+                        {:else}
+                            <span class="material-icons large-icon cancel-color">cancel</span>
+                        {/if}
+                    </div>
+                    <div class="row">
+                        <span>- Chat Settings </span>
+                        {#if theme_data.chat_width && theme_data.chat_height && theme_data.chat_offset_x && theme_data.chat_offset_y}
+                            <span class="material-icons large-icon check-color">check_circle</span>
+                        {:else}
+                            <span class="material-icons large-icon cancel-color">cancel</span>
+                        {/if}
+                    </div>
+                {:else}
+                    <div class="row">
+                        <span>Theme: No Theme Set</span>
+                    </div>
+                {/if}
+                <div class="row">
+                    <span>Date: {event.date ? event.date : "Not Set"}</span>
+                </div>
+                <div class="row">
+                    <span>Start Time: {event.start_time ? event.start_time : "Not Set"}</span>
                 </div>
             </div>
         </div>
-    </Modal>
-{/if}
+    </div>
+</Modal>

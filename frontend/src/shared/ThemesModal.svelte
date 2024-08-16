@@ -171,7 +171,7 @@
         on:close={() => show_file_dialog = false}
         on:submission={updateFile}/>
 {:else if adding_theme}
-    <Modal on:close={() => adding_theme = false} on:submission={addTheme}>
+    <Modal on:close={() => adding_theme = false} on:submission={addTheme} z_index={5}>
         <div class="central-column">
             <div class="row">
                 <MaterialInput label="Theme Name" bind:value={new_theme_name}/>
@@ -179,7 +179,7 @@
         </div>
     </Modal>
 {:else}
-    <Modal on:close={close} on:submission={submitTheme}>
+    <Modal on:close={close} on:submission={submitTheme} z_index={5}>
         <div class="central-column">
             <div class="header row">
                 <MaterialSelect label="Themes" bind:value={selected_theme} on:change={selectionChanged}>
