@@ -44,7 +44,7 @@
 </style>
 
 {#if !error_on_init}
-    <Modal on:close={close} use_submission={false}>
+    <Modal on:close={close} use_submission={false} z_index={5}>
         <div class="central-column">
             <div class="row">
                 <p>Name: {name}</p>

@@ -149,7 +149,9 @@ export const internal_add_event_promo = async (
   }
 
   console.log(event_promos);
-  const promos_string = event_promos.map((event_promo: string) => `'${event_promo}'`).join(", ");
+  const promos_string = event_promos
+    .map((event_promo: string) => `'${event_promo}'`)
+    .join(", ");
   const update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${promos_string}] WHERE name = '${event_name}';`;
   console.log(update_query);
   await pool.query(update_query);
@@ -262,9 +264,9 @@ export const internal_remove_event_promo = async (
 
   const new_promo_array = event_promos
     .filter((promo) => promo !== promo_name)
-    .map((promo: string) => `'${promo}`)
+    .map((promo: string) => `'${promo}'`)
     .join(", ");
-  let update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = DEFAULT WHERE name = '${event_name}';`;;
+  let update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = DEFAULT WHERE name = '${event_name}';`;
   if (new_promo_array.length > 0) {
     update_query = `UPDATE ${EVENTS_TABLE.name} SET promos = ARRAY[${new_promo_array}] WHERE name = '${event_name}';`;
   }
@@ -379,7 +381,7 @@ export const internal_delete_event = async (
 export const internal_set_event_theme = async (
   event_name: string,
   theme_name: string,
-  pool: PoolClient
+  pool: PoolClient,
 ) => {
   const event = (await internal_get_row_from_table(
     EVENTS_TABLE,
@@ -392,4 +394,30 @@ export const internal_set_event_theme = async (
   console.log(query);
 
   await pool.query(query);
-}
+};
+
+export const internal_set_event_date_time = async (
+  event_name: string,
+  date: string,
+  start_time: string,
+  pool: PoolClient,
+) => {
+  const event = (await internal_get_row_from_table(
+    EVENTS_TABLE,
+    event_name,
+    pool,
+  )) as IEventObject | Error;
+  if (event instanceof Error) return event;
+
+  if (date) {
+    const query = `UPDATE ${EVENTS_TABLE.name} SET date = '${date}' WHERE name = '${event_name}';`;
+    console.log(query);
+    await pool.query(query);
+  }
+
+  if (start_time) {
+    const query = `UPDATE ${EVENTS_TABLE.name} SET start_time = '${start_time}' WHERE name = '${event_name}';`;
+    console.log(query);
+    await pool.query(query);
+  }
+};

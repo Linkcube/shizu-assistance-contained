@@ -34,7 +34,8 @@ export interface IEventObject {
   djs?: ILineupDjObject[];
   promos?: string[];
   theme?: string;
-  date?: Date;
+  date?: string;
+  start_time?: string;
   public?: boolean;
 }
 

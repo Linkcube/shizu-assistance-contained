@@ -206,7 +206,7 @@
 		width: 100%;
 		height: 100%;
 		background: rgba(0,0,0,0.3);
-		z-index: 3;
+		z-index: 9;
 	}
 
 	.modal {
@@ -222,7 +222,7 @@
 		border-radius: 0.2em;
 		background: var(--background-color, white);
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.29);
-		z-index: 4;
+		z-index: 10;
 	}
 
     .user-actions {

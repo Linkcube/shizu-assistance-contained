@@ -74,6 +74,14 @@ currentThemeIndex.subscribe((newTheme) => {
 
 
 // Queries
+const all_event_properties = `
+name,
+djs { name, is_live, vj },
+promos,
+theme,
+public,
+date,
+start_time`;
 const djsMinQuery = `
 query {
     guiGetDjs {
@@ -172,11 +180,7 @@ query {
 const eventSingleQuery = (name) => `
 query {
     guiGetEvent(event_name: "${name}") {
-        name,
-        djs { name, is_live, vj },
-        promos,
-        theme,
-        public
+        ${all_event_properties}
     }
 }`;
 
@@ -187,6 +191,25 @@ query {
         root,
         file_path,
         url_path
+    }
+}`;
+
+const themeSingleQuery = (name) => `
+query {
+    guiGetTheme(theme_name: "${name}") {
+        name,
+        overlay_file,
+        stinger_file,
+        starting_file,
+        ending_file,
+        target_video_height,
+        target_video_width,
+        video_offset_x,
+        video_offset_y,
+        chat_width,
+        chat_height,
+        chat_offset_x,
+        chat_offset_y
     }
 }`;
 
@@ -310,7 +333,6 @@ const themeUpdateMutation = (
     if (chat_height) input += `, chat_height: ${chat_height}`;
     if (chat_offset_x) input += `, chat_offset_x: ${chat_offset_x}`;
     if (chat_offset_y) input += `, chat_offset_y: ${chat_offset_y}`;
-    console.log(input);
 
     return `
     mutation {
@@ -434,11 +456,6 @@ mutation {
     }
 }`;
 
-const setLastThemeIndexMutation = (index) => `
-mutation {
-    updateSettings(theme_index: ${index})
-}`
-
 const addDjMutation = (
         name,
         logo_name,
@@ -527,18 +544,14 @@ mutation {
 const createLineupQuery = (name) => `
 mutation {
     guiAddEvent(name: "${name}") {
-        name
+        ${all_event_properties}
     }
 }`
 
 const getLineup = (name) => `
 query {
     guiGetEvent(event_name: "${name}") {
-        name,
-        djs { name, is_live, vj },
-        promos,
-        theme,
-        public
+        ${all_event_properties}
     }
 }`
 
@@ -551,7 +564,7 @@ mutation {
             is_live: false
         }
     ) {
-        name
+        ${all_event_properties}
     }
 }`
 
@@ -561,7 +574,7 @@ mutation {
         event_name: "${event_name}",
         promo_name: "${promo_name}"
     ) {
-        name
+        ${all_event_properties}
     }
 }`
 
@@ -575,7 +588,23 @@ const updateLineupDjMutation = (event_name, dj_name, is_live, vj) => {
     if (vj) input += `, vj: "${vj}"`;
     return `
     mutation {
-        guiUpdateEventDj(${input}) { name }
+        guiUpdateEventDj(${input}) { ${all_event_properties} }
+    }`
+}
+
+const updateEventDateTime = (event_name, date, start_time) => {
+    let input = `event_name: "${event_name}"`;
+    if (date) {
+        input += `, date: "${date}"`;
+    }
+    if (start_time) {
+        input += `, start_time: "${start_time}"`;
+    }
+    return `
+    mutation {
+        guiUpdateEventDateTime(${input}) {
+            ${all_event_properties}
+        }
     }`
 }
 
@@ -585,7 +614,7 @@ mutation {
         event_name: "${event_name}",
         index_a: ${index_a},
         index_b: ${index_b}
-    ) { name }
+    ) { ${all_event_properties} }
 }`
 
 const fetchSwapLineupPromosMutation = (event_name, index_a, index_b) => `
@@ -594,7 +623,7 @@ mutation {
         event_name: "${event_name}",
         index_a: ${index_a},
         index_b: ${index_b}
-    ) { name }
+    ) { ${all_event_properties} }
 }`
 
 const removeDjFromLineuppMutation = (event_name, dj_name) => `
@@ -602,7 +631,7 @@ mutation {
     guiRemoveEventDj(
         event_name: "${event_name}",
         dj_name: "${dj_name}"
-    ) { name }
+    ) { ${all_event_properties} }
 }`
 
 const removePromoFromLineuppMutation = (event_name, promo_name) => `
@@ -610,7 +639,7 @@ mutation {
     guiRemoveEventPromo(
         event_name: "${event_name}",
         promo_name: "${promo_name}"
-    ) { name }
+    ) { ${all_event_properties} }
 }`
 
 const exportLineupMutation = (event_name) => `
@@ -783,6 +812,18 @@ export function fetchSingleEvent(name) {
     })
 }
 
+export function fetchSingleTheme(name) {
+    return fetch(themeSingleQuery(name)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+            if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+                return Promise.resolve(response.data.guiGetTheme);
+            }
+        })
+    })
+}
+
 export function fetchFileExists(name) {
     return fetch(fileSingleQuery(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
@@ -865,6 +906,18 @@ export function fetchAddTheme(name) {
                 return Promise.resolve(false);
             } else if (response.hasOwnProperty("data")) {
 				return Promise.resolve(response.data.guiAddNewTheme);
+			}
+		})
+    });
+}
+
+export function fetchUpdateEventDateTime(name, date, start_time) {
+    return fetch(updateEventDateTime(name, date, start_time)).then(promise => {
+        return Promise.resolve(promise).then(response => {
+			if (response.hasOwnProperty("errors")) {
+                errorStackPushHelper(response.errors[0]);
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiUpdateEventDateTime);
 			}
 		})
     });
@@ -958,10 +1011,6 @@ export function fetchDeleteAppTheme(themeIndex) {
     return fetch(deleteAppThemeMutation(themeIndex));
 }
 
-export function fetchSetLastThemeIndex(index) {
-    return fetch(setLastThemeIndexMutation(index));
-}
-
 export function fetchAddDj(name, logo_path, recording_path, rtmp_server, stream_key, public_name, discord_id) {
     fetch(addDjMutation(name, logo_path, recording_path, rtmp_server, stream_key, public_name, discord_id)).then(promise => {
         Promise.resolve(promise).then(response => {
@@ -981,9 +1030,6 @@ export function fetchUpdateDj(name, logo_path, recording_path, rtmp_server, rtmp
                 errorStackPushHelper(response.errors[0]);
             } else if (response.hasOwnProperty("data")) {
 				all_djs.set(response.data.guiUpdateDj);
-                if (get(currentLineup)) {
-                    fetchLineup(get(currentLineup));
-                }
 			}
 		})
     });
@@ -996,9 +1042,6 @@ export function fetchDeleteDj(dj_name) {
                 errorStackPushHelper(response.errors[0]);
             } else if (response.hasOwnProperty("data")) {
 				all_djs.set(response.data.guiDeleteDj);
-                if (get(currentLineup)) {
-                    fetchLineup(get(currentLineup));
-                }
                 return "done";
 			}
 		})
@@ -1030,9 +1073,11 @@ export function fetchLineup(name) {
 
 export function fetchAddDjToLineup(lineup_name, dj_name) {
     return fetch(addDjToLineupMutation(lineup_name, dj_name)).then(promise => {
-        Promise.resolve(promise).then(response => {
+        return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiAddEventDj);
             }
 		});
     });
@@ -1040,9 +1085,11 @@ export function fetchAddDjToLineup(lineup_name, dj_name) {
 
 export function fetchUpdateLineupDj(lineup_name, dj_name, is_live, vj) {
     return fetch(updateLineupDjMutation(lineup_name, dj_name, is_live, vj)).then(promise => {
-        Promise.resolve(promise).then(response => {
+        return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiUpdateEventDj);
             }
 		})
     });
@@ -1050,9 +1097,11 @@ export function fetchUpdateLineupDj(lineup_name, dj_name, is_live, vj) {
 
 export function fetchSwapLineupDjs(lineup_name, index_a, index_b) {
     return fetch(fetchSwapLineupDjsMutation(lineup_name, index_a, index_b)).then(promise => {
-        Promise.resolve(promise).then(response => {
+        return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiMoveEventDj);
             }
 		})
     });
@@ -1060,9 +1109,11 @@ export function fetchSwapLineupDjs(lineup_name, index_a, index_b) {
 
 export function fetchSwapLineupPromos(lineup_name, index_a, index_b) {
     return fetch(fetchSwapLineupPromosMutation(lineup_name, index_a, index_b)).then(promise => {
-        Promise.resolve(promise).then(response => {
+        return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiMoveEventPromo);
             }
 		})
     });
@@ -1070,9 +1121,11 @@ export function fetchSwapLineupPromos(lineup_name, index_a, index_b) {
 
 export function fetchRemoveLineupDj(lineup_name, dj_name) {
     return fetch(removeDjFromLineuppMutation(lineup_name, dj_name)).then(promise => {
-        Promise.resolve(promise).then(response => {
+        return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiRemoveEventDj);
             }
 		});
     });
@@ -1097,9 +1150,6 @@ export function fetchUpdatePromo(name, file_path) {
                 errorStackPushHelper(response.errors[0]);
             } else if (response.hasOwnProperty("data")) {
 				all_promos.set(response.data.guiUpdatePromo);
-                if (get(currentLineup)) {
-                    fetchLineup(get(currentLineup));
-                }
 			}
 		})
     });
@@ -1112,9 +1162,6 @@ export function fetchDeletePromo(index) {
                 errorStackPushHelper(response.errors[0]);
             } else if (response.hasOwnProperty("data")) {
 				all_promos.set(response.data.deletePromo);
-                if (get(currentLineup)) {
-                    fetchLineup(get(currentLineup));
-                }
                 return "done";
 			}
 		})
@@ -1123,9 +1170,11 @@ export function fetchDeletePromo(index) {
 
 export function fetchAddPromoToLineup(lineup_name, promo_name) {
     return fetch(addPromoToLineupMutation(lineup_name, promo_name)).then(promise => {
-        Promise.resolve(promise).then(response => {
+        return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiAddEventPromo);
             }
 		});
     });
@@ -1133,9 +1182,11 @@ export function fetchAddPromoToLineup(lineup_name, promo_name) {
 
 export function fetchRemoveLineupPromo(lineup_name, promo_name) {
     return fetch(removePromoFromLineuppMutation(lineup_name, promo_name)).then(promise => {
-        Promise.resolve(promise).then(response => {
+        return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
+            } else {
+                return Promise.resolve(response.data.guiRemoveEventPromo);
             }
 		});
     });

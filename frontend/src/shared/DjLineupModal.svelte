@@ -68,7 +68,7 @@
 </style>
 
 {#if !error_on_init}
-    <Modal on:close={close} on:submission={saveDj}>
+    <Modal on:close={close} on:submission={saveDj} z_index={5}>
         <div class="central-column">
             <div class="row">
                 <p>Name: {name}</p>

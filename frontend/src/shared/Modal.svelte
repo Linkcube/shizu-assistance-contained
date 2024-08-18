@@ -6,6 +6,10 @@
     } from '$lib/store.js';
 	
 	export let use_submission = true;
+	export let max_width = "38em";
+	export let z_index = 3;
+
+	const z_index_modal = z_index + 1;
 
 	const dispatch = createEventDispatcher();
     const close = () => dispatch('close');
@@ -52,9 +56,15 @@
 
 <svelte:window on:keydown={handle_keydown}/>
 
-<div class="modal-background" on:click={close}></div>
+<div class="modal-background" style="--z_index_bg:{z_index};" on:click={close}></div>
 
-<div class="modal" role="dialog" aria-modal="true" bind:this={modal}>
+<div
+	class="modal"
+	role="dialog"
+	aria-modal="true"
+	bind:this={modal}
+	style="--max_width:{max_width};--z_index_modal:{z_index_modal};"
+	>
 	<slot name="header"></slot>
     <br>
 	<slot></slot>
@@ -83,7 +93,7 @@
 		width: 100%;
 		height: 100%;
 		background: rgba(0,0,0,0.3);
-		z-index: 3;
+		z-index: var(--z_index_bg);
 	}
 
 	.modal {
@@ -91,7 +101,7 @@
 		left: 50%;
 		top: 50%;
 		width: calc(100vw - 4em);
-		max-width: 38em;
+		max-width: var(--max_width);
 		max-height: 70%;
 		overflow: auto;
 		transform: translate(-50%,-50%);
@@ -99,7 +109,7 @@
 		border-radius: 0.2em;
 		background: var(--background-color, white);
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.29);
-		z-index: 4;
+		z-index: var(--z_index_modal);
 	}
 
     .user-actions {

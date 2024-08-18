@@ -18,7 +18,7 @@ import {
   guiGetAppThemes,
   guiGetLogoPermissions,
   guiGetRecordingPermissions,
-  guiGetThemePermissions
+  guiGetThemePermissions,
 } from "./gui_reader";
 import {
   guiAddNewFile,
@@ -52,7 +52,8 @@ import {
   guiImportLegacyEvents,
   guiAddAppTheme,
   guiEditAppTheme,
-  guiDeleteAppTheme
+  guiDeleteAppTheme,
+  guiUpdateEventDateTime,
 } from "./gui_writer";
 import { create_tables, database_pool } from "./database";
 import cors from "cors";
@@ -115,7 +116,8 @@ const gui_root = {
   guiDeleteAppTheme,
   guiGetLogoPermissions,
   guiGetRecordingPermissions,
-  guiGetThemePermissions
+  guiGetThemePermissions,
+  guiUpdateEventDateTime,
 };
 const app = express();
 const logo_permissions = staticLogoPermission();
@@ -137,17 +139,23 @@ export const create_server = () => {
     `/${encodeURIComponent(logo_permissions.id)}`,
     express.static(logo_permissions.path),
   );
-  console.log(`Logos: localhost:${port}/${encodeURIComponent(logo_permissions.id)}`);
+  console.log(
+    `Logos: localhost:${port}/${encodeURIComponent(logo_permissions.id)}`,
+  );
   app.use(
     `/${encodeURIComponent(rec_permissions.id)}`,
     express.static(rec_permissions.path),
   );
-  console.log(`Recordings: localhost:${port}/${encodeURIComponent(rec_permissions.id)}`);
+  console.log(
+    `Recordings: localhost:${port}/${encodeURIComponent(rec_permissions.id)}`,
+  );
   app.use(
     `/${encodeURIComponent(themes_permissions.id)}`,
     express.static(themes_permissions.path),
   );
-  console.log(`Themes: localhost:${port}/${encodeURIComponent(themes_permissions.id)}`);
+  console.log(
+    `Themes: localhost:${port}/${encodeURIComponent(themes_permissions.id)}`,
+  );
   app.get("/healthz", (req, res) => {
     // do app logic here to determine if app is truly healthy
     // you should return 200 if healthy, and anything else will fail
