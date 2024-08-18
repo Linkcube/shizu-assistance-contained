@@ -3,7 +3,13 @@ import { basename, extname, join, resolve, normalize, parse } from "path";
 import { get } from "https";
 import { ffprobe } from "fluent-ffmpeg";
 import { urlToHttpOptions } from "url";
-import { IDjObject, IFileBlob, IFileObject, ILegacyLedger, IPromoObject } from "./types";
+import {
+  IDjObject,
+  IFileBlob,
+  IFileObject,
+  ILegacyLedger,
+  IPromoObject,
+} from "./types";
 
 if (process.env.DOCKER_LOGOS_PATH === undefined)
   throw new Error("DOCKER_LOGOS_PATH is not set!");
@@ -32,7 +38,7 @@ export const getLocalLogoFiles = (sub_dirs: string[]) => {
   const new_path = join(LOGOS_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
+  const retval: { files: IFileBlob[]; path: string[]; top_dir: string } = {
     files: [],
     path: [],
     top_dir: "",
@@ -56,8 +62,8 @@ export const getLocalLogoFiles = (sub_dirs: string[]) => {
     return {
       name: parsed.name,
       ext: parsed.ext,
-      is_dir: file.isDirectory()
-    }
+      is_dir: file.isDirectory(),
+    };
   });
   retval.path = sub_dirs;
   retval.top_dir = "Logos";
@@ -73,7 +79,7 @@ export const getLocalRecordingFiles = (sub_dirs: string[]) => {
   const new_path = join(RECORDINGS_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
+  const retval: { files: IFileBlob[]; path: string[]; top_dir: string } = {
     files: [],
     path: [],
     top_dir: "",
@@ -97,8 +103,8 @@ export const getLocalRecordingFiles = (sub_dirs: string[]) => {
     return {
       name: parsed.name,
       ext: parsed.ext,
-      is_dir: file.isDirectory()
-    }
+      is_dir: file.isDirectory(),
+    };
   });
   retval.path = sub_dirs;
   retval.top_dir = "Recordings";
@@ -114,7 +120,7 @@ export const getLocalThemeFiles = (sub_dirs: string[]) => {
   const new_path = join(THEMES_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
+  const retval: { files: IFileBlob[]; path: string[]; top_dir: string } = {
     files: [],
     path: sub_dirs,
     top_dir: "Themes",
@@ -124,8 +130,8 @@ export const getLocalThemeFiles = (sub_dirs: string[]) => {
     return {
       name: parsed.name,
       ext: parsed.ext,
-      is_dir: file.isDirectory()
-    }
+      is_dir: file.isDirectory(),
+    };
   });
 
   return retval;
@@ -139,7 +145,7 @@ export const getLocalExportDirs = (sub_dirs: string[]) => {
   const new_path = join(EXPORT_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
-  const retval: { files:IFileBlob[]; path: string[]; top_dir: string } = {
+  const retval: { files: IFileBlob[]; path: string[]; top_dir: string } = {
     files: [],
     path: [],
     top_dir: "",
@@ -150,8 +156,8 @@ export const getLocalExportDirs = (sub_dirs: string[]) => {
     return {
       name: parsed.name,
       ext: parsed.ext,
-      is_dir: file.isDirectory()
-    }
+      is_dir: file.isDirectory(),
+    };
   });
   retval.path = sub_dirs;
   retval.top_dir = "Export";
@@ -288,7 +294,9 @@ export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
       const parsed_file = parse(dj.logo_path);
       const file = logos_file_map.get(parsed_file.base);
       if (file) {
-        let trimmed_parent_path = file.parentPath.slice(LOGOS_ROOT.length+1)
+        const trimmed_parent_path = file.parentPath.slice(
+          LOGOS_ROOT.length + 1,
+        );
         const new_file: IFileObject = {
           name: parsed_file.name,
           root: "LOGOS",
@@ -302,7 +310,9 @@ export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
       const parsed_file = parse(dj.recording_path);
       const file = recordings_file_map.get(parsed_file.base);
       if (file) {
-        let trimmed_parent_path = file.parentPath.slice(RECORDINGS_ROOT.length+1)
+        const trimmed_parent_path = file.parentPath.slice(
+          RECORDINGS_ROOT.length + 1,
+        );
         const new_file: IFileObject = {
           name: parsed_file.name,
           root: "RECORDINGS",
@@ -322,7 +332,9 @@ export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
       const parsed_file = parse(promo.path);
       const file = recordings_file_map.get(parsed_file.base);
       if (file) {
-        let trimmed_parent_path = file.parentPath.slice(RECORDINGS_ROOT.length+1)
+        const trimmed_parent_path = file.parentPath.slice(
+          RECORDINGS_ROOT.length + 1,
+        );
         const new_file: IFileObject = {
           name: parsed_file.name,
           root: "RECORDINGS",

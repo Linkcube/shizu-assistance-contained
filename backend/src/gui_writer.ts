@@ -56,7 +56,7 @@ export const guiAddNewFile = async (file_data: IFileObject) => {
   const error = await insert_into_files(file_data);
   if (error !== undefined) return error;
 
-  return await guiGetFile({file_name: file_data.name});
+  return await guiGetFile({ file_name: file_data.name });
 };
 
 export const guiAddNewLogoFile = async (file_data: IFileObject) => {
@@ -67,7 +67,7 @@ export const guiAddNewLogoFile = async (file_data: IFileObject) => {
   );
   if (error !== undefined) return error;
 
-  return await guiGetFile({file_name: file_data.name});
+  return await guiGetFile({ file_name: file_data.name });
 };
 
 export const guiAddNewRecordingFile = async (file_data: IFileObject) => {
@@ -78,7 +78,7 @@ export const guiAddNewRecordingFile = async (file_data: IFileObject) => {
   );
   if (error !== undefined) return error;
 
-  return await guiGetFile({file_name: file_data.name});
+  return await guiGetFile({ file_name: file_data.name });
 };
 
 export const guiAddNewThemeFile = async (file_data: IFileObject) => {
@@ -89,7 +89,7 @@ export const guiAddNewThemeFile = async (file_data: IFileObject) => {
   );
   if (error !== undefined) return error;
 
-  return await guiGetFile({file_name: file_data.name});
+  return await guiGetFile({ file_name: file_data.name });
 };
 
 export const guiAddNewTheme = async (theme_data: IThemeObject) => {
@@ -145,45 +145,42 @@ export const guiUpdateEventDateTime = async (data: {
   date: string;
   start_time: string;
 }) => {
-  const error = await update_event_date_time(data.event_name, data.date, data.start_time);
+  const error = await update_event_date_time(
+    data.event_name,
+    data.date,
+    data.start_time,
+  );
   if (error !== undefined) return error;
 
   return await guiGetEvent(data);
-}
+};
 
-export const guiAddAppTheme = async (data: {
-  name: string
-}) => {
+export const guiAddAppTheme = async (data: { name: string }) => {
   const error = await create_new_app_theme(data.name);
   if (error !== undefined) return error;
 
   return await guiGetAppThemes();
-}
+};
 
-export const guiEditAppTheme = async (data: {
-  name: string,
-  style: any
-}) => {
+export const guiEditAppTheme = async (data: { name: string; style: any }) => {
   const error = await update_app_theme(data.name, data.style);
   if (error !== undefined) return error;
 
   return await guiGetAppThemes();
-}
+};
 
-export const guiDeleteAppTheme = async (data: {
-  name: string
-}) => {
+export const guiDeleteAppTheme = async (data: { name: string }) => {
   const error = await delete_app_theme(data.name);
   if (error !== undefined) return error;
 
   return await guiGetAppThemes();
-}
+};
 
 export const guiUpdateFile = async (file_data: IFileObject) => {
   const error = await update_file(file_data);
   if (error !== undefined) return error;
 
-  return await guiGetFile({file_name: file_data.name});
+  return await guiGetFile({ file_name: file_data.name });
 };
 
 export const guiUpdateTheme = async (theme_data: IThemeObject) => {
@@ -211,7 +208,7 @@ export const guiUpdateEvent = async (event_data: IEventObject) => {
   const error = await update_event(event_data);
   if (error !== undefined) return error;
 
-  return await guiGetEvent({event_name: event_data.name});
+  return await guiGetEvent({ event_name: event_data.name });
 };
 
 export const guiUpdateEventDj = async (data: {
@@ -289,7 +286,7 @@ export const guiSetEventTheme = async (data: {
   if (error !== undefined) return error;
 
   return await guiGetEvent(data);
-}
+};
 
 export const guiDeleteFile = async (data: { file_name: string }) => {
   const error = await delete_file(data.file_name);

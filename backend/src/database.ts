@@ -78,7 +78,11 @@ import {
 import { join, parse } from "path";
 import { accessSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import util from "node:util";
-import { internal_delete_app_themes, internal_insert_into_app_themes, internal_update_app_themes } from "./database_helpers/app_themes_db_helpers";
+import {
+  internal_delete_app_themes,
+  internal_insert_into_app_themes,
+  internal_update_app_themes,
+} from "./database_helpers/app_themes_db_helpers";
 
 // File for accessing SQL, handles client/pool lifecycles.
 
@@ -148,7 +152,7 @@ export const read_app_themes_table = async () => {
   const retval = await internal_read_entire_table(APP_THEMES_TABLE, pool);
   await pool.release();
   return retval.rows;
-}
+};
 
 export const get_file = async (name: string) => {
   const pool = await database_pool.connect();
@@ -187,10 +191,14 @@ export const get_dj = async (name: string) => {
 
 export const get_app_theme = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await internal_get_row_from_table(APP_THEMES_TABLE, name, pool);
+  const retval = await internal_get_row_from_table(
+    APP_THEMES_TABLE,
+    name,
+    pool,
+  );
   await pool.release();
   return retval;
-}
+};
 
 export const create_tables = async () => {
   const client = database_client();
@@ -224,7 +232,7 @@ const initial_data = async () => {
     submitTextColor: "#789922",
     submitBackgroundColor: "#97c42252",
   });
-}
+};
 
 export const insert_into_files = async (file_data: IFileObject) => {
   const pool = await database_pool.connect();
@@ -416,24 +424,29 @@ export const move_event_promo = async (
 
 export const set_event_theme = async (
   event_name: string,
-  theme_name: string
+  theme_name: string,
 ) => {
   const pool = await database_pool.connect();
   const error = await internal_set_event_theme(event_name, theme_name, pool);
   pool.release();
   return error;
-}
+};
 
 export const update_event_date_time = async (
   event_name: string,
   date: string,
-  start_time: string
+  start_time: string,
 ) => {
   const pool = await database_pool.connect();
-  const error = await internal_set_event_date_time(event_name, date, start_time, pool);
+  const error = await internal_set_event_date_time(
+    event_name,
+    date,
+    start_time,
+    pool,
+  );
   pool.release();
   return error;
-}
+};
 
 export const delete_event = async (event_name: string) => {
   const pool = await database_pool.connect();
@@ -489,21 +502,21 @@ export const create_new_app_theme = async (app_theme_name: string) => {
   const error = await internal_insert_into_app_themes(app_theme_name, pool);
   await pool.release();
   return error;
-}
+};
 
 export const update_app_theme = async (app_theme_name: string, style: any) => {
   const pool = await database_pool.connect();
   const error = await internal_update_app_themes(app_theme_name, style, pool);
   await pool.release();
   return error;
-}
+};
 
 export const delete_app_theme = async (app_theme_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_app_themes(app_theme_name, pool);
   await pool.release();
   return error;
-}
+};
 
 const find_event_objects = async (event_name: string) => {
   const files_to_check: string[] = [];
@@ -678,7 +691,8 @@ export const export_event = async (event_name: string) => {
       url: "",
       vj: lineup_dj.vj ? lineup_dj.vj : "",
     };
-    if (dj.logo) dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
+    if (dj.logo)
+      dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
     if (lineup_dj.is_live) {
       dj_export_data.url = util.format(
         process.env.RTMP_SERVER,
@@ -687,7 +701,10 @@ export const export_event = async (event_name: string) => {
       );
     } else {
       if (dj.recording) {
-        dj_export_data.recording_path = join(RECORDINGS_ROOT, files_map.get(dj.recording)!);
+        dj_export_data.recording_path = join(
+          RECORDINGS_ROOT,
+          files_map.get(dj.recording)!,
+        );
         dj_export_data.resolution = getResolution(
           dj_export_data.recording_path,
         );
@@ -707,7 +724,10 @@ export const export_event = async (event_name: string) => {
         resolution: Promise.resolve([]),
       };
       if (promo.promo_file) {
-        promo_export_data.path = join(RECORDINGS_ROOT, files_map.get(promo.promo_file)!);
+        promo_export_data.path = join(
+          RECORDINGS_ROOT,
+          files_map.get(promo.promo_file)!,
+        );
         promo_export_data.resolution = getResolution(promo_export_data.path);
       }
 
@@ -764,13 +784,25 @@ export const export_event = async (event_name: string) => {
   if (event_objects.theme && !(event_objects.theme instanceof Error)) {
     const theme_data: IExportThemeData = { name: event_objects.theme.name };
     if (event_objects.theme.overlay_file)
-      theme_data.overlay = join(THEMES_ROOT, files_map.get(event_objects.theme.overlay_file)!);
+      theme_data.overlay = join(
+        THEMES_ROOT,
+        files_map.get(event_objects.theme.overlay_file)!,
+      );
     if (event_objects.theme.starting_file)
-      theme_data.starting = join(THEMES_ROOT, files_map.get(event_objects.theme.starting_file)!);
+      theme_data.starting = join(
+        THEMES_ROOT,
+        files_map.get(event_objects.theme.starting_file)!,
+      );
     if (event_objects.theme.stinger_file)
-      theme_data.stinger = join(THEMES_ROOT, files_map.get(event_objects.theme.stinger_file)!);
+      theme_data.stinger = join(
+        THEMES_ROOT,
+        files_map.get(event_objects.theme.stinger_file)!,
+      );
     if (event_objects.theme.ending_file)
-      theme_data.ending = join(THEMES_ROOT, files_map.get(event_objects.theme.ending_file)!);
+      theme_data.ending = join(
+        THEMES_ROOT,
+        files_map.get(event_objects.theme.ending_file)!,
+      );
     if (event_objects.theme.target_video_width)
       theme_data.video_width = event_objects.theme.target_video_width;
     if (event_objects.theme.target_video_height)

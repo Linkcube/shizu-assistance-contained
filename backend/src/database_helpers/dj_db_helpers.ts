@@ -73,9 +73,11 @@ export const internal_update_dj = async (
 };
 
 export const internal_delete_dj = async (dj_name: string, pool: PoolClient) => {
-  const promo = (await internal_get_row_from_table(DJS_TABLE, dj_name, pool)) as
-    | IEventObject
-    | Error;
+  const promo = (await internal_get_row_from_table(
+    DJS_TABLE,
+    dj_name,
+    pool,
+  )) as IEventObject | Error;
   if (promo instanceof Error) return promo;
 
   const events = await pool.query(`SELECT * FROM ${EVENTS_TABLE.name};`);

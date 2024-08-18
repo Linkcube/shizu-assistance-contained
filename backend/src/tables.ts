@@ -155,35 +155,35 @@ export const THEMES_TABLE: Table = new Table(THEMES, [
   },
   {
     name: "target_video_width",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
   {
     name: "target_video_height",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
   {
     name: "video_offset_x",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
   {
     name: "video_offset_y",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
   {
     name: "chat_width",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
   {
     name: "chat_height",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
   {
     name: "chat_offset_x",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
   {
     name: "chat_offset_y",
-    type: "SMALLINT"
+    type: "SMALLINT",
   },
 ]);
 export const FILES_TABLE: Table = new Table(FILES, [
@@ -213,12 +213,12 @@ export const APP_THEMES_TABLE: Table = new Table(APP_THEMES, [
     name: "style",
     type: `JSONB`,
   },
-])
+]);
 export const ALL_TABLES = [
   FILES_TABLE,
   THEMES_TABLE,
   PROMOS_TABLE,
   DJS_TABLE,
   EVENTS_TABLE,
-  APP_THEMES_TABLE
+  APP_THEMES_TABLE,
 ];
