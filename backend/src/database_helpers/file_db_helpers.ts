@@ -1,5 +1,5 @@
 import { PoolClient } from "pg";
-import { InvalidFileError } from "../errors";
+import { invalidFileError } from "../errors";
 import { DJS_TABLE, FILES_TABLE, PROMOS_TABLE, THEMES_TABLE } from "../tables";
 import { IEventObject, IFileObject } from "../types";
 import {
@@ -18,11 +18,11 @@ const validate_file = async (
   );
   if (update) {
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(`File ${file_data.name} already exists!`);
+      return invalidFileError(`File ${file_data.name} already exists!`);
     }
   } else {
     if (exists.rows && exists.rows.length > 0) {
-      return new InvalidFileError(`File ${file_data.name} already exists!`);
+      return invalidFileError(`File ${file_data.name} already exists!`);
     }
   }
 };

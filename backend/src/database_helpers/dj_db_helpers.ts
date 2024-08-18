@@ -3,7 +3,7 @@ import {
   internal_update_table_entry,
   internal_get_row_from_table,
 } from "./helper_functions";
-import { DjNotFoundError, InvalidDjError, InvalidFileError } from "../errors";
+import { djNotFoundError, invalidDjError, invalidFileError } from "../errors";
 import { DJS_TABLE, FILES_TABLE, EVENTS_TABLE } from "../tables";
 import { IDjObject, IEventObject } from "../types";
 import { internal_remove_event_dj } from "./event_db_helpers";
@@ -19,11 +19,11 @@ const validate_dj = async (
   );
   if (update) {
     if (!exists.rows || exists.rows.length === 0) {
-      return new DjNotFoundError(`DJ ${dj_data.name} does not exist.`);
+      return djNotFoundError(`DJ ${dj_data.name} does not exist.`);
     }
   } else {
     if (exists.rows && exists.rows.length > 0) {
-      return new InvalidDjError(`DJ ${dj_data.name} already exists!`);
+      return invalidDjError(`DJ ${dj_data.name} already exists!`);
     }
   }
   if (dj_data.logo !== undefined) {
@@ -31,7 +31,7 @@ const validate_dj = async (
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${dj_data.logo}'`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return invalidFileError(
         `Logo file ${dj_data.logo} does not exist, add files to the DB before attempting to reference them.`,
       );
     }
@@ -41,7 +41,7 @@ const validate_dj = async (
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${dj_data.recording}'`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return invalidFileError(
         `Recording file ${dj_data.recording} does not exist, add files to the DB before attempting to reference them.`,
       );
     }

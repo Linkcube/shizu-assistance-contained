@@ -1,58 +1,55 @@
 class GraphqlError extends Error {
   extensions: any;
-  constructor(message: string, statusCode: number) {
+  constructor(message: string, statusCode: number, errorType: string) {
     super(message);
     this.extensions = {
       statusCode,
+      errorType,
     };
   }
 }
 
-export class InvalidFileError extends GraphqlError {
-  constructor(message: string) {
-    super(message, 401);
-    this.extensions.errorType = "InvalidFileError";
-  }
-}
+export const invalidFileError = (message: string) =>
+  new GraphqlError(message, 400, "invalidFileError");
 
-export class InvalidDjError extends GraphqlError {
-  constructor(message: string) {
-    super(message, 400);
-    this.extensions.errorType = "InvalidDjError";
-  }
-}
+export const invalidThemeError = (message: string) =>
+  new GraphqlError(message, 400, "invalidThemeError");
 
-export class InvalidPromoError extends GraphqlError {
-  constructor(message: string) {
-    super(message, 400);
-    this.extensions.errorType = "InvalidPromoError";
-  }
-}
+export const invalidEventError = (message: string) =>
+  new GraphqlError(message, 400, "invalidEventError");
 
-export class InvalidLineupError extends GraphqlError {
-  constructor(message: string) {
-    super(message, 400);
-    this.extensions.errorType = "InvalidLineupError";
-  }
-}
+export const invalidPromoError = (message: string) =>
+  new GraphqlError(message, 400, "invalidPromoError");
 
-export class DjNotFoundError extends GraphqlError {
-  constructor(message: string) {
-    super(message, 404);
-    this.extensions.errorType = "DjNotFoundError";
-  }
-}
+export const invalidDjError = (message: string) =>
+  new GraphqlError(message, 400, "invalidDjError");
 
-export class PromoNotFoundError extends GraphqlError {
-  constructor(message: string) {
-    super(message, 404);
-    this.extensions.errorType = "PromoNotFoundError";
-  }
-}
+export const invalidActionError = (message: string) =>
+  new GraphqlError(message, 400, "invalidActionError");
 
-export class LineupNotFoundError extends GraphqlError {
-  constructor(message: string) {
-    super(message, 404);
-    this.extensions.errorType = "LineupNotFoundError";
-  }
-}
+export const invalidAppThemeError = (message: string) =>
+  new GraphqlError(message, 400, "invalidAppThemeError");
+
+export const fileNotFoundError = (message: string) =>
+  new GraphqlError(message, 404, "fileNotFoundError");
+
+export const themeNotFoundError = (message: string) =>
+  new GraphqlError(message, 404, "themeNotFoundError");
+
+export const eventNotFoundError = (message: string) =>
+  new GraphqlError(message, 404, "eventNotFoundError");
+
+export const promoNotFoundError = (message: string) =>
+  new GraphqlError(message, 404, "promoNotFoundError");
+
+export const djNotFoundError = (message: string) =>
+  new GraphqlError(message, 404, "djNotFoundError");
+
+export const appThemeNotFoundError = (message: string) =>
+  new GraphqlError(message, 404, "appThemeNotFoundError");
+
+export const sqlEntryNotFound = (message: string) =>
+  new GraphqlError(message, 404, "sqlEntryNotFound");
+
+export const importError = (message: string) =>
+  new GraphqlError(message, 500, "importError");
