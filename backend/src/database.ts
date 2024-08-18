@@ -64,7 +64,7 @@ import {
   internal_insert_into_djs,
   internal_update_dj,
 } from "./database_helpers/dj_db_helpers";
-import { InvalidFileError, InvalidLineupError } from "./errors";
+import { importError, invalidFileError } from "./errors";
 import {
   fetchFile,
   getResolution,
@@ -559,9 +559,7 @@ const find_event_objects = async (event_name: string) => {
         if (promo.promo_file) {
           files_to_check.push(promo.promo_file);
         } else {
-          errors.push(
-            new InvalidFileError(`${promo_name} does not have a file.`),
-          );
+          errors.push(invalidFileError(`${promo_name} does not have a file.`));
         }
       }
     }
@@ -598,7 +596,7 @@ const find_event_objects = async (event_name: string) => {
 
 const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
   if (!file.file_path && !file.url_path)
-    return new InvalidFileError(`No local path or url set for ${file.name}`);
+    return invalidFileError(`No local path or url set for ${file.name}`);
   let local_file_path;
   let has_local_file = false;
   const root = root_map.get(file.root!)!;
@@ -617,7 +615,7 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
 
   if (!has_local_file) {
     if (!file.url_path) {
-      return new InvalidFileError(
+      return invalidFileError(
         `File ${file.name} does not have a valid local file, set a url path or fix the local file path.`,
       );
     }
@@ -666,13 +664,13 @@ export const export_event = async (event_name: string) => {
   const files_to_check = event_objects.file_names;
   const file_errors = event_objects.errors;
   if (files_to_check.length === 0 || file_errors.length > 0)
-    return new InvalidFileError(file_errors.toString());
+    return invalidFileError(file_errors.toString());
 
   const gathered_files = await gather_files_for_export(
     event_objects.file_names,
   );
   if (gathered_files.errors.length > 0)
-    return new InvalidFileError(gathered_files.errors.toString());
+    return invalidFileError(gathered_files.errors.toString());
 
   // Pack data into export format, gathering video resolution etc.
   const files_map = new Map(
@@ -768,7 +766,7 @@ export const export_event = async (event_name: string) => {
     }
   });
   if (ffmpeg_errors.length > 0)
-    return new InvalidFileError(ffmpeg_errors.toString());
+    return invalidFileError(ffmpeg_errors.toString());
 
   // Wrtite {event_name}.json to exports mount
   const DOCKER_EXPORT_PATH = join(EXPORT_ROOT, event_name + ".json");
@@ -851,7 +849,7 @@ export const import_legacy_ledger = async (ledger_path: string) => {
       errors.push(`Failed to import ${promo.name}: ${error.message}`);
   }
 
-  if (errors.length > 0) return new InvalidFileError(errors.toString());
+  if (errors.length > 0) return importError(errors.toString());
 };
 
 export const import_legacy_events = async (lineups_path: string) => {
@@ -896,7 +894,7 @@ export const import_legacy_events = async (lineups_path: string) => {
     new_events.push(new_event);
   }
 
-  if (errors.length > 0) return new InvalidFileError(errors.toString());
+  if (errors.length > 0) return importError(errors.toString());
 
   for (const event of new_events) {
     console.log(`Importing event ${event.name}`);
@@ -905,5 +903,5 @@ export const import_legacy_events = async (lineups_path: string) => {
       errors.push(`Failed to import event ${event.name}: ${error.message}`);
   }
 
-  if (errors.length > 0) return new InvalidFileError(errors.toString());
+  if (errors.length > 0) return importError(errors.toString());
 };

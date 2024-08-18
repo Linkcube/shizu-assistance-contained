@@ -4,7 +4,15 @@ import {
   internal_get_row_from_table,
   internal_update_table_entry,
 } from "./helper_functions";
-import { InvalidFileError, InvalidDjError } from "../errors";
+import {
+  invalidDjError,
+  invalidEventError,
+  invalidPromoError,
+  djNotFoundError,
+  promoNotFoundError,
+  themeNotFoundError,
+  invalidActionError,
+} from "../errors";
 import { EVENTS_TABLE, DJS_TABLE, PROMOS_TABLE, THEMES_TABLE } from "../tables";
 import { IEventObject, ILineupDjObject } from "../types";
 
@@ -18,11 +26,11 @@ const validate_event = async (
   );
   if (update) {
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(`Event ${event_data.name} already exists!`);
+      return invalidEventError(`Event ${event_data.name} already exists!`);
     }
   } else {
     if (exists.rows && exists.rows.length > 0) {
-      return new InvalidFileError(`Event ${event_data.name} already exists!`);
+      return invalidEventError(`Event ${event_data.name} already exists!`);
     }
   }
   if (event_data.djs !== undefined) {
@@ -37,7 +45,7 @@ const validate_event = async (
       const missing_set = event_data.djs.filter(
         (dj) => !db_djs.includes(dj.name),
       );
-      return new InvalidDjError(
+      return djNotFoundError(
         `The following DJs do not exist (${missing_set}), add DJs to the DB before attempting to reference them.`,
       );
     }
@@ -54,7 +62,7 @@ const validate_event = async (
       const missing_set = event_data.promos.filter(
         (promo) => !db_promos.includes(promo),
       );
-      return new InvalidFileError(
+      return promoNotFoundError(
         `The following promos do not exist (${missing_set}), add promos to the DB before attempting to reference them.`,
       );
     }
@@ -64,7 +72,7 @@ const validate_event = async (
       `SELECT 1 FROM ${THEMES_TABLE.name} WHERE name = '${event_data.theme}'`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return themeNotFoundError(
         `Theme ${event_data.theme} does not exist, add themes to the DB before attempting to reference them.`,
       );
     }
@@ -104,7 +112,7 @@ export const internal_add_event_dj = async (
       (event_dj: ILineupDjObject) => event_dj.name === dj_data.name,
     );
     if (event_dj_index !== -1) {
-      return new InvalidDjError(
+      return invalidDjError(
         `DJ ${dj_data.name} already exists in Event ${event_name}.`,
       );
     }
@@ -141,7 +149,7 @@ export const internal_add_event_promo = async (
       (event_promo: string) => event_promo === promo_name,
     );
     if (event_promo_index !== -1) {
-      return new InvalidDjError(
+      return invalidPromoError(
         `Promo ${promo_name} already exists in Event ${event_name}.`,
       );
     }
@@ -184,7 +192,7 @@ export const internal_update_event_dj = async (
   if (event instanceof Error) return event;
   const event_djs = event.djs;
   if (!event_djs || event_djs.length === 0) {
-    return new InvalidDjError(
+    return invalidDjError(
       `DJ ${dj_name} does not exist in Event ${event_name}.`,
     );
   }
@@ -192,7 +200,7 @@ export const internal_update_event_dj = async (
     (dj: ILineupDjObject) => dj.name === dj_name,
   );
   if (event_dj_index === -1) {
-    return new InvalidDjError(
+    return invalidPromoError(
       `DJ ${dj_name} does not exist in Event ${event_name}.`,
     );
   }
@@ -218,7 +226,7 @@ export const internal_remove_event_dj = async (
   if (event instanceof Error) return event;
   const event_djs = event.djs;
   if (!event_djs || event_djs.length === 0) {
-    return new InvalidDjError(
+    return invalidDjError(
       `DJ ${dj_name} does not exist in Event ${event_name}.`,
     );
   }
@@ -226,7 +234,7 @@ export const internal_remove_event_dj = async (
     (dj: ILineupDjObject) => dj.name === dj_name,
   );
   if (event_dj_index === -1) {
-    return new InvalidDjError(
+    return invalidDjError(
       `DJ ${dj_name} does not exist in Event ${event_name}.`,
     );
   }
@@ -249,7 +257,7 @@ export const internal_remove_event_promo = async (
   if (event instanceof Error) return event;
   const event_promos = event.promos;
   if (!event_promos || event_promos.length === 0) {
-    return new InvalidDjError(
+    return invalidPromoError(
       `Promo ${promo_name} does not exist in Event ${event_name}.`,
     );
   }
@@ -257,7 +265,7 @@ export const internal_remove_event_promo = async (
     (promo: string) => promo === promo_name,
   );
   if (event_promo_index === -1) {
-    return new InvalidDjError(
+    return invalidPromoError(
       `Promo ${promo_name} does not exist in Event ${event_name}.`,
     );
   }
@@ -292,7 +300,7 @@ export const internal_move_event_dj = async (
     index_b < 0 ||
     index_b >= event.djs.length
   ) {
-    return new InvalidFileError(
+    return invalidActionError(
       `The move indexes (${index_a}, ${index_b}) are not valid for Event ${event_name}.`,
     );
   }
@@ -332,7 +340,7 @@ export const internal_move_event_promo = async (
     index_b < 0 ||
     index_b >= event.promos.length
   ) {
-    return new InvalidFileError(
+    return invalidActionError(
       `The move indexes (${index_a}, ${index_b}) are not valid for Event ${event_name}.`,
     );
   }

@@ -3,7 +3,12 @@ import {
   internal_update_table_entry,
   internal_get_row_from_table,
 } from "./helper_functions";
-import { PromoNotFoundError, InvalidFileError } from "../errors";
+import {
+  promoNotFoundError,
+  invalidFileError,
+  invalidPromoError,
+  fileNotFoundError,
+} from "../errors";
 import { PROMOS_TABLE, FILES_TABLE, EVENTS_TABLE } from "../tables";
 import { IPromoObject, IEventObject } from "../types";
 import { internal_remove_event_promo } from "./event_db_helpers";
@@ -19,11 +24,11 @@ const validate_promo = async (
   );
   if (update) {
     if (!exists.rows || exists.rows.length === 0) {
-      return new PromoNotFoundError(`Promo ${promo_data.name} does not exist.`);
+      return promoNotFoundError(`Promo ${promo_data.name} does not exist.`);
     }
   } else {
     if (exists.rows && exists.rows.length > 0) {
-      return new InvalidFileError(`Promo ${promo_data.name} already exists!`);
+      return invalidPromoError(`Promo ${promo_data.name} already exists!`);
     }
   }
   if (promo_data.promo_file !== undefined) {
@@ -31,7 +36,7 @@ const validate_promo = async (
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${promo_data.promo_file}'`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return fileNotFoundError(
         `Promo file ${promo_data.promo_file} does not exist, add files to the DB before attempting to reference them.`,
       );
     }

@@ -3,7 +3,11 @@ import {
   internal_update_table_entry,
   internal_get_row_from_table,
 } from "./helper_functions";
-import { InvalidFileError } from "../errors";
+import {
+  fileNotFoundError,
+  invalidFileError,
+  invalidThemeError,
+} from "../errors";
 import { EVENTS_TABLE, FILES_TABLE, THEMES_TABLE } from "../tables";
 import { IEventObject, IThemeObject } from "../types";
 import { PoolClient } from "pg";
@@ -18,11 +22,11 @@ const validate_theme = async (
   );
   if (update) {
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(`Theme ${theme_data.name} already exists!`);
+      return invalidThemeError(`Theme ${theme_data.name} already exists!`);
     }
   } else {
     if (exists.rows && exists.rows.length > 0) {
-      return new InvalidFileError(`Theme ${theme_data.name} already exists!`);
+      return invalidThemeError(`Theme ${theme_data.name} already exists!`);
     }
   }
   if (theme_data.overlay_file !== undefined) {
@@ -30,7 +34,7 @@ const validate_theme = async (
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.overlay_file}';`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return fileNotFoundError(
         `Overlay file ${theme_data.overlay_file} does not exist, add all files to the DB before attempting to reference them.`,
       );
     }
@@ -40,7 +44,7 @@ const validate_theme = async (
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.stinger_file}';`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return fileNotFoundError(
         `Stinger file ${theme_data.stinger_file} does not exist, add all files to the DB before attempting to reference them.`,
       );
     }
@@ -50,7 +54,7 @@ const validate_theme = async (
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.starting_file}';`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return fileNotFoundError(
         `Starting file ${theme_data.starting_file} does not exist, add all files to the DB before attempting to reference them.`,
       );
     }
@@ -60,7 +64,7 @@ const validate_theme = async (
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.ending_file}';`,
     );
     if (!exists.rows || exists.rows.length === 0) {
-      return new InvalidFileError(
+      return fileNotFoundError(
         `Ending file ${theme_data.ending_file} does not exist, add all files to the DB before attempting to reference them.`,
       );
     }
@@ -103,9 +107,9 @@ export const internal_delete_theme = async (
   if (theme instanceof Error) return theme;
 
   // Null out theme for all events using this theme
-  await pool.query(
-    `UPDATE ${EVENTS_TABLE.name} SET theme = DEFAULT WHERE theme = '${theme_name}';`,
-  );
+  const default_events_query = `UPDATE ${EVENTS_TABLE.name} SET theme = DEFAULT WHERE theme = '${theme_name}';`;
+  console.log(default_events_query);
+  await pool.query(default_events_query);
 
   const delete_query = `DELETE FROM ${THEMES_TABLE.name} WHERE name = '${theme_name}'`;
   console.log(delete_query);

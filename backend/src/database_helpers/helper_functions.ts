@@ -1,7 +1,7 @@
 import { Client, PoolClient, QueryResult } from "pg";
 import { ALL_COMPOSITE_TYPES, CompositeType } from "../composite_types";
 import { Table } from "../tables";
-import { DjNotFoundError } from "../errors";
+import { sqlEntryNotFound } from "../errors";
 
 export const internal_create_composite_type_helper = async (
   client: Client,
@@ -82,7 +82,7 @@ export const internal_get_row_from_table = async (
   const retval = await pool.query(table.get_single(primary_key));
 
   if (!retval.rows || retval.rows.length === 0)
-    return new DjNotFoundError(
+    return sqlEntryNotFound(
       `Table ${table.name} does not contain ${primary_key}.`,
     );
   return retval.rows[0];
