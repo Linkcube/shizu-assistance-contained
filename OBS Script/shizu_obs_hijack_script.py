@@ -162,7 +162,8 @@ class Hijack:
                 ))
             else:
                 promos.append(promo.get("path"))
-        lineup_scenes.append(ObsPromoScene(promos))
+        if len(promos) > 0:
+            lineup_scenes.append(ObsPromoScene(promos))
         theme_items = []
         if lineup_data.get(THEME_KEY):
             theme_data = lineup_data.get(THEME_KEY)
@@ -522,18 +523,21 @@ class AdvancedSceneSwitchManager:
             # Set target scene to switch to
             if index < total_actions - 1:
                 action["actions"][0]["sceneSelection"]["name"] = self.djs[index+1][1]
-            else:
+            elif promos_scene:
                 action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(promos_scene))
+            else:
+                action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
             # Set conditional media to switch on end
             action["conditions"][0]["source"]["name"] = dj[3]
             actions.append(action)
             print(f"Added {dj[0]} pointing to scene {action['actions'][0]['sceneSelection']['name']}")
         
-        promos_action = deepcopy(self.default_action)
-        promos_action["name"] = "switch_from_promos"
-        promos_action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
-        promos_action["conditions"][0]["source"]["name"] = "promo_videos"
-        actions.append(promos_action)
+        if promos_scene:
+            promos_action = deepcopy(self.default_action)
+            promos_action["name"] = "switch_from_promos"
+            promos_action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
+            promos_action["conditions"][0]["source"]["name"] = "promo_videos"
+            actions.append(promos_action)
 
         return json.dumps({
             "macros": actions
