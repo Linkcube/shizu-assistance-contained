@@ -1,106 +1,4 @@
 {
-    "switch_macro": {
-        "name": "Transition_on_media_end",
-        "pause": false,
-        "parallel": false,
-        "onChange": true,
-        "skipExecOnStart": false,
-        "stopActionsIfNotDone": false,
-        "group": false,
-        "dockSettings": {
-            "register": false,
-            "hasRunButton": true,
-            "hasPauseButton": true,
-            "hasStatusLabel": false,
-            "highlightIfConditionsTrue": false,
-            "runButtonText": "Run",
-            "pauseButtonText": "Pause",
-            "unpauseButtonText": "Unpause",
-            "conditionsTrueStatusText": "Conditions are true.",
-            "conditionsFalseStatusText": "Conditions are false."
-        },
-        "macroActionConditionSplitterPosition": [
-            {
-                "pos": 163
-            },
-            {
-                "pos": 436
-            }
-        ],
-        "macroElseActionSplitterPosition": [
-            {
-                "pos": 398
-            },
-            {
-                "pos": 0
-            }
-        ],
-        "registerHotkeys": false,
-        "pauseHotkey": [],
-        "unpauseHotkey": [],
-        "togglePauseHotkey": [],
-        "conditions": [
-            {
-                "segmentSettings": {
-                    "collapsed": false,
-                    "useCustomLabel": false,
-                    "customLabel": "My label"
-                },
-                "id": "media",
-                "logic": 0,
-                "durationModifier": {
-                    "time_constraint": 0,
-                    "seconds": {
-                        "value": {
-                            "value": 0.0,
-                            "type": 0
-                        },
-                        "unit": 0,
-                        "version": 1
-                    }
-                },
-                "source": {
-                    "type": 0,
-                    "name": ""
-                },
-                "sceneSelection": {
-                    "type": 3
-                },
-                "sourceType": 2,
-                "state": 6,
-                "restriction": 0,
-                "duration": {
-                    "value": {
-                        "value": 0.0,
-                        "type": 0
-                    },
-                    "unit": 0,
-                    "version": 1
-                },
-                "version": 0
-            }
-        ],
-        "actions": [
-            {
-                "segmentSettings": {
-                    "collapsed": false,
-                    "useCustomLabel": false,
-                    "customLabel": "My label"
-                },
-                "id": "sequence",
-                "enabled": true,
-                "macros": [],
-                "restart": true,
-                "action": 0,
-                "resetIndex": {
-                    "value": 1,
-                    "type": 0
-                }
-            }
-        ],
-        "elseActions": [],
-        "inputVariables": []
-    },
     "switch_from_action": {
         "name": "switch_from_name",
         "pause": false,
@@ -141,7 +39,48 @@
         "pauseHotkey": [],
         "unpauseHotkey": [],
         "togglePauseHotkey": [],
-        "conditions": [],
+        "conditions": [
+                {
+                    "segmentSettings": {
+                        "collapsed": false,
+                        "useCustomLabel": false,
+                        "customLabel": "My label"
+                    },
+                    "id": "media",
+                    "logic": 0,
+                    "durationModifier": {
+                        "time_constraint": 0,
+                        "seconds": {
+                            "value": {
+                                "value": 0.0,
+                                "type": 0
+                            },
+                            "unit": 0,
+                            "version": 1
+                        }
+                    },
+                    "source": {
+                        "type": 0,
+                        "name": "DJ Ichiban_recording"
+                    },
+                    "sceneSelection": {
+                        "type": 0,
+                        "name": ""
+                    },
+                    "sourceType": 0,
+                    "state": 6,
+                    "restriction": 0,
+                    "duration": {
+                        "value": {
+                            "value": 0.0,
+                            "type": 0
+                        },
+                        "unit": 0,
+                        "version": 1
+                    },
+                    "version": 0
+                }
+            ],
         "actions": [
             {
                 "segmentSettings": {
@@ -155,8 +94,7 @@
                     "type": 0,
                     "name": "Target Scene"
                 },
-                "transitionType": 0,
-                "transition": "Stinger",
+                "transitionType": 1,
                 "duration": {
                     "value": {
                         "value": 0.0,

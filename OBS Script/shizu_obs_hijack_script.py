@@ -162,7 +162,8 @@ class Hijack:
                 ))
             else:
                 promos.append(promo.get("path"))
-        lineup_scenes.append(ObsPromoScene(promos))
+        if len(promos) > 0:
+            lineup_scenes.append(ObsPromoScene(promos))
         theme_items = []
         if lineup_data.get(THEME_KEY):
             theme_data = lineup_data.get(THEME_KEY)
@@ -285,11 +286,6 @@ class Hijack:
     
     def setup_dj_scene_items(self, scene, scene_values: 'ObsDjScene'):
         # Load recording or setup vlc stream
-        self.ass_manager.add_dj(
-            scene_values.name,
-            S.obs_source_get_name(S.obs_scene_get_source(scene)),
-            not bool(scene_values.recording_path)
-        )
         if scene_values.recording_path:
             video_source_name = f"{scene_values.name}_recording"
             json_settings = {
@@ -310,6 +306,13 @@ class Hijack:
             }
             video_settings = S.obs_data_create_from_json(json.dumps(json_settings))
             video_source = S.obs_source_create("vlc_source", video_source_name, video_settings, None)
+        
+        self.ass_manager.add_dj(
+            scene_values.name,
+            S.obs_source_get_name(S.obs_scene_get_source(scene)),
+            not bool(scene_values.recording_path),
+            video_source_name
+        )
 
         video_item = S.obs_scene_add(scene, video_source)
 
@@ -423,7 +426,7 @@ class Hijack:
 
     def setup_promo_scene_items(self, scene, promotion: 'ObsPromoScene'):
         # Load all promos into a single VLC playlist
-        video_source_name = f"promo_videos"
+        video_source_name = "promo_videos"
         json_settings = {"playlist": [], "loop": False}
         for path in promotion.paths:
             json_settings["playlist"].append({
@@ -485,7 +488,6 @@ class ObsThemeScene(ObsDjScene):
         self.path = path
 
 class AdvancedSceneSwitchManager:
-    switch_macro = None
     default_action = None
     djs = []
 
@@ -497,43 +499,48 @@ class AdvancedSceneSwitchManager:
         with open(ass_fp, 'r') as f:
             data = json.load(f)
 
-        self.switch_macro = data["switch_macro"]
         self.default_action = data["switch_from_action"]
     
-    def add_dj(self, dj_name, scene_name, is_live) -> None:
+    def add_dj(self, dj_name, scene_name, is_live, video_source) -> None:
         self.djs.append([
             dj_name,
             scene_name,
-            is_live
+            is_live,
+            video_source
         ])
     
     def generate_objects(self, promos_scene, ending_scene):
         actions = []
         total_actions = len(self.djs)
-        self.switch_macro["actions"][0]["macros"] = []
 
         for index, dj in enumerate(self.djs):
+            print(dj)
             # Skip waiting on media end for live DJs
             if dj[2]:
                 continue
             action = deepcopy(self.default_action)
             action["name"] = "switch_from_" + dj[0]
+            # Set target scene to switch to
             if index < total_actions - 1:
                 action["actions"][0]["sceneSelection"]["name"] = self.djs[index+1][1]
-            else:
+            elif promos_scene:
                 action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(promos_scene))
-            self.switch_macro["actions"][0]["macros"].append({ "macro": action["name"]})
+            else:
+                action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
+            # Set conditional media to switch on end
+            action["conditions"][0]["source"]["name"] = dj[3]
             actions.append(action)
             print(f"Added {dj[0]} pointing to scene {action['actions'][0]['sceneSelection']['name']}")
         
-        promos_action = deepcopy(self.default_action)
-        promos_action["name"] = "switch_from_promos"
-        promos_action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
-        self.switch_macro["actions"][0]["macros"].append({ "macro": promos_action["name"]})
-        actions.append(promos_action)
+        if promos_scene:
+            promos_action = deepcopy(self.default_action)
+            promos_action["name"] = "switch_from_promos"
+            promos_action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
+            promos_action["conditions"][0]["source"]["name"] = "promo_videos"
+            actions.append(promos_action)
 
         return json.dumps({
-            "macros": [ self.switch_macro, *actions ]
+            "macros": actions
         })
 
 
