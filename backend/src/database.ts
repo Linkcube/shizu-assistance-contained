@@ -894,8 +894,6 @@ export const import_legacy_events = async (lineups_path: string) => {
     new_events.push(new_event);
   }
 
-  if (errors.length > 0) return importError(errors.toString());
-
   for (const event of new_events) {
     console.log(`Importing event ${event.name}`);
     const error = await insert_into_events(event);
