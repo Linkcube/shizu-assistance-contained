@@ -9,7 +9,7 @@
     import Modal from './Modal.svelte';
     import { 
         currentThemeIndex, currentTheme, 
-        fetchGetAppThemes, fetchAddAppTheme, 
+        oaFetchAppThemes, fetchAddAppTheme, 
         fetchEditAppTheme, fetchDeleteAppTheme,
         themes
     } from '$lib/store.js';
@@ -95,7 +95,7 @@
 
     themes.subscribe(value => themes_data = value);
 
-    fetchGetAppThemes();
+    oaFetchAppThemes();
 </script>
 
 

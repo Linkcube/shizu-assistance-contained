@@ -460,7 +460,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Themes'
+                $ref: '#/components/schemas/ThemesMin'
   /themes/single-theme/{themeName}:
     get:
       sumary: Returns a theme by name

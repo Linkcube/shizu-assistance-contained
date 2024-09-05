@@ -65,8 +65,13 @@ import {
   staticRecordingPermission,
   staticThemePermission,
 } from "./file_helpers";
-import { fileRouter } from "./openapi-routers/file-router";
+import { fileRouter } from "./openapi_routers/file_router";
 import path from "path";
+import { djRouter } from "./openapi_routers/dj_router";
+import { themeRouter } from "./openapi_routers/theme_router";
+import { eventRouter } from "./openapi_routers/event_router";
+import { promoRouter } from "./openapi_routers/promo_router";
+import { appThemeRouter } from "./openapi_routers/app_theme_router";
 
 // API server
 const gui_root = {
@@ -180,6 +185,11 @@ export const create_server = () => {
     res.sendFile(path.join(__dirname, "..", "openapi", "redoc-static.html"))
   });
   app.use("/openapi/files", fileRouter);
+  app.use("/openapi/djs", djRouter);
+  app.use("/openapi/themes", themeRouter);
+  app.use("/openapi/events", eventRouter);
+  app.use("/openapi/promos", promoRouter);
+  app.use("/openapi/app-themes", appThemeRouter);
 
   create_tables();
 

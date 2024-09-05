@@ -4,11 +4,11 @@
     import {
         LOGO_TYPE,
         RECORDING_TYPE,
-        fetchLogoPermissions,
-        fetchRecordingPermissions,
-        graphqlBase,
+        oaFetchLogoPermissions,
+        oaFetchRecordingPermissions,
+        serverUrl,
         THEME_TYPE,
-        fetchThemePermissions,
+        oaFetchThemePermissions,
         isImageSource
     } from '$lib/store';
 	
@@ -67,39 +67,33 @@
 		});
 	}
 
-    function fetchFileBlob() {
+    async function fetchFileBlob() {
         if (file_type == LOGO_TYPE) {
-            fetchLogoPermissions(current_path).then(res => {
-                if (res.hasOwnProperty("data")) {
-                    let file_blob = res.data.guiGetLogoPermissions;
-                    current_files = file_blob.files;
-                    display_files = current_files;
-                    current_path = file_blob.path;
-                    top_level_dir = file_blob.top_dir;
-                }
-            })
+            const file_blob = await oaFetchLogoPermissions(current_path);
+            if (file_blob) {
+                current_files = file_blob.files;
+                display_files = current_files;
+                current_path = file_blob.path;
+                top_level_dir = file_blob.top_dir;
+            }
         }
         if (file_type == RECORDING_TYPE) {
-            fetchRecordingPermissions(current_path).then(res => {
-                if (res.hasOwnProperty("data")) {
-                    let file_blob = res.data.guiGetRecordingPermissions;
-                    current_files = file_blob.files;
-                    display_files = current_files;
-                    current_path = file_blob.path;
-                    top_level_dir = file_blob.top_dir;
-                }
-            })
+            const file_blob = await oaFetchRecordingPermissions(current_path);
+            if (file_blob) {
+                current_files = file_blob.files;
+                display_files = current_files;
+                current_path = file_blob.path;
+                top_level_dir = file_blob.top_dir;
+            }
         }
         if (file_type == THEME_TYPE) {
-            fetchThemePermissions(current_path).then(res => {
-                if (res.hasOwnProperty("data")) {
-                    let file_blob = res.data.guiGetThemePermissions;
-                    current_files = file_blob.files;
-                    display_files = current_files;
-                    current_path = file_blob.path;
-                    top_level_dir = file_blob.top_dir;
-                }
-            })
+            const file_blob = await oaFetchThemePermissions(current_path);
+            if (file_blob) {
+                current_files = file_blob.files;
+                display_files = current_files;
+                current_path = file_blob.path;
+                top_level_dir = file_blob.top_dir;
+            }
         }
         sort_direction = false;
         sort_type = "name";
@@ -132,11 +126,11 @@
             selected_file = file_name;
             selected_file_ext = ext;
             if (file_type === LOGO_TYPE) {
-                preview_path = `${graphqlBase}/logos/${current_path.join("/")}/${file_name + ext}`;
+                preview_path = `${serverUrl}/logos/${current_path.join("/")}/${file_name + ext}`;
             } else if (file_type === RECORDING_TYPE) {
-                preview_path = `${graphqlBase}/recordings/${current_path.join("/")}/${file_name + ext}`;
+                preview_path = `${serverUrl}/recordings/${current_path.join("/")}/${file_name + ext}`;
             } else {
-                preview_path = `${graphqlBase}/themes/${current_path.join("/")}/${file_name + ext}`;
+                preview_path = `${serverUrl}/themes/${current_path.join("/")}/${file_name + ext}`;
             }
             
         }

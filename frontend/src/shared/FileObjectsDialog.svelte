@@ -6,10 +6,10 @@
     import {
         LOGO_TYPE,
         RECORDING_TYPE,
-        graphqlBase,
-        fetchLogoFiles,
-        fetchRecordingFiles,
-        fetchThemeFiles,
+        serverUrl,
+        oaFetchLogoFiles,
+        oaFetchRecordingFiles,
+        oaFetchThemeFiles,
         fetchAddLogoFile,
         fetchAddRecordingFile,
         fetchUpdateFile,
@@ -93,11 +93,11 @@
             return;
         }
         if (file_type == LOGO_TYPE) {
-            preview_path = `${graphqlBase}/logos/${file.file_path}`;
+            preview_path = `${serverUrl}/logos/${file.file_path}`;
         } else if (file_type === RECORDING_TYPE) {
-            preview_path = `${graphqlBase}/recordings/${file.file_path}`;
+            preview_path = `${serverUrl}/recordings/${file.file_path}`;
         } else {
-            preview_path = `${graphqlBase}/themes/${file.file_path}`;
+            preview_path = `${serverUrl}/themes/${file.file_path}`;
         }
     }
 
@@ -193,11 +193,11 @@
     async function fetchFiles() {
         let files;
         if (file_type === LOGO_TYPE) {
-            files = await fetchLogoFiles();
+            files = await oaFetchLogoFiles();
         } else if (file_type === RECORDING_TYPE) {
-            files = await fetchRecordingFiles();
+            files = await oaFetchRecordingFiles();
         } else {
-            files = await fetchThemeFiles();
+            files = await oaFetchThemeFiles();
         }
 
         if (files) {

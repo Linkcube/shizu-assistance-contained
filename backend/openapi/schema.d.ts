@@ -117,7 +117,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/{fileName}": {
+    "/files/single-file/{fileName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -142,6 +142,41 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["File"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/logo-permissions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FileDialogBlob"];
                     };
                 };
             };
@@ -191,6 +226,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/files/recording-permissions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FileDialogBlob"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/files/recording-permissions/{recordingPath}": {
         parameters: {
             query?: never;
@@ -205,6 +275,41 @@ export interface paths {
                 path: {
                     recordingPath: string;
                 };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FileDialogBlob"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/theme-permissions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
                 cookie?: never;
             };
             requestBody?: never;
@@ -317,7 +422,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/themes/{themeName}": {
+    "/themes/single-theme/{themeName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -406,7 +511,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/djs/{djName}": {
+    "/djs/single-dj/{djName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -495,7 +600,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events/{eventName}": {
+    "/events/single-event/{eventName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -584,7 +689,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/promos/{promoName}": {
+    "/promos/single-promo/{promoName}": {
         parameters: {
             query?: never;
             header?: never;

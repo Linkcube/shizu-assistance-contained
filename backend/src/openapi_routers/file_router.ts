@@ -12,55 +12,71 @@ export const fileRouter = Router();
 
 fileRouter.get("/logo-permissions", async (req, res) => {
     const file_blob = await getLocalLogoFiles([]);
-    res.send(file_blob);
+    res.status(200);
+    return res.send(file_blob);
 });
 
 fileRouter.get("/logo-permissions/:logoPath", async (req, res) => {
     const file_blob = await getLocalLogoFiles(req.params.logoPath.split("/"));
-    res.send(file_blob);
+    res.status(200);
+    return res.send(file_blob);
 });
 
 fileRouter.get("/recording-permissions", async (req, res) => {
     const file_blob = await getLocalRecordingFiles([]);
-    res.send(file_blob);
+    res.status(200);
+    return res.send(file_blob);
 });
 
 fileRouter.get("/recording-permissions/:recordingPath", async (req, res) => {
     const file_blob = await getLocalRecordingFiles(req.params.recordingPath.split("/"));
-    res.send(file_blob);
+    res.status(200);
+    return res.send(file_blob);
 });
 
 fileRouter.get("/theme-permissions", async (req, res) => {
     const file_blob = await getLocalThemeFiles([]);
-    res.send(file_blob);
+    res.status(200);
+    return res.send(file_blob);
 });
 
 fileRouter.get("/theme-permissions/:themePath", async (req, res) => {
     const file_blob = await getLocalThemeFiles(req.params.themePath.split("/"));
-    res.send(file_blob);
+    res.status(200);
+    return res.send(file_blob);
 });
 
 fileRouter.get("/logos", async (req, res) => {
-    res.send(await read_files_logos());
+    res.status(200);
+    return res.send(await read_files_logos());
 });
 
 fileRouter.get("/recordings", async (req, res) => {
-    res.send(await read_files_recordings());
+    res.status(200);
+    return res.send(await read_files_recordings());
 });
 
 fileRouter.get("/themes", async (req, res) => {
-    res.send(await read_files_themes());
+    res.status(200);
+    return res.send(await read_files_themes());
 });
 
 fileRouter.get("/single-file/:fileName", async (req, res) => {
     const file = await get_file(req.params.fileName);
     if (file instanceof Error) {
-        res.status(404).send(`File ${req.params.fileName} does not exist`)
+        console.log(`Error on ${req.params.fileName}, returning 404.`);
+        res.status(404);
+        return res.send({
+            errorType: "fileNotFoundError",
+            message: `File ${req.params.fileName} does not exist`
+        });
     }
 
+    res.status(200);
     res.send(file);
 });
 
 fileRouter.get("/", async (req, res) => {
-    res.send(await read_files_table());
+    res.status(200);
+    return res.send(await read_files_table());
 });

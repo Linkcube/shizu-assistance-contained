@@ -18,9 +18,10 @@ export const all_promos = writable([]);
 export const all_events = writable([]);
 export const current_event_object = writable({});
 
-export const graphqlBase = `${location.protocol}//${window.location.hostname}:4004`;
+export const serverUrl = `${location.protocol}//${window.location.hostname}:4004`;
 export const staticAssetsBase = `${location.protocol}//${window.location.hostname}:4004`;
-const graphqlUrl = `${graphqlBase}/gui/graphql`;
+const graphqlUrl = `${serverUrl}/gui/graphql`;
+const openapiUrl = `${serverUrl}/openapi`;
 
 export const RTMP_SERVERS = [
     {id: null, name: "Unset"},
@@ -39,8 +40,42 @@ export function isImageSource(source_path) {
     return(source_path.match(/\.(jpeg|jpg|gif|png)$/) != null);
 }
 
-function fetch(query) {
+function graphqlFetch(query) {
     return fetchGraphQL(graphqlUrl, query);
+}
+
+async function openapiGet(url, bubble_error=true) {
+    const request =  fetch(`${openapiUrl}/${url}`, {
+        method: "GET"
+    });
+
+    const response = await request;
+    if (response.ok) {
+        return await response.json();
+    }
+    if (bubble_error) parseOpenapiError(response);
+}
+
+function openapiPost(url) {
+    return fetch(`${openapiUrl}/${url}`, {
+        method: "POST"
+    });
+}
+
+function openapiPostBody(url, body) {
+    return fetch(`${openapiUrl}/${url}`, {
+        method: "POST",
+        body: body
+    });
+}
+
+async function parseOpenapiError(response) {
+    const jsonbody = await response.json();
+    errorStackPushHelper({
+        statusCode: response.status,
+        message: jsonbody.message,
+        errorType: jsonbody.errorType
+    });
 }
 
 export function updateTheme(style) {
@@ -82,136 +117,6 @@ theme,
 public,
 date,
 start_time`;
-const djsMinQuery = `
-query {
-    guiGetDjs {
-        name,
-        logo,
-        recording,
-        rtmp_server
-    }
-}`;
-
-const promosMinQuery = `
-query {
-    guiGetPromos {
-        name
-    }
-}`;
-
-const themesQuery = `
-query {
-    guiGetThemes {
-        name,
-        overlay_file,
-        stinger_file,
-        starting_file,
-        ending_file,
-        target_video_height,
-        target_video_width,
-        video_offset_x,
-        video_offset_y,
-        chat_width,
-        chat_height,
-        chat_offset_x,
-        chat_offset_y
-    }
-}`;
-
-const eventsMinQuery = `
-query {
-    guiGetEvents {
-        name
-    }
-}`;
-
-const logoFilesQuery = `
-query {
-    guiGetLogoFiles {
-        name,
-        root,
-        file_path,
-        url_path
-    }
-}`;
-
-const recordingFilesQuery = `
-query {
-    guiGetRecordingFiles {
-        name,
-        root,
-        file_path,
-        url_path
-    }
-}`;
-
-const themeFilesQuery = `
-query {
-    guiGetThemeFiles {
-        name,
-        root,
-        file_path,
-        url_path
-    }
-}`;
-
-const djSingleQuery = (name) => `
-query {
-    guiGetDj(dj_name: "${name}") {
-        name,
-        logo,
-        recording,
-        rtmp_server,
-        rtmp_key,
-        public_name,
-        discord_id,
-        past_events
-    }
-}`;
-
-const promoSingleQuery = (name) => `
-query {
-    guiGetPromo(promo_name: "${name}") {
-        name,
-        promo_file
-    }
-}`;
-
-const eventSingleQuery = (name) => `
-query {
-    guiGetEvent(event_name: "${name}") {
-        ${all_event_properties}
-    }
-}`;
-
-const fileSingleQuery = (name) => `
-query {
-    guiGetFile(file_name: "${name}") {
-        name,
-        root,
-        file_path,
-        url_path
-    }
-}`;
-
-const themeSingleQuery = (name) => `
-query {
-    guiGetTheme(theme_name: "${name}") {
-        name,
-        overlay_file,
-        stinger_file,
-        starting_file,
-        ending_file,
-        target_video_height,
-        target_video_width,
-        video_offset_x,
-        video_offset_y,
-        chat_width,
-        chat_height,
-        chat_offset_x,
-        chat_offset_y
-    }
-}`;
 
 const logoFileCreateMutation = (name, file_path = null, url_path = null) => {
     let input = `name: "${name}"`;
@@ -647,197 +552,111 @@ mutation {
     guiExportEvent(event_name: "${event_name}")
 }`
 
-const deleteLineupMutation = (name) => `
-mutation {
-    guiDeleteEvent(event_name: "${name}") { name }
-}`
-
-const getPermissionsQueryHelper = (query_head, sub_dirs) => {
-    let dirs_string = sub_dirs.map(dir => `"${dir}"`).join(',');
-    if (sub_dirs) {
-        query_head += `(sub_dirs: [${dirs_string}])`
-    }
-
-    return `
-    query {
-        ${query_head} {
-            files {
-                name,
-                ext,
-                is_dir
-            },
-            path,
-            top_dir
-        }
-    }`
-}
-
-const getLogoPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetLogoPermissions", sub_dirs);
-const getRecordingPermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetRecordingPermissions", sub_dirs);
-const getThemePermissionsQuery = (sub_dirs) => getPermissionsQueryHelper("guiGetThemePermissions", sub_dirs);
-
-const reconstructPathHelper = (query_head, dirs) => {
-    let dirs_string = dirs.map(dir => `"${dir}"`).join(',');
-
-    return `
-    query {
-        ${query_head}(dirs: [${dirs_string}])
-    }`
-}
-
 const errorStackPushHelper = (error) => {
     error_stack.set(error);
 }
 
+// openapi fetch
+
+export const oaFetchLogoFiles = async () => {
+    return await openapiGet("files/logos");
+}
+
+export const oaFetchRecordingFiles = async () => {
+    return await openapiGet("files/recordings");
+}
+
+export const oaFetchThemeFiles = async () => {
+    return await openapiGet("files/themes");
+}
+
+export const oaFetchFileExists = async (file) => {
+    const file_data = await openapiGet(`files/single-file/${file}`, false);
+    if (file_data) {
+        return true;
+    }
+    
+    return false;
+}
+
+const filePermissionsHelper = (url, sub_dirs) => {
+    if (sub_dirs.length > 0) {
+        url += '/' + sub_dirs.join('/');
+    }
+    console.log(url);
+    return openapiGet(url);
+}
+
+export const oaFetchLogoPermissions = async (sub_dirs) => {
+    return await filePermissionsHelper("files/logo-permissions", sub_dirs);
+}
+
+export const oaFetchRecordingPermissions = async (sub_dirs) => {
+    return await filePermissionsHelper("files/recording-permissions", sub_dirs);
+}
+export const oaFetchThemePermissions = async (sub_dirs) => {
+    return await filePermissionsHelper("files/theme-permissions", sub_dirs);
+}
+
+export const oaFetchDjs = async () => {
+    const djs = await openapiGet("djs/min");
+    if (djs) {
+        all_djs.set(djs);
+    }
+}
+
+export const oaFetchSingleDj = async (dj_name) => {
+    return await openapiGet("djs/single-dj/" + dj_name);
+}
+
+export const oaFetchPromos = async () => {
+    const promos = await openapiGet("promos/min");
+    if (promos) {
+        all_promos.set(promos);
+    }
+}
+
+export const oaFetchSinglePromo = async (promo_name) => {
+    return await openapiGet("promos/single-promo/" + promo_name);
+}
+
+export const oaFetchEvents = async () => {
+    const events = await openapiGet("events/min");
+    if (events) {
+        all_events.set(events);
+    }
+}
+
+export const oaFetchSingleEvent = async (event_name) => {
+    const event_data = await openapiGet("events/single-event/" + event_name);
+    currentLineupObjects.set(event_data);
+}
+
+export const oaFetchThemes = async () => {
+    return await openapiGet("themes/");
+}
+
+export const oaFetchSingleTheme = async (theme_name) => {
+    return await openapiGet("themes/single-theme/" + theme_name);
+}
+
+export const oaFetchAppThemes = async () => {
+    const app_themes =  await openapiGet("app-themes/");
+    if (app_themes) {
+        themes.set(app_themes);
+        let last_theme = localStorage.getItem("theme_index");
+        if (last_theme !== null) {
+            currentThemeIndex.set(parseInt(last_theme));
+        } else {
+            currentThemeIndex.set(0);
+        }
+    }
+}
+
 
 // fetch
-
-export function fetchDjs() {
-    fetch(djsMinQuery).then(promise => {
-        Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                all_djs.set(response.data.guiGetDjs);
-            }
-        })
-    })
-}
-
-export function fetchPromos() {
-    fetch(promosMinQuery).then(promise => {
-        Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                all_promos.set(response.data.guiGetPromos);
-            }
-        })
-    })
-}
-
-export function fetchEvents() {
-    fetch(eventsMinQuery).then(promise => {
-        Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                all_events.set(response.data.guiGetEvents);
-            }
-        })
-    })
-}
-
-export function fetchLogoFiles() {
-    return fetch(logoFilesQuery).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetLogoFiles);
-            }
-        })
-    })
-}
-
-export function fetchRecordingFiles() {
-    return fetch(recordingFilesQuery).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetRecordingFiles);
-            }
-        })
-    })
-}
-
-export function fetchThemeFiles() {
-    return fetch(themeFilesQuery).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetThemeFiles);
-            }
-        })
-    })
-}
-
-export function fetchThemes() {
-    return fetch(themesQuery).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetThemes);
-            }
-        })
-    })
-}
-
-export function fetchSingleDj(name) {
-    return fetch(djSingleQuery(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetDj);
-            }
-        })
-    })
-}
-
-export function fetchSinglePromo(name) {
-    return fetch(promoSingleQuery(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetPromo);
-            }
-        })
-    })
-}
-
-export function fetchSingleEvent(name) {
-    return fetch(eventSingleQuery(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                currentLineupObjects.set(response.data.guiGetEvent);
-            }
-        })
-    })
-}
-
-export function fetchSingleTheme(name) {
-    return fetch(themeSingleQuery(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetTheme);
-            }
-        })
-    })
-}
-
-export function fetchFileExists(name) {
-    return fetch(fileSingleQuery(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                return Promise.resolve(false);
-            } else if (response.hasOwnProperty("data")) {
-                return Promise.resolve(response.data.guiGetFile);
-            }
-        })
-    })
-}
-
 export function fetchAddLogoFile(name, file_path=null, url_path=null) {
-    return fetch(logoFileCreateMutation(name, file_path, url_path)).then(promise => {
+    return graphqlFetch(logoFileCreateMutation(name, file_path, url_path)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -850,7 +669,7 @@ export function fetchAddLogoFile(name, file_path=null, url_path=null) {
 }
 
 export function fetchAddRecordingFile(name, file_path=null, url_path=null) {
-    return fetch(recordingFileCreateMutation(name, file_path, url_path)).then(promise => {
+    return graphqlFetch(recordingFileCreateMutation(name, file_path, url_path)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -863,7 +682,7 @@ export function fetchAddRecordingFile(name, file_path=null, url_path=null) {
 }
 
 export function fetchAddThemeFile(name, file_path=null, url_path=null) {
-    return fetch(themeFileCreateMutation(name, file_path, url_path)).then(promise => {
+    return graphqlFetch(themeFileCreateMutation(name, file_path, url_path)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -876,7 +695,7 @@ export function fetchAddThemeFile(name, file_path=null, url_path=null) {
 }
 
 export function fetchUpdateFile(name, root, file_path, url_path) {
-    return fetch(fileUpdateMutation(name, root, file_path, url_path)).then(promise => {
+    return graphqlFetch(fileUpdateMutation(name, root, file_path, url_path)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -889,7 +708,7 @@ export function fetchUpdateFile(name, root, file_path, url_path) {
 }
 
 export function fetchDeleteFile(name) {
-    return fetch(fileDeleteMutation(name)).then(promise => {
+    return graphqlFetch(fileDeleteMutation(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -899,7 +718,7 @@ export function fetchDeleteFile(name) {
 }
 
 export function fetchAddTheme(name) {
-    return fetch(themeCreateMutation(name)).then(promise => {
+    return graphqlFetch(themeCreateMutation(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -912,7 +731,7 @@ export function fetchAddTheme(name) {
 }
 
 export function fetchUpdateEventDateTime(name, date, start_time) {
-    return fetch(updateEventDateTime(name, date, start_time)).then(promise => {
+    return graphqlFetch(updateEventDateTime(name, date, start_time)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -936,7 +755,7 @@ export function fetchUpdateTheme(
     chat_height,
     chat_offset_x,
     chat_offset_y) {
-    return fetch(themeUpdateMutation(
+    return graphqlFetch(themeUpdateMutation(
         name,
         overlay_file,
         starting_file,
@@ -962,7 +781,7 @@ export function fetchUpdateTheme(
 }
 
 export function fetchDeleteTheme(name) {
-    return fetch(themeDeleteMutation(name)).then(promise => {
+    return graphqlFetch(themeDeleteMutation(name)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -972,7 +791,7 @@ export function fetchDeleteTheme(name) {
 }
 
 export function fetchEventSetTheme(event_name, theme_name) {
-    return fetch(eventSetThemeMutation(event_name, theme_name)).then(promise => {
+    return graphqlFetch(eventSetThemeMutation(event_name, theme_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -982,37 +801,20 @@ export function fetchEventSetTheme(event_name, theme_name) {
 		})
     });
 }
-
-export function fetchGetAppThemes() {
-    fetch(getAppThemesQuery).then(promise => {
-        Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty('data')) {
-                themes.set(response.data.guiGetAppThemes);
-                let last_theme = localStorage.getItem("theme_index");
-                if (last_theme !== null) {
-                    currentThemeIndex.set(parseInt(last_theme));
-                } else {
-                    currentThemeIndex.set(0);
-                }
-            }
-        })
-    });
-}
-
 export function fetchAddAppTheme() {
-    return fetch(addAppThemeMutation);
+    return graphqlFetch(addAppThemeMutation);
 }
 
 export function fetchEditAppTheme(themeIndex, theme) {
-    return fetch(editAppThemeMutation(themeIndex, theme));
+    return graphqlFetch(editAppThemeMutation(themeIndex, theme));
 }
 
 export function fetchDeleteAppTheme(themeIndex) {
-    return fetch(deleteAppThemeMutation(themeIndex));
+    return graphqlFetch(deleteAppThemeMutation(themeIndex));
 }
 
 export function fetchAddDj(name, logo_path, recording_path, rtmp_server, stream_key, public_name, discord_id) {
-    fetch(addDjMutation(name, logo_path, recording_path, rtmp_server, stream_key, public_name, discord_id)).then(promise => {
+    graphqlFetch(addDjMutation(name, logo_path, recording_path, rtmp_server, stream_key, public_name, discord_id)).then(promise => {
         Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1024,7 +826,7 @@ export function fetchAddDj(name, logo_path, recording_path, rtmp_server, stream_
 }
 
 export function fetchUpdateDj(name, logo_path, recording_path, rtmp_server, rtmp_key, public_name, discord_id) {
-    fetch(updateDjMutation(name, logo_path, recording_path, rtmp_server, rtmp_key, public_name, discord_id)).then(promise => {
+    graphqlFetch(updateDjMutation(name, logo_path, recording_path, rtmp_server, rtmp_key, public_name, discord_id)).then(promise => {
         Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1036,7 +838,7 @@ export function fetchUpdateDj(name, logo_path, recording_path, rtmp_server, rtmp
 }
 
 export function fetchDeleteDj(dj_name) {
-    return fetch(deleteDjMutation(dj_name)).then(promise => {
+    return graphqlFetch(deleteDjMutation(dj_name)).then(promise => {
         Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1050,7 +852,7 @@ export function fetchDeleteDj(dj_name) {
 
 
 export function fetchCreateLineup(name) {
-    return fetch(createLineupQuery(name)).then(promise => {
+    return graphqlFetch(createLineupQuery(name)).then(promise => {
         Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1060,7 +862,7 @@ export function fetchCreateLineup(name) {
 }
 
 export function fetchLineup(name) {
-    return fetch(getLineup(name)).then(promise => {
+    return graphqlFetch(getLineup(name)).then(promise => {
         Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1072,7 +874,7 @@ export function fetchLineup(name) {
 }
 
 export function fetchAddDjToLineup(lineup_name, dj_name) {
-    return fetch(addDjToLineupMutation(lineup_name, dj_name)).then(promise => {
+    return graphqlFetch(addDjToLineupMutation(lineup_name, dj_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1084,7 +886,7 @@ export function fetchAddDjToLineup(lineup_name, dj_name) {
 }
 
 export function fetchUpdateLineupDj(lineup_name, dj_name, is_live, vj) {
-    return fetch(updateLineupDjMutation(lineup_name, dj_name, is_live, vj)).then(promise => {
+    return graphqlFetch(updateLineupDjMutation(lineup_name, dj_name, is_live, vj)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1096,7 +898,7 @@ export function fetchUpdateLineupDj(lineup_name, dj_name, is_live, vj) {
 }
 
 export function fetchSwapLineupDjs(lineup_name, index_a, index_b) {
-    return fetch(fetchSwapLineupDjsMutation(lineup_name, index_a, index_b)).then(promise => {
+    return graphqlFetch(fetchSwapLineupDjsMutation(lineup_name, index_a, index_b)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1108,7 +910,7 @@ export function fetchSwapLineupDjs(lineup_name, index_a, index_b) {
 }
 
 export function fetchSwapLineupPromos(lineup_name, index_a, index_b) {
-    return fetch(fetchSwapLineupPromosMutation(lineup_name, index_a, index_b)).then(promise => {
+    return graphqlFetch(fetchSwapLineupPromosMutation(lineup_name, index_a, index_b)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1120,7 +922,7 @@ export function fetchSwapLineupPromos(lineup_name, index_a, index_b) {
 }
 
 export function fetchRemoveLineupDj(lineup_name, dj_name) {
-    return fetch(removeDjFromLineuppMutation(lineup_name, dj_name)).then(promise => {
+    return graphqlFetch(removeDjFromLineuppMutation(lineup_name, dj_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1132,7 +934,7 @@ export function fetchRemoveLineupDj(lineup_name, dj_name) {
 }
 
 export function fetchAddPromo(name, file_path) {
-    fetch(addPromoMutation(name, file_path)).then(promise => {
+    graphqlFetch(addPromoMutation(name, file_path)).then(promise => {
         Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1144,7 +946,7 @@ export function fetchAddPromo(name, file_path) {
 }
 
 export function fetchUpdatePromo(name, file_path) {
-    fetch(updatePromoMutation(name, file_path)).then(promise => {
+    graphqlFetch(updatePromoMutation(name, file_path)).then(promise => {
         Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1156,7 +958,7 @@ export function fetchUpdatePromo(name, file_path) {
 }
 
 export function fetchDeletePromo(index) {
-    return fetch(deletePromoMutation(index)).then(promise => {
+    return graphqlFetch(deletePromoMutation(index)).then(promise => {
         Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1169,7 +971,7 @@ export function fetchDeletePromo(index) {
 }
 
 export function fetchAddPromoToLineup(lineup_name, promo_name) {
-    return fetch(addPromoToLineupMutation(lineup_name, promo_name)).then(promise => {
+    return graphqlFetch(addPromoToLineupMutation(lineup_name, promo_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1181,7 +983,7 @@ export function fetchAddPromoToLineup(lineup_name, promo_name) {
 }
 
 export function fetchRemoveLineupPromo(lineup_name, promo_name) {
-    return fetch(removePromoFromLineuppMutation(lineup_name, promo_name)).then(promise => {
+    return graphqlFetch(removePromoFromLineuppMutation(lineup_name, promo_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1193,7 +995,7 @@ export function fetchRemoveLineupPromo(lineup_name, promo_name) {
 }
 
 export function fetchExportLineup(lineup_name) {
-    return fetch(exportLineupMutation(lineup_name)).then(promise => {
+    return graphqlFetch(exportLineupMutation(lineup_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
             if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
@@ -1205,16 +1007,11 @@ export function fetchExportLineup(lineup_name) {
     });
 }
 
-export function fetchDeleteLineup(lineup_name) {
-    return fetch(deleteLineupMutation(lineup_name));
-}
+const deleteLineupMutation = (name) => `
+mutation {
+    guiDeleteEvent(event_name: "${name}") { name }
+}`
 
-export function fetchLogoPermissions(sub_dirs) {
-    return fetch(getLogoPermissionsQuery(sub_dirs));
-}
-export function fetchRecordingPermissions(sub_dirs) {
-    return fetch(getRecordingPermissionsQuery(sub_dirs));
-}
-export function fetchThemePermissions(sub_dirs) {
-    return fetch(getThemePermissionsQuery(sub_dirs));
+export function fetchDeleteLineup(lineup_name) {
+    return graphqlFetch(deleteLineupMutation(lineup_name));
 }

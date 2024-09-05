@@ -7,7 +7,7 @@
     import Modal from './Modal.svelte';
     import { 
         error_stack,
-        fetchThemes,
+        oaFetchThemes,
         fetchAddTheme,
         THEME_TYPE,
         fetchUpdateTheme,
@@ -39,7 +39,7 @@
 
 
     async function getThemes() {
-        themes = await fetchThemes();
+        themes = await oaFetchThemes();
         if (selected_theme_name) {
             selected_theme = themes.filter(theme => theme.name === selected_theme_name)[0];
         } else if (themes.length > 0) {

@@ -16,19 +16,17 @@
         fetchExportLineup,
         fetchDeleteLineup,
         error_stack,
-        fetchSingleEvent,
-        fetchSingleDj,
-        fetchSinglePromo,
-        fetchEvents,
+        oaFetchSingleEvent,
+        oaFetchSingleDj,
+        oaFetchSinglePromo,
+        oaFetchEvents,
         fetchEventSetTheme,
-        fetchSingleTheme,
+        oaFetchSingleTheme,
         fetchUpdateEventDateTime,
         fetchAddDjToLineup,
         fetchAddPromoToLineup,
         all_djs,
-
         all_promos
-
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import ThemesModal from './ThemesModal.svelte';
@@ -130,7 +128,7 @@
     }
 
     const getThemeData = async () => {
-        theme_data = await fetchSingleTheme(event.theme);
+        theme_data = await oaFetchSingleTheme(event.theme);
     }
 
     const editDj = (index, name, is_live, vj) => {
@@ -140,7 +138,7 @@
         edit_dj_name = name;
         edit_dj_is_live = is_live;
         edit_dj_vj = vj;
-        edit_dj_promise = fetchSingleDj(name);
+        edit_dj_promise = oaFetchSingleDj(name);
         show_dj_dialog = true;
     }
 
@@ -149,7 +147,7 @@
         last_action = EDIT_PROMO_FAILED;
         edit_promo_index = index;
         edit_promo_name = name;
-        edit_promo_promise = fetchSinglePromo(name);
+        edit_promo_promise = oaFetchSinglePromo(name);
         show_promo_dialog = true;
     }
 
@@ -239,12 +237,12 @@
     }
 
     function deleteLineup() {
-        fetchDeleteLineup(event.name).then(() => fetchEvents()).then(() => close());
+        fetchDeleteLineup(event.name).then(() => oaFetchEvents()).then(() => close());
     }
 
     async function changeTheme(user_event) {
         fetchEventSetTheme(event.name, user_event.detail.theme_name)
-            .then(_ => fetchSingleEvent(event.name))
+            .then(_ => oaFetchSingleEvent(event.name))
             .then(_ => getThemeData());
     }
 

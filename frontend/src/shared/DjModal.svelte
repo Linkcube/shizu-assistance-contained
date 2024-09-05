@@ -18,7 +18,7 @@
         LOGO_TYPE,
         error_stack,
         all_events,
-        fetchFileExists
+        oaFetchFileExists
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import { get } from 'svelte/store';
@@ -46,12 +46,12 @@
     let logo_data = {};
     let recording_data = {};
 
-    fetchFileExists(logo_name).then(file => {
+    oaFetchFileExists(logo_name).then(file => {
         if (file) {
             logo_data = file;
         }
     });
-    fetchFileExists(recording_name).then(file => {
+    oaFetchFileExists(recording_name).then(file => {
         if (file) {
             recording_data = file;
         }

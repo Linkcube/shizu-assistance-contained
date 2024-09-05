@@ -1,18 +1,18 @@
 <script>
 	import {
-		fetchGetAppThemes,
-		fetchDjs,
-		fetchPromos,
-		fetchEvents
+		oaFetchAppThemes,
+		oaFetchDjs,
+		oaFetchPromos,
+		oaFetchEvents
     } from '$lib/store';
 	import LedgerTable from '../shared/LedgerTable.svelte';
 	import LineupsTable from "../shared/LineupsTable.svelte"
 
-	fetchGetAppThemes();
+	oaFetchAppThemes();
 
-	fetchDjs();
-	fetchPromos();
-	fetchEvents();
+	oaFetchDjs();
+	oaFetchPromos();
+	oaFetchEvents();
 </script>
 
 <style>

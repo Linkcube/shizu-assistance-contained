@@ -3,8 +3,8 @@
     import {
         all_djs,
         all_promos,
-        fetchSingleDj,
-        fetchSinglePromo
+        oaFetchSingleDj,
+        oaFetchSinglePromo
     } from '$lib/store';
     import {
         MaterialTable,
@@ -81,7 +81,7 @@
     const editDj = (index, name) => {
 		dj_modal_index = (index !== null) ? index : -1;
 		dj_modal_name = (name !== null) ? name : "";
-        dj_promise = fetchSingleDj(name);
+        dj_promise = oaFetchSingleDj(name);
 		show_dj_modal = true;
 	}
 	const resetDjModal = () => {
@@ -94,7 +94,7 @@
     const editPromo = (index, name) => {
         promo_modal_index = (index !== null) ? index : -1;
         promo_modal_name = (name !== null) ? name : "";
-        promo_promise = fetchSinglePromo(name);
+        promo_promise = oaFetchSinglePromo(name);
         show_promo_modal = true;
     }
     const resetPromoModal = () => {

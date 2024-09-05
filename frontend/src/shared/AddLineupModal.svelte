@@ -6,7 +6,7 @@
     import { 
         fetchCreateLineup,
         error_stack,
-        fetchEvents
+        oaFetchEvents
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import ErrorMessage from './ErrorMessage.svelte';
@@ -25,7 +25,7 @@
     function createLineup() {
         show_save_message = true;
         current_error = null;
-        fetchCreateLineup(name).then(_ => fetchEvents());
+        fetchCreateLineup(name).then(_ => oaFetchEvents());
         setTimeout(() => {
             show_save_message = false;
             if (current_error == null) {

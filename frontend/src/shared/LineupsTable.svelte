@@ -4,7 +4,7 @@
         currentLineup,
 		currentLineupObjects,
         all_events,
-        fetchSingleEvent,
+        oaFetchSingleEvent,
     } from '$lib/store';
     import {
         MaterialTable,
@@ -52,7 +52,7 @@
 	}
 
 	const selectLineup = (name) => {
-		fetchSingleEvent(name).then(_ => {
+		oaFetchSingleEvent(name).then(_ => {
 			currentLineup.set(name);
 			current_lineup = name;
             search_value = null;
