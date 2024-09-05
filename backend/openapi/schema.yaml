@@ -1,0 +1,588 @@
+openapi: 3.0.0
+basePath: '/v1'
+info:
+  title: 'Sample API'
+  description: 'sample'
+  version: 0.1.0
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        name:
+          description: File identifier
+          type: string
+        root:
+          description: Root directory of file, denotes intended use.
+          type: string
+        file_path:
+          description: Local path inside docker file mapping.
+          type: string
+        url_path:
+          description: Remote path for file, fetched at event export.
+          type: string
+    Files:
+      type: array
+      items:
+        $ref: '#/components/schemas/File'
+    Theme:
+      type: object
+      properties:
+        name:
+          description: Theme identifier.
+          type: string
+        overlay_file:
+          description: Identifier for overlay theme file.
+          type: string
+        stinger_file:
+          description: Identifier for stinger theme file.
+          type: string
+        starting_file:
+          description: Identifier for starting theme file.
+          type: string
+        ending_file:
+          description: Identifier for ending theme file.
+          type: string
+        target_video_width:
+          description: Pixel width for video files to be scaled to.
+          type: integer
+          format: int32
+        target_video_height:
+          description: Pixel height for video files to be scaled to.
+          type: integer
+          format: int32
+        video_offset_x:
+          description: Pixel count for video files to horizontally offset by.
+          type: integer
+          format: int32
+        video_offset_y:
+          description: Pixel count for video files to vertically offset by.
+          type: integer
+          format: int32
+        chat_width:
+          description: Pixel width for overlay chat.
+          type: integer
+          format: int32
+        chat_height:
+          description: Pixel height for overlay chat.
+          type: integer
+          format: int32
+        chat_offset_x:
+          description: Pixel count for overlay chat to horizontally offset by.
+          type: integer
+          format: int32
+        chat_offset_y:
+          description: Pixel count for overlay chat to vertically offset by.
+          type: integer
+          format: int32
+    Themes:
+      type: array
+      items:
+        $ref: '#/components/schemas/Theme'
+    ThemeMin:
+      type: object
+      properties:
+        name:
+          description: Theme identifier.
+          type: string
+    ThemesMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/ThemeMin'
+    DJ:
+      type: object
+      properties:
+        name:
+          description: DJ identifier. Used in streams if no logo or public_name is provided.
+          type: string
+        logo:
+          description: Logo file identifier.
+          type: string
+        recording:
+          description: Recording file identifier.
+          type: string
+        rtmp_server:
+          description: Specific RTMP server to use for live streams.
+          type: string
+        rtmp_key:
+          description: RTMP key to use for live streams.
+          type: string
+        public_name:
+          description: Public name for displaying in stream. Used if no logo is provided.
+          type: string
+        discord_id:
+          description: Discord ID, used for bookkeeping and contact.
+          type: string
+        past_events:
+          description: List of past events the DJ has performed in
+          type: array
+          items:
+            type: string
+    DJs:
+      type: array
+      items:
+        $ref: '#/components/schemas/DJ'
+    DJMin:
+      type: object
+      properties:
+        name:
+          description: DJ identifier. Used in streams if no logo or public_name is provided.
+          type: string
+        logo:
+          description: Logo file identifier.
+          type: string
+        recording:
+          description: Recording file identifier.
+          type: string
+        rtmp_server:
+          description: Specific RTMP server to use for live streams.
+          type: string
+    DJsMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/DJMin'
+    LineupDJ:
+      type: object
+      properties:
+        name:
+          description: DJ identifier
+          type: string
+        is_live:
+          description: If the DJ is using a RTMP config for streaming.
+          type: boolean
+        vj:
+          description: Present if the visuals for a DJ are done by a VJ.
+          type: string
+    Event:
+      type: object
+      properties:
+        name:
+          description: Event identifier
+          type: string
+        djs:
+          description: Array of LineupDJ objects for an event, describes event specific values.
+          type: array
+          items:
+            $ref: '#/components/schemas/LineupDJ'
+        promos:
+          description: Array of promotional video identifiers.
+          type: array
+          items:
+            type: string
+        theme:
+          description: Theme identifier to use for an event.
+          type: string
+        public:
+          description: If the event has been announced.
+          type: boolean
+        date:
+          description: Date the event is to be aired, in YYYY/MM/DD.
+          type: string
+        start_time:
+          description: Time the event is to be aired, in 24hr HH:MM for eastern time.
+          type: string
+    Events:
+      type: array
+      items:
+        $ref: '#/components/schemas/Event'
+    EventMin:
+      type: object
+      properties:
+        name:
+          description: Event identifier
+          type: string
+    EventsMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/EventMin'
+    Promo:
+      type: object
+      properties:
+        name:
+          description: Promo identifier
+          type: string
+        promo_file:
+          description: File identifier.
+          type: string
+    Promos:
+      type: array
+      items:
+        $ref: '#/components/schemas/Promo'
+    PromoMin:
+      type: object
+      properties:
+        name:
+          description: Promo identifier
+          type: string
+    PromosMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/PromoMin'
+    AppTheme:
+      type: object
+      properties:
+        name:
+          description: App Theme identifier
+          type: string
+        style:
+          description: Color stylings for an App Theme.
+          type: object
+          properties:
+            primaryColor:
+              description: Primary color used in a theme.
+              type: string
+            secondaryColor:
+              description: Secondary color used in a theme.
+              type: string
+            backgroundColor:
+              description: Background color used in a theme.
+              type: string
+            primaryTextColor:
+              description: Primary text color used in a theme.
+              type: string
+            secondaryTextColor:
+              description: Secondary text color used in a theme.
+              type: string
+            highlightColor:
+              description: Highlight color used in a theme.
+              type: string
+            focusColor:
+              description: Focus color used in a theme.
+              type: string
+            activeColor:
+              description: Active color used in a theme.
+              type: string
+            deleteColor:
+              description: Delete color used in a theme.
+              type: string
+            cancelTextColor:
+              description: Cancel text color used in a theme.
+              type: string
+            cancelBackgroundColor:
+              description: Cancel background color used in a theme.
+              type: string
+            submitTextColor:
+              description: Submit text color used in a theme.
+              type: string
+            submitBackgroundColor:
+              description: Submit background color used in a theme.
+              type: string
+    AppThemes:
+      type: array
+      items:
+        $ref: '#/components/schemas/AppTheme'
+    FileBlob:
+      type: object
+      properties:
+        name:
+          description: Name of the file
+          type: string
+        ext:
+          description: Extension of the file, if present.
+          type: string
+        is_dir:
+          description: Whether the file is a directory.
+          type: boolean
+    FileDialogBlob:
+      type: object
+      properties:
+        files:
+          description: Array of FileBlobs, describing each file.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileBlob'
+        path:
+          description: File path broken into an array for each directory.
+          type: array
+          items:
+            type: string
+        top_dir:
+          description: Parent directory the blob stems from, typically same as a File root.
+          type: string
+paths:
+  /files:
+    get:
+      summary: Returns a list of all files.
+      respones:
+        '200':
+          description: An array of files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+  /files/logos:
+    get:
+      summary: Returns a list of all logo files.
+      description: Server-side filtering of all files for logos only
+      respones:
+        '200':
+          description: An array of logo files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+  /files/recordings:
+    get:
+      summary: Returns a list of all recording files.
+      description: Server-side filtering of all files for recordings only
+      respones:
+        '200':
+          description: An array of recording files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+  /files/themes:
+    get:
+      summary: Returns a list of all theme files.
+      description: Server-side filtering of all files for themes only
+      respones:
+        '200':
+          description: An array of theme files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+  /files/{fileName}:
+    get:
+      sumary: Returns a file by name
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+  /themes:
+    get:
+      summary: Returns a list of all themes.
+      respones:
+        '200':
+          description: An array of themes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Themes'
+  /themes/min:
+    get:
+      summary: Returns a list of all themes with minimal properties.
+      respones:
+        '200':
+          description: An array of themes with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Themes'
+  /themes/{themeName}:
+    get:
+      sumary: Returns a theme by name
+      parameters:
+        - name: themeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+  /djs:
+    get:
+      summary: Returns a list of all djs.
+      respones:
+        '200':
+          description: An array of djs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJs'
+  /djs/min:
+    get:
+      summary: Returns a list of all djs with minimal properties.
+      respones:
+        '200':
+          description: An array of djs with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJsMin'
+  /djs/{djName}:
+    get:
+      sumary: Returns a DJ by name
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJ'
+  /events:
+    get:
+      summary: Returns a list of all events.
+      respones:
+        '200':
+          description: An array of events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Events'
+  /events/min:
+    get:
+      summary: Returns a list of all events with minimal properties.
+      respones:
+        '200':
+          description: An array of events with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsMin'
+  /events/{eventName}:
+    get:
+      sumary: Returns a event by name
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+  /promos:
+    get:
+      summary: Returns a list of all promos.
+      respones:
+        '200':
+          description: An array of promos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promos'
+  /promos/min:
+    get:
+      summary: Returns a list of all promos with minimal properties.
+      respones:
+        '200':
+          description: An array of promos with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromosMin'
+  /promos/{promoName}:
+    get:
+      sumary: Returns a promo by name
+      parameters:
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promo'
+  /app-themes:
+    get:
+      summary: Returns a list of all app themes.
+      respones:
+        '200':
+          description: An array of app themes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppThemes'
+  /app-themes/{appThemeName}:
+    get:
+      sumary: Returns an app theme by name
+      parameters:
+        - name: appThemeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTheme'
+  /logo-permissions/{logoPath}:
+    get:
+      sumary: Returns a FileDialogBlob for logos at a given path
+      parameters:
+        - name: logoPath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /recording-permissions/{recordingPath}:
+    get:
+      sumary: Returns a FileDialogBlob for recordings at a given path
+      parameters:
+        - name: recordingPath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /theme-permissions/{themePath}:
+    get:
+      sumary: Returns a FileDialogBlob for themes at a given path
+      parameters:
+        - name: themePath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
