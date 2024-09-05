@@ -343,7 +343,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
-  /files/{fileName}:
+  /files/single-file/{fileName}:
     get:
       sumary: Returns a file by name
       parameters:
@@ -360,6 +360,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/File'
+  /files/logo-permissions/:
+    get:
+      sumary: Returns a FileDialogBlob for logos at the root dir.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /files/logo-permissions/{logoPath}:
+    get:
+      sumary: Returns a FileDialogBlob for logos at a given path
+      parameters:
+        - name: logoPath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /files/recording-permissions/:
+    get:
+      sumary: Returns a FileDialogBlob for recordings at the root dir.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /files/recording-permissions/{recordingPath}:
+    get:
+      sumary: Returns a FileDialogBlob for recordings at a given path
+      parameters:
+        - name: recordingPath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /files/theme-permissions/:
+    get:
+      sumary: Returns a FileDialogBlob for themes at the root dir.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /files/theme-permissions/{themePath}:
+    get:
+      sumary: Returns a FileDialogBlob for themes at a given path
+      parameters:
+        - name: themePath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
   /themes:
     get:
       summary: Returns a list of all themes.
@@ -380,7 +461,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Themes'
-  /themes/{themeName}:
+  /themes/single-theme/{themeName}:
     get:
       sumary: Returns a theme by name
       parameters:
@@ -417,7 +498,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DJsMin'
-  /djs/{djName}:
+  /djs/single-dj/{djName}:
     get:
       sumary: Returns a DJ by name
       parameters:
@@ -454,7 +535,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventsMin'
-  /events/{eventName}:
+  /events/single-event/{eventName}:
     get:
       sumary: Returns a event by name
       parameters:
@@ -491,7 +572,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PromosMin'
-  /promos/{promoName}:
+  /promos/single-promo/{promoName}:
     get:
       sumary: Returns a promo by name
       parameters:
@@ -535,54 +616,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppTheme'
-  /logo-permissions/{logoPath}:
-    get:
-      sumary: Returns a FileDialogBlob for logos at a given path
-      parameters:
-        - name: logoPath
-          in: path
-          required: false
-          schema:
-            type: string
-            minimum: 1
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FileDialogBlob'
-  /recording-permissions/{recordingPath}:
-    get:
-      sumary: Returns a FileDialogBlob for recordings at a given path
-      parameters:
-        - name: recordingPath
-          in: path
-          required: false
-          schema:
-            type: string
-            minimum: 1
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FileDialogBlob'
-  /theme-permissions/{themePath}:
-    get:
-      sumary: Returns a FileDialogBlob for themes at a given path
-      parameters:
-        - name: themePath
-          in: path
-          required: false
-          schema:
-            type: string
-            minimum: 1
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FileDialogBlob'

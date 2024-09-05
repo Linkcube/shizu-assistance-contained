@@ -10,11 +10,13 @@
     "lint": "tslint -p tsconfig.json -c tslint.json --fix",
     "start-watch": "nodemon lib/index.js --inspect=0.0.0.0:9229",
     "start-wait-debuger": "nodemon lib/index.js --inspect-brk=0.0.0.0:9229",
-    "build-api": "openapi-typescript ./openapi/schema.yaml -o ./openapi/schema.d.ts"
+    "build-api": "openapi-typescript ./openapi/schema.yaml -o ./openapi/schema.d.ts",
+    "build-redoc": "redocly build-docs openapi/schema.yaml -o openapi/redoc-static.html" 
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@redocly/cli": "^1.22.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-graphql": "^0.12.0",
