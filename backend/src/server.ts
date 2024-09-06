@@ -182,14 +182,14 @@ export const create_server = () => {
   });
 
   app.get("/openapi/redoc", (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "openapi", "redoc-static.html"))
+    res.sendFile(path.join(__dirname, "..", "openapi", "redoc-static.html"));
   });
-  app.use("/openapi/files", fileRouter);
-  app.use("/openapi/djs", djRouter);
-  app.use("/openapi/themes", themeRouter);
-  app.use("/openapi/events", eventRouter);
-  app.use("/openapi/promos", promoRouter);
-  app.use("/openapi/app-themes", appThemeRouter);
+  app.use("/openapi/file", fileRouter);
+  app.use("/openapi/dj", djRouter);
+  app.use("/openapi/theme", themeRouter);
+  app.use("/openapi/event", eventRouter);
+  app.use("/openapi/promo", promoRouter);
+  app.use("/openapi/app-theme", appThemeRouter);
 
   create_tables();
 

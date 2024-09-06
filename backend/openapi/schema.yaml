@@ -300,8 +300,10 @@ components:
           description: Parent directory the blob stems from, typically same as a File root.
           type: string
 paths:
-  /files:
+  /file:
     get:
+      tags:
+        - files
       summary: Returns a list of all files.
       respones:
         '200':
@@ -310,8 +312,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
-  /files/logos:
+  /file/logos:
     get:
+      tags:
+        - files
       summary: Returns a list of all logo files.
       description: Server-side filtering of all files for logos only
       respones:
@@ -321,8 +325,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
-  /files/recordings:
+  /file/recordings:
     get:
+      tags:
+        - files
       summary: Returns a list of all recording files.
       description: Server-side filtering of all files for recordings only
       respones:
@@ -332,8 +338,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
-  /files/themes:
+  /file/themes:
     get:
+      tags:
+        - files
       summary: Returns a list of all theme files.
       description: Server-side filtering of all files for themes only
       respones:
@@ -343,9 +351,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
-  /files/single-file/{fileName}:
+  /file/{fileName}:
     get:
+      tags:
+        - files
       sumary: Returns a file by name
+      description: Returns a file of any type by name.
       parameters:
         - name: fileName
           in: path
@@ -360,9 +371,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/File'
-  /files/logo-permissions/:
+  /file/logo-permissions/:
     get:
+      tags:
+        - local-files
       sumary: Returns a FileDialogBlob for logos at the root dir.
+      description: Used for navigating logo files on the server.
       responses:
         '200':
           description: OK
@@ -370,9 +384,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileDialogBlob'
-  /files/logo-permissions/{logoPath}:
+  /file/logo-permissions/{logoPath}:
     get:
+      tags:
+        - local-files
       sumary: Returns a FileDialogBlob for logos at a given path
+      description: Used for navigating logo files on the server.
       parameters:
         - name: logoPath
           in: path
@@ -387,9 +404,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileDialogBlob'
-  /files/recording-permissions/:
+  /file/recording-permissions/:
     get:
+      tags:
+        - local-files
       sumary: Returns a FileDialogBlob for recordings at the root dir.
+      description: Used for navigating recording files on the server.
       responses:
         '200':
           description: OK
@@ -397,9 +417,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileDialogBlob'
-  /files/recording-permissions/{recordingPath}:
+  /file/recording-permissions/{recordingPath}:
     get:
+      tags:
+        - local-files
       sumary: Returns a FileDialogBlob for recordings at a given path
+      description: Used for navigating recording files on the server.
       parameters:
         - name: recordingPath
           in: path
@@ -414,9 +437,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileDialogBlob'
-  /files/theme-permissions/:
+  /file/theme-permissions/:
     get:
+      tags:
+        - local-files
       sumary: Returns a FileDialogBlob for themes at the root dir.
+      description: Used for navigating theme files on the server.
       responses:
         '200':
           description: OK
@@ -424,9 +450,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileDialogBlob'
-  /files/theme-permissions/{themePath}:
+  /file/theme-permissions/{themePath}:
     get:
+      tags:
+        - local-files
       sumary: Returns a FileDialogBlob for themes at a given path
+      description: Used for navigating theme files on the server.
       parameters:
         - name: themePath
           in: path
@@ -441,8 +470,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileDialogBlob'
-  /themes:
+  /theme:
     get:
+      tags:
+        - themes
       summary: Returns a list of all themes.
       respones:
         '200':
@@ -451,8 +482,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Themes'
-  /themes/min:
+  /theme/min:
     get:
+      tags:
+        - themes
       summary: Returns a list of all themes with minimal properties.
       respones:
         '200':
@@ -461,8 +494,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ThemesMin'
-  /themes/single-theme/{themeName}:
+  /theme/{themeName}:
     get:
+      tags:
+        - themes
       sumary: Returns a theme by name
       parameters:
         - name: themeName
@@ -478,8 +513,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Theme'
-  /djs:
+  /dj:
     get:
+      tags:
+        - djs
       summary: Returns a list of all djs.
       respones:
         '200':
@@ -488,8 +525,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DJs'
-  /djs/min:
+  /dj/min:
     get:
+      tags:
+        - djs
       summary: Returns a list of all djs with minimal properties.
       respones:
         '200':
@@ -498,8 +537,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DJsMin'
-  /djs/single-dj/{djName}:
+  /dj/{djName}:
     get:
+      tags:
+        - djs
       sumary: Returns a DJ by name
       parameters:
         - name: djName
@@ -515,8 +556,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DJ'
-  /events:
+  /event:
     get:
+      tags:
+        - events
       summary: Returns a list of all events.
       respones:
         '200':
@@ -525,8 +568,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Events'
-  /events/min:
+  /event/min:
     get:
+      tags:
+        - events
       summary: Returns a list of all events with minimal properties.
       respones:
         '200':
@@ -535,8 +580,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventsMin'
-  /events/single-event/{eventName}:
+  /event/{eventName}:
     get:
+      tags:
+        - events
       sumary: Returns a event by name
       parameters:
         - name: eventName
@@ -552,8 +599,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Event'
-  /promos:
+  /promo:
     get:
+      tags:
+        - promos
       summary: Returns a list of all promos.
       respones:
         '200':
@@ -562,8 +611,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promos'
-  /promos/min:
+  /promo/min:
     get:
+      tags:
+        - promos
       summary: Returns a list of all promos with minimal properties.
       respones:
         '200':
@@ -572,8 +623,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PromosMin'
-  /promos/single-promo/{promoName}:
+  /promo/{promoName}:
     get:
+      tags:
+        - promos
       sumary: Returns a promo by name
       parameters:
         - name: promoName
@@ -589,8 +642,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promo'
-  /app-themes:
+  /app-theme:
     get:
+      tags:
+        - app-themes
       summary: Returns a list of all app themes.
       respones:
         '200':
@@ -599,8 +654,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppThemes'
-  /app-themes/{appThemeName}:
+  /app-theme/{appThemeName}:
     get:
+      tags:
+        - app-themes
       sumary: Returns an app theme by name
       parameters:
         - name: appThemeName

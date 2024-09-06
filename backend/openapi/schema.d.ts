@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/files": {
+    "/file": {
         parameters: {
             query?: never;
             header?: never;
@@ -30,7 +30,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/logos": {
+    "/file/logos": {
         parameters: {
             query?: never;
             header?: never;
@@ -59,7 +59,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/recordings": {
+    "/file/recordings": {
         parameters: {
             query?: never;
             header?: never;
@@ -88,7 +88,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/themes": {
+    "/file/themes": {
         parameters: {
             query?: never;
             header?: never;
@@ -117,13 +117,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/single-file/{fileName}": {
+    "/file/{fileName}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Returns a file of any type by name. */
         get: {
             parameters: {
                 query?: never;
@@ -154,13 +155,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/logo-permissions/": {
+    "/file/logo-permissions/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Used for navigating logo files on the server. */
         get: {
             parameters: {
                 query?: never;
@@ -189,13 +191,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/logo-permissions/{logoPath}": {
+    "/file/logo-permissions/{logoPath}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Used for navigating logo files on the server. */
         get: {
             parameters: {
                 query?: never;
@@ -226,13 +229,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/recording-permissions/": {
+    "/file/recording-permissions/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Used for navigating recording files on the server. */
         get: {
             parameters: {
                 query?: never;
@@ -261,13 +265,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/recording-permissions/{recordingPath}": {
+    "/file/recording-permissions/{recordingPath}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Used for navigating recording files on the server. */
         get: {
             parameters: {
                 query?: never;
@@ -298,13 +303,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/theme-permissions/": {
+    "/file/theme-permissions/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Used for navigating theme files on the server. */
         get: {
             parameters: {
                 query?: never;
@@ -333,13 +339,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/theme-permissions/{themePath}": {
+    "/file/theme-permissions/{themePath}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Used for navigating theme files on the server. */
         get: {
             parameters: {
                 query?: never;
@@ -370,7 +377,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/themes": {
+    "/theme": {
         parameters: {
             query?: never;
             header?: never;
@@ -396,7 +403,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/themes/min": {
+    "/theme/min": {
         parameters: {
             query?: never;
             header?: never;
@@ -422,7 +429,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/themes/single-theme/{themeName}": {
+    "/theme/{themeName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -459,7 +466,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/djs": {
+    "/dj": {
         parameters: {
             query?: never;
             header?: never;
@@ -485,7 +492,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/djs/min": {
+    "/dj/min": {
         parameters: {
             query?: never;
             header?: never;
@@ -511,7 +518,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/djs/single-dj/{djName}": {
+    "/dj/{djName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -548,7 +555,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events": {
+    "/event": {
         parameters: {
             query?: never;
             header?: never;
@@ -574,7 +581,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events/min": {
+    "/event/min": {
         parameters: {
             query?: never;
             header?: never;
@@ -600,7 +607,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events/single-event/{eventName}": {
+    "/event/{eventName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -637,7 +644,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/promos": {
+    "/promo": {
         parameters: {
             query?: never;
             header?: never;
@@ -663,7 +670,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/promos/min": {
+    "/promo/min": {
         parameters: {
             query?: never;
             header?: never;
@@ -689,7 +696,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/promos/single-promo/{promoName}": {
+    "/promo/{promoName}": {
         parameters: {
             query?: never;
             header?: never;
@@ -726,7 +733,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/app-themes": {
+    "/app-theme": {
         parameters: {
             query?: never;
             header?: never;
@@ -752,7 +759,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/app-themes/{appThemeName}": {
+    "/app-theme/{appThemeName}": {
         parameters: {
             query?: never;
             header?: never;

@@ -559,19 +559,19 @@ const errorStackPushHelper = (error) => {
 // openapi fetch
 
 export const oaFetchLogoFiles = async () => {
-    return await openapiGet("files/logos");
+    return await openapiGet("file/logos");
 }
 
 export const oaFetchRecordingFiles = async () => {
-    return await openapiGet("files/recordings");
+    return await openapiGet("file/recordings");
 }
 
 export const oaFetchThemeFiles = async () => {
-    return await openapiGet("files/themes");
+    return await openapiGet("file/themes");
 }
 
 export const oaFetchFileExists = async (file) => {
-    const file_data = await openapiGet(`files/single-file/${file}`, false);
+    const file_data = await openapiGet(`file/${file}`, false);
     if (file_data) {
         return true;
     }
@@ -588,60 +588,60 @@ const filePermissionsHelper = (url, sub_dirs) => {
 }
 
 export const oaFetchLogoPermissions = async (sub_dirs) => {
-    return await filePermissionsHelper("files/logo-permissions", sub_dirs);
+    return await filePermissionsHelper("file/logo-permissions", sub_dirs);
 }
 
 export const oaFetchRecordingPermissions = async (sub_dirs) => {
-    return await filePermissionsHelper("files/recording-permissions", sub_dirs);
+    return await filePermissionsHelper("file/recording-permissions", sub_dirs);
 }
 export const oaFetchThemePermissions = async (sub_dirs) => {
-    return await filePermissionsHelper("files/theme-permissions", sub_dirs);
+    return await filePermissionsHelper("file/theme-permissions", sub_dirs);
 }
 
 export const oaFetchDjs = async () => {
-    const djs = await openapiGet("djs/min");
+    const djs = await openapiGet("dj/min");
     if (djs) {
         all_djs.set(djs);
     }
 }
 
 export const oaFetchSingleDj = async (dj_name) => {
-    return await openapiGet("djs/single-dj/" + dj_name);
+    return await openapiGet("dj/" + dj_name);
 }
 
 export const oaFetchPromos = async () => {
-    const promos = await openapiGet("promos/min");
+    const promos = await openapiGet("promo/min");
     if (promos) {
         all_promos.set(promos);
     }
 }
 
 export const oaFetchSinglePromo = async (promo_name) => {
-    return await openapiGet("promos/single-promo/" + promo_name);
+    return await openapiGet("promo/" + promo_name);
 }
 
 export const oaFetchEvents = async () => {
-    const events = await openapiGet("events/min");
+    const events = await openapiGet("event/min");
     if (events) {
         all_events.set(events);
     }
 }
 
 export const oaFetchSingleEvent = async (event_name) => {
-    const event_data = await openapiGet("events/single-event/" + event_name);
+    const event_data = await openapiGet("event/" + event_name);
     currentLineupObjects.set(event_data);
 }
 
 export const oaFetchThemes = async () => {
-    return await openapiGet("themes/");
+    return await openapiGet("theme/");
 }
 
 export const oaFetchSingleTheme = async (theme_name) => {
-    return await openapiGet("themes/single-theme/" + theme_name);
+    return await openapiGet("theme/" + theme_name);
 }
 
 export const oaFetchAppThemes = async () => {
-    const app_themes =  await openapiGet("app-themes/");
+    const app_themes =  await openapiGet("app-theme/");
     if (app_themes) {
         themes.set(app_themes);
         let last_theme = localStorage.getItem("theme_index");
