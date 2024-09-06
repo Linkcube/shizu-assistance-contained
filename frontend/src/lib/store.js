@@ -65,7 +65,16 @@ function openapiPost(url) {
 function openapiPostBody(url, body) {
     return fetch(`${openapiUrl}/${url}`, {
         method: "POST",
-        body: body
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+    }).then(response => response.json());
+}
+
+function openapiDelete(url) {
+    return fetch(`${openapiUrl}/${url}`, {
+        method: "DELETE"
     });
 }
 
@@ -118,95 +127,6 @@ public,
 date,
 start_time`;
 
-const logoFileCreateMutation = (name, file_path = null, url_path = null) => {
-    let input = `name: "${name}"`;
-    if (file_path) {
-        input += `, file_path: "${file_path}"`
-    }
-    if (url_path) {
-        input += `, url_path: "${url_path}"`
-    }
-
-    return `
-    mutation {
-        guiAddNewLogoFile(${input}) {
-            name,
-            root,
-            file_path,
-            url_path
-        }
-    }`;
-}
-
-const recordingFileCreateMutation = (name, file_path = null, url_path = null) => {
-    let input = `name: "${name}"`;
-    if (file_path) {
-        input += `, file_path: "${file_path}"`
-    }
-    if (url_path) {
-        input += `, url_path: "${url_path}"`
-    }
-
-    return `
-    mutation {
-        guiAddNewRecordingFile(${input}) {
-            name,
-            root,
-            file_path,
-            url_path
-        }
-    }`;
-}
-
-const themeFileCreateMutation = (name, file_path = null, url_path = null) => {
-    let input = `name: "${name}"`;
-    if (file_path) {
-        input += `, file_path: "${file_path}"`
-    }
-    if (url_path) {
-        input += `, url_path: "${url_path}"`
-    }
-
-    return `
-    mutation {
-        guiAddNewThemeFile(${input}) {
-            name,
-            root,
-            file_path,
-            url_path
-        }
-    }`;
-}
-
-const fileUpdateMutation = (name, root, file_path, url_path) => {
-    let input = `name: "${name}", root: "${root}"`;
-    if (file_path) {
-        input += `, file_path: "${file_path}"`
-    }
-    if (url_path) {
-        input += `, url_path: "${url_path}"`
-    }
-    return `
-    mutation {
-        guiUpdateFile(${input}) {
-            name,
-            root,
-            file_path,
-            url_path
-        }
-    }`;
-}
-
-const fileDeleteMutation = (name) => `
-mutation {
-    guiDeleteFile(file_name: "${name}") {
-        name,
-        root,
-        file_path,
-        url_path
-    }
-}`;
-
 const themeCreateMutation = (name) => `
 mutation {
     guiAddNewTheme(name: "${name}") { name }
@@ -254,29 +174,6 @@ const eventSetThemeMutation = (event_name, theme_name) => `
 mutation {
     guiSetEventTheme(event_name: "${event_name}", theme_name: "${theme_name}") { name }
 }`;
-
-const getAppThemesQuery = `
-query {
-    guiGetAppThemes { 
-        name,
-        style {
-            primaryColor,
-            secondaryColor,
-            backgroundColor,
-            primaryTextColor,
-            secondaryTextColor,
-            highlightColor,
-            focusColor,
-            activeColor,
-            deleteColor,
-            cancelTextColor,
-            cancelBackgroundColor,
-            submitTextColor,
-            submitBackgroundColor
-        }
-    }
-}
-`;
 
 const addAppThemeMutation = `
 mutation {
@@ -653,70 +550,52 @@ export const oaFetchAppThemes = async () => {
     }
 }
 
+export const oaPostNewLogo = async (name, file_path, url_path) => {
+    const body = {
+        name: name,
+        file_path: file_path,
+        url_path: url_path
+    };
+
+    return await openapiPostBody("file/logos", body);
+}
+
+export const oaPostNewRecording = async (name, file_path, url_path) => {
+    const body = {
+        name: name,
+        file_path: file_path,
+        url_path: url_path
+    };
+    
+    return await openapiPostBody("file/recordings", body);
+}
+
+export const oaPostNewTheme = async (name, file_path, url_path) => {
+    const body = {
+        name: name,
+        file_path: file_path,
+        url_path: url_path
+    };
+    
+    return await openapiPostBody("file/themes", body);
+}
+
+export const oaPostUpdateFile = async (name, root, file_path, url_path) => {
+    const body = {
+        root: root,
+        file_path: file_path,
+        url_path: url_path
+    };
+    
+    return await openapiPostBody("file/" + name, body);
+}
+
+export const oaPostDeleteFile = async (name) => {
+    return await openapiDelete("file/" + name);
+}
+
 
 // fetch
-export function fetchAddLogoFile(name, file_path=null, url_path=null) {
-    return graphqlFetch(logoFileCreateMutation(name, file_path, url_path)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-                return Promise.resolve(false);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiAddNewLogoFile);
-			}
-		})
-    });
-}
-
-export function fetchAddRecordingFile(name, file_path=null, url_path=null) {
-    return graphqlFetch(recordingFileCreateMutation(name, file_path, url_path)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-                return Promise.resolve(false);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiAddNewRecordingFile);
-			}
-		})
-    });
-}
-
-export function fetchAddThemeFile(name, file_path=null, url_path=null) {
-    return graphqlFetch(themeFileCreateMutation(name, file_path, url_path)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-                return Promise.resolve(false);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiAddNewThemeFile);
-			}
-		})
-    });
-}
-
-export function fetchUpdateFile(name, root, file_path, url_path) {
-    return graphqlFetch(fileUpdateMutation(name, root, file_path, url_path)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-                return Promise.resolve(false);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiUpdateFile);
-			}
-		})
-    });
-}
-
-export function fetchDeleteFile(name) {
-    return graphqlFetch(fileDeleteMutation(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            }
-		})
-    });
-}
-
 export function fetchAddTheme(name) {
     return graphqlFetch(themeCreateMutation(name)).then(promise => {
         return Promise.resolve(promise).then(response => {

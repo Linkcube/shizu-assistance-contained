@@ -10,12 +10,12 @@
         oaFetchLogoFiles,
         oaFetchRecordingFiles,
         oaFetchThemeFiles,
-        fetchAddLogoFile,
-        fetchAddRecordingFile,
-        fetchUpdateFile,
+        oaPostNewLogo,
+        oaPostNewRecording,
+        oaPostUpdateFile,
         error_stack,
-        fetchAddThemeFile,
-        fetchDeleteFile,
+        oaPostNewTheme,
+        oaPostDeleteFile,
         THEME_TYPE,
         isImageSource
     } from '$lib/store';
@@ -107,7 +107,8 @@
 
     async function updateLocalFile(event) {
         if (event.detail) {
-            const retval = await fetchUpdateFile(selected_file.name, selected_file.root, event.detail.file_path, selected_file.url_path);
+            const retval = await oaPostUpdateFile(selected_file.name, selected_file.root, event.detail.file_path, selected_file.url_path);
+            console.log(retval);
 
             if (retval) {
                 selected_file_name = retval.name;
@@ -123,7 +124,7 @@
     }
 
     async function updateUrl() {
-        const retval = await fetchUpdateFile(selected_file.name, selected_file.root, selected_file.file_path, new_url_path);
+        const retval = await oaPostUpdateFile(selected_file.name, selected_file.root, selected_file.file_path, new_url_path);
 
         if (retval) {
             selected_file_name = retval.name;
@@ -139,11 +140,11 @@
 
     async function addFile() {
         if (file_type === LOGO_TYPE) {
-            await fetchAddLogoFile(new_file_name, null, null);
+            await oaPostNewLogo(new_file_name, null, null);
         } else if (file_type === RECORDING_TYPE) {
-            await fetchAddRecordingFile(new_file_name, null, null);
+            await oaPostNewRecording(new_file_name, null, null);
         } else {
-            await fetchAddThemeFile(new_file_name, null, null);
+            await oaPostNewTheme(new_file_name, null, null);
         }
         selected_file_name = new_file_name;
         await fetchFiles();
@@ -151,7 +152,7 @@
     }
 
     async function deleteFile() {
-        await fetchDeleteFile(selected_file_name);
+        await oaPostDeleteFile(selected_file_name);
         selected_file = null;
         selected_file_name = "";
         await fetchFiles();
@@ -204,6 +205,7 @@
             display_files = files;
             current_files = files;
             current_files_map = new Map(files.map((file) => [file.name, file]));
+            console.log(selected_file_name);
             if (selected_file_name) {
                 selected_file = current_files_map.get(selected_file_name);
                 selectFileItem(selected_file);

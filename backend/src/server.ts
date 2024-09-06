@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import bodyParser from "body-parser";
 import { port } from "./config";
 import {
   guiGetFiles,
@@ -184,6 +185,13 @@ export const create_server = () => {
   app.get("/openapi/redoc", (req, res) => {
     res.sendFile(path.join(__dirname, "..", "openapi", "redoc-static.html"));
   });
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+    }),
+  );
+  app.options("*", cors());
+  app.use(bodyParser.json());
   app.use("/openapi/file", fileRouter);
   app.use("/openapi/dj", djRouter);
   app.use("/openapi/theme", themeRouter);

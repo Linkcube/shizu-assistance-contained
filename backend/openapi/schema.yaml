@@ -25,6 +25,30 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/File'
+    NewFile:
+      type: object
+      properties:
+        name:
+          description: File identifier
+          type: string
+        file_path:
+          description: Local path inside docker file mapping.
+          type: string
+        url_path:
+          description: Remote path for file, fetched at event export.
+          type: string
+    UpdateFile:
+      type: object
+      properties:
+        root:
+          description: Root directory of file, denotes intended use.
+          type: string
+        file_path:
+          description: Local path inside docker file mapping.
+          type: string
+        url_path:
+          description: Remote path for file, fetched at event export.
+          type: string
     Theme:
       type: object
       properties:
@@ -305,7 +329,7 @@ paths:
       tags:
         - files
       summary: Returns a list of all files.
-      respones:
+      responses:
         '200':
           description: An array of files
           content:
@@ -318,39 +342,106 @@ paths:
         - files
       summary: Returns a list of all logo files.
       description: Server-side filtering of all files for logos only
-      respones:
+      responses:
         '200':
           description: An array of logo files
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
+    post:
+      tags:
+        - files
+      summary: Create a new logo file.
+      requestBody:
+        description: New file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewFile'
+        required: true
+      responses:
+        '200':
+          description: Newly created logo file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid input
+        '409':
+          description: File already exists
+
   /file/recordings:
     get:
       tags:
         - files
       summary: Returns a list of all recording files.
       description: Server-side filtering of all files for recordings only
-      respones:
+      responses:
         '200':
           description: An array of recording files
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
+    post:
+      tags:
+        - files
+      summary: Create a new recording file.
+      requestBody:
+        description: New file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewFile'
+        required: true
+      responses:
+        '200':
+          description: Newly created recording file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid input
+        '409':
+          description: File already exists
   /file/themes:
     get:
       tags:
         - files
       summary: Returns a list of all theme files.
       description: Server-side filtering of all files for themes only
-      respones:
+      responses:
         '200':
           description: An array of theme files
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Files'
+    post:
+      tags:
+        - files
+      summary: Create a new theme file.
+      requestBody:
+        description: New file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewFile'
+        required: true
+      responses:
+        '200':
+          description: Newly created theme file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid input
+        '409':
+          description: File already exists
   /file/{fileName}:
     get:
       tags:
@@ -371,6 +462,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/File'
+    post:
+      tags:
+        - files
+      summary: Update existing file.
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFile'
+        required: true
+      responses:
+        '200':
+          description: Updated file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '404':
+          description: File not found.
+    delete:
+      tags:
+        - files
+      summary: Delete existing file.
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted file.
+        '404':
+          description: File not found.
+    
   /file/logo-permissions/:
     get:
       tags:
@@ -475,7 +610,7 @@ paths:
       tags:
         - themes
       summary: Returns a list of all themes.
-      respones:
+      responses:
         '200':
           description: An array of themes
           content:
@@ -487,7 +622,7 @@ paths:
       tags:
         - themes
       summary: Returns a list of all themes with minimal properties.
-      respones:
+      responses:
         '200':
           description: An array of themes with minimal properties.
           content:
@@ -518,7 +653,7 @@ paths:
       tags:
         - djs
       summary: Returns a list of all djs.
-      respones:
+      responses:
         '200':
           description: An array of djs
           content:
@@ -530,7 +665,7 @@ paths:
       tags:
         - djs
       summary: Returns a list of all djs with minimal properties.
-      respones:
+      responses:
         '200':
           description: An array of djs with minimal properties.
           content:
@@ -561,7 +696,7 @@ paths:
       tags:
         - events
       summary: Returns a list of all events.
-      respones:
+      responses:
         '200':
           description: An array of events
           content:
@@ -573,7 +708,7 @@ paths:
       tags:
         - events
       summary: Returns a list of all events with minimal properties.
-      respones:
+      responses:
         '200':
           description: An array of events with minimal properties.
           content:
@@ -604,7 +739,7 @@ paths:
       tags:
         - promos
       summary: Returns a list of all promos.
-      respones:
+      responses:
         '200':
           description: An array of promos
           content:
@@ -616,7 +751,7 @@ paths:
       tags:
         - promos
       summary: Returns a list of all promos with minimal properties.
-      respones:
+      responses:
         '200':
           description: An array of promos with minimal properties.
           content:
@@ -647,7 +782,7 @@ paths:
       tags:
         - app-themes
       summary: Returns a list of all app themes.
-      respones:
+      responses:
         '200':
           description: An array of app themes
           content:

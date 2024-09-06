@@ -20,7 +20,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of files */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Files"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -49,10 +59,59 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of logo files */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Files"];
+                    };
+                };
+            };
         };
         put?: never;
-        post?: never;
+        /** Create a new logo file. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description New file values. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NewFile"];
+                };
+            };
+            responses: {
+                /** @description Newly created logo file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["File"];
+                    };
+                };
+                /** @description Invalid input */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description File already exists */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -78,10 +137,59 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of recording files */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Files"];
+                    };
+                };
+            };
         };
         put?: never;
-        post?: never;
+        /** Create a new recording file. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description New file values. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NewFile"];
+                };
+            };
+            responses: {
+                /** @description Newly created recording file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["File"];
+                    };
+                };
+                /** @description Invalid input */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description File already exists */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -107,10 +215,59 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of theme files */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Files"];
+                    };
+                };
+            };
         };
         put?: never;
-        post?: never;
+        /** Create a new theme file. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description New file values. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NewFile"];
+                };
+            };
+            responses: {
+                /** @description Newly created theme file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["File"];
+                    };
+                };
+                /** @description Invalid input */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description File already exists */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -148,8 +305,69 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
-        delete?: never;
+        /** Update existing file. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    fileName: string;
+                };
+                cookie?: never;
+            };
+            /** @description Updated file values. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateFile"];
+                };
+            };
+            responses: {
+                /** @description Updated file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["File"];
+                    };
+                };
+                /** @description File not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        /** Delete existing file. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    fileName: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deleted file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description File not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -393,7 +611,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of themes */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Themes"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -419,7 +647,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of themes with minimal properties. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ThemesMin"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -482,7 +720,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of djs */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DJs"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -508,7 +756,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of djs with minimal properties. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DJsMin"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -571,7 +829,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of events */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Events"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -597,7 +865,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of events with minimal properties. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsMin"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -660,7 +938,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of promos */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Promos"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -686,7 +974,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of promos with minimal properties. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PromosMin"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -749,7 +1047,17 @@ export interface paths {
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description An array of app themes */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AppThemes"];
+                    };
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -811,6 +1119,22 @@ export interface components {
             url_path?: string;
         };
         Files: components["schemas"]["File"][];
+        NewFile: {
+            /** @description File identifier */
+            name?: string;
+            /** @description Local path inside docker file mapping. */
+            file_path?: string;
+            /** @description Remote path for file, fetched at event export. */
+            url_path?: string;
+        };
+        UpdateFile: {
+            /** @description Root directory of file, denotes intended use. */
+            root?: string;
+            /** @description Local path inside docker file mapping. */
+            file_path?: string;
+            /** @description Remote path for file, fetched at event export. */
+            url_path?: string;
+        };
         Theme: {
             /** @description Theme identifier. */
             name?: string;

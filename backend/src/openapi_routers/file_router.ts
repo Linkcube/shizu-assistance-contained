@@ -5,20 +5,30 @@
 import { Router } from "express";
 import { paths, components } from "../../openapi/schema";
 import {
+  add_logo_file,
+  add_recording_file,
+  add_theme_file,
+  delete_file,
   get_file,
   read_files_logos,
   read_files_recordings,
   read_files_table,
   read_files_themes,
+  update_file,
 } from "../database";
 import {
   getLocalLogoFiles,
   getLocalRecordingFiles,
   getLocalThemeFiles,
 } from "../file_helpers";
+import { IFileObject } from "../types";
 
 type fileInterface = components["schemas"]["File"];
+type newFileInterface = components["schemas"]["NewFile"];
+type updateFileInterface = components["schemas"]["UpdateFile"];
 export const fileRouter = Router();
+
+// getters
 
 fileRouter.get("/logo-permissions", async (req, res) => {
   const file_blob = await getLocalLogoFiles([]);
@@ -91,4 +101,128 @@ fileRouter.get("/:fileName", async (req, res) => {
 fileRouter.get("/", async (req, res) => {
   res.status(200);
   return res.send(await read_files_table());
+});
+
+// setters
+
+fileRouter.post("/logos", async (req, res) => {
+  const new_file: newFileInterface = req.body;
+  if (!new_file.name) {
+    res.status(400);
+    return res.send({
+      errorType: "InvalidInputError",
+      message: "The name field is required to create a file.",
+    });
+  }
+  const error = await add_logo_file(
+    new_file.name,
+    new_file.file_path,
+    new_file.url_path,
+  );
+
+  if (error !== undefined) {
+    res.status(409);
+    return res.send({
+      errorType: error.name,
+      message: error.message,
+    });
+  }
+
+  const file = await get_file(new_file.name);
+  res.status(200);
+  res.send(file);
+});
+
+fileRouter.post("/recordings", async (req, res) => {
+  const new_file: newFileInterface = req.body;
+  if (!new_file.name) {
+    res.status(400);
+    return res.send({
+      errorType: "InvalidInputError",
+      message: "The name field is required to create a file.",
+    });
+  }
+  const error = await add_recording_file(
+    new_file.name,
+    new_file.file_path,
+    new_file.url_path,
+  );
+
+  if (error !== undefined) {
+    res.status(409);
+    return res.send({
+      errorType: error.name,
+      message: error.message,
+    });
+  }
+
+  const file = await get_file(new_file.name);
+  res.status(200);
+  res.send(file);
+});
+
+fileRouter.post("/themes", async (req, res) => {
+  const new_file: newFileInterface = req.body;
+  if (!new_file.name) {
+    res.status(400);
+    return res.send({
+      errorType: "InvalidInputError",
+      message: "The name field is required to create a file.",
+    });
+  }
+  const error = await add_theme_file(
+    new_file.name,
+    new_file.file_path,
+    new_file.url_path,
+  );
+
+  if (error !== undefined) {
+    res.status(409);
+    return res.send({
+      errorType: error.name,
+      message: error.message,
+    });
+  }
+
+  const file = await get_file(new_file.name);
+  res.status(200);
+  res.send(file);
+});
+
+fileRouter.post("/:fileName", async (req, res) => {
+  const body_params: updateFileInterface = req.body;
+  const update_params: IFileObject = {
+    name: req.params.fileName,
+    root: body_params.root,
+    file_path: body_params.file_path,
+    url_path: body_params.url_path,
+  };
+  const error = await update_file(update_params);
+
+  if (error !== undefined) {
+    res.status(404);
+    return res.send({
+      errorType: error.name,
+      message: error.message,
+    });
+  }
+
+  const file = await get_file(req.params.fileName);
+  res.status(200);
+  res.send(file);
+});
+
+fileRouter.delete("/:fileName", async (req, res) => {
+  const error = await delete_file(req.params.fileName);
+
+  if (error !== undefined) {
+    res.status(404);
+    return res.send({
+      errorType: error.name,
+      message: error.message,
+    });
+  }
+
+  res.status(200);
+  res.send();
 });
