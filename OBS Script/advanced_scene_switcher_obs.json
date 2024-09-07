@@ -79,6 +79,34 @@
                         "version": 1
                     },
                     "version": 0
+                },
+                {
+                    "segmentSettings": {
+                        "collapsed": false,
+                        "useCustomLabel": false,
+                        "customLabel": "My label"
+                    },
+                    "id": "scene",
+                    "logic": 101,
+                    "durationModifier": {
+                        "time_constraint": 0,
+                        "seconds": {
+                            "value": {
+                                "value": 0.0,
+                                "type": 0
+                            },
+                            "unit": 0,
+                            "version": 1
+                        }
+                    },
+                    "sceneSelection": {
+                        "type": 0,
+                        "name": "DJ Ichiban"
+                    },
+                    "type": 10,
+                    "pattern": ".*Scene.*",
+                    "useTransitionTargetScene": false,
+                    "version": 1
                 }
             ],
         "actions": [

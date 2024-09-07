@@ -529,6 +529,7 @@ class AdvancedSceneSwitchManager:
                 action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
             # Set conditional media to switch on end
             action["conditions"][0]["source"]["name"] = dj[3]
+            action["conditions"][1]["sceneSelection"]["name"] = dj[1]
             actions.append(action)
             print(f"Added {dj[0]} pointing to scene {action['actions'][0]['sceneSelection']['name']}")
         
@@ -537,6 +538,7 @@ class AdvancedSceneSwitchManager:
             promos_action["name"] = "switch_from_promos"
             promos_action["actions"][0]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(ending_scene))
             promos_action["conditions"][0]["source"]["name"] = "promo_videos"
+            promos_action["conditions"][1]["sceneSelection"]["name"] = S.obs_source_get_name(S.obs_scene_get_source(promos_scene))
             actions.append(promos_action)
 
         return json.dumps({
