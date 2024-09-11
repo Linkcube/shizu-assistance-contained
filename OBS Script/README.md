@@ -4,6 +4,8 @@ This is a python script for importing exported events into OBS, generating scene
 
 ## Setup
 
+Install obspython and Image in pip.
+
 After exporting an event, load this script in your OBS instance (tools > scripts).
 <br>Note: Python must be setup and pointed to in your OBS install
 
@@ -11,13 +13,13 @@ Once the script is added, the following options will appear for the script:
 
 | GUI | Description |
 | ----- | ----- |
-| `Location of the Lineup` | File dialog that lets your select the exported event file |
+| `Location of the Event` | File dialog that lets your select the exported event file |
 | `Translate to Host Paths` | Check if running OBS/the script on your host machine instead of inside Docker |
 | `Generate OBS Macros` | Creates a *_macro.txt file to be imported into [Advanced Scene Switcher](https://github.com/WarmUpTill/SceneSwitcher) |
 
 ## Use
 
-Select the exported event you intend to use, and check the values depending on your preference. Once the values are setup, click `Update Lineup` and you should now have new scenes for DJs and Promotional Videos.
+Select the exported event you intend to use, and check the values depending on your preference. Once the values are setup, click `Update Event` and you should now have new scenes for DJs and Promotional Videos.
 
 If a theme was configured for the event before export, new `Overlay`, `Starting Soon` and `Ending` scenes will be created using the assets supplied.
 

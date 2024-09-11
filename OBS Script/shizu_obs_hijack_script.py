@@ -563,11 +563,11 @@ def script_update(settings):
 
 def script_properties():  # ui
     props = S.obs_properties_create()
-    S.obs_properties_add_path(props, "_lineup_path", "Location of the Lineup:", S.OBS_PATH_FILE, "*.json", None)
+    S.obs_properties_add_path(props, "_lineup_path", "Location of the Event:", S.OBS_PATH_FILE, "*.json", None)
     bool_prop = S.obs_properties_add_bool(props, "_host_bool", "Translate to Host Paths");
     S.obs_property_set_long_description(bool_prop, "Leave unchecked if running in Docker")
     S.obs_properties_add_bool(props, "_ass_bool", "Generate OBS Macros");
     S.obs_properties_add_button(
-        props, "button", "Update Lineup", update_lineup
+        props, "button", "Update Event", update_lineup
     )
     return props
