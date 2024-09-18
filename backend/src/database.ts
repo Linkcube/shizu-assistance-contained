@@ -83,6 +83,7 @@ import {
   internal_insert_into_app_themes,
   internal_update_app_themes,
 } from "./database_helpers/app_themes_db_helpers";
+import { run_migrations } from "./db_migrations/migrations";
 
 // File for accessing SQL, handles client/pool lifecycles.
 
@@ -202,12 +203,9 @@ export const get_app_theme = async (name: string) => {
 
 export const create_tables = async () => {
   const client = database_client();
-  await client.connect();
+  await run_migrations(client);
 
-  for (const table of ALL_TABLES) {
-    await internal_create_table_helper(client, table);
-  }
-
+  // Initial theme values for GUI
   const themes = await client.query(`SELECT * FROM ${APP_THEMES_TABLE.name};`);
   if (themes.rows.length === 0) await initial_data();
 

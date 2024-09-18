@@ -1,57 +1,16 @@
-import { IColumnDefinition } from "./types";
+import {
+  Table,
+  DJS_TABLE_NAME,
+  PROMOS_TABLE_NAME,
+  EVENTS_TABLE_NAME,
+  THEMES_TABLE_NAME,
+  FILES_TABLE_NAME,
+  APP_THEMES_TABLE_NAME,
+} from "../tables";
 
-// SQL Tables class, defines table schema and has simple boilerplate query generation.
-// With the introduction of migrations, these definitions are for the post-migration states.
+// Initial table definitions before any migrations
 
-// Boilderplate query generator
-export class Table {
-  name: string;
-  definitions: IColumnDefinition[];
-  columns: string[];
-  constructor(name: string, definitions: IColumnDefinition[]) {
-    this.name = name;
-    this.definitions = definitions;
-    this.columns = definitions.map((col) => col.name);
-  }
-
-  private definitions_to_string = () => {
-    const def_strings = this.definitions.map((def) => {
-      if (def.fkey) {
-        return `${def.name} ${def.type} references ${def.fkey}`;
-      }
-      return `${def.name} ${def.type}`;
-    });
-    return def_strings.join(", ");
-  };
-
-  public create_table() {
-    return `CREATE TABLE IF NOT EXISTS "${this.name}" (${this.definitions_to_string()});`;
-  }
-
-  public exists() {
-    return `SELECT 1 FROM pg_tables WHERE tablename = '${this.name}';`;
-  }
-
-  public select() {
-    return `SELECT * FROM ${this.name};`;
-  }
-
-  public get_single(primary_key: string) {
-    return `SELECT * FROM ${this.name} WHERE ${this.columns[0]} = '${primary_key}';`;
-  }
-
-  public insert_into(values: string) {
-    return `INSERT INTO ${this.name} VALUES ${values};`;
-  }
-}
-
-export const DJS_TABLE_NAME = "djs";
-export const PROMOS_TABLE_NAME = "promos";
-export const EVENTS_TABLE_NAME = "events";
-export const THEMES_TABLE_NAME = "themes";
-export const FILES_TABLE_NAME = "files";
-export const APP_THEMES_TABLE_NAME = "app_themes";
-export const DJS_TABLE: Table = new Table(DJS_TABLE_NAME, [
+export const DJS_TABLE_0: Table = new Table(DJS_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
@@ -87,7 +46,7 @@ export const DJS_TABLE: Table = new Table(DJS_TABLE_NAME, [
     type: "TEXT[]",
   },
 ]);
-export const PROMOS_TABLE: Table = new Table(PROMOS_TABLE_NAME, [
+export const PROMOS_TABLE_0: Table = new Table(PROMOS_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
@@ -98,7 +57,7 @@ export const PROMOS_TABLE: Table = new Table(PROMOS_TABLE_NAME, [
     fkey: `${FILES_TABLE_NAME}(name)`,
   },
 ]);
-export const EVENTS_TABLE: Table = new Table(EVENTS_TABLE_NAME, [
+export const EVENTS_TABLE_0: Table = new Table(EVENTS_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
@@ -129,7 +88,7 @@ export const EVENTS_TABLE: Table = new Table(EVENTS_TABLE_NAME, [
     type: "BOOLEAN",
   },
 ]);
-export const THEMES_TABLE: Table = new Table(THEMES_TABLE_NAME, [
+export const THEMES_TABLE_0: Table = new Table(THEMES_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
@@ -146,11 +105,6 @@ export const THEMES_TABLE: Table = new Table(THEMES_TABLE_NAME, [
   },
   {
     name: "starting_file",
-    type: "TEXT",
-    fkey: `${FILES_TABLE_NAME}(name)`,
-  },
-  {
-    name: "starting_bgm_file",
     type: "TEXT",
     fkey: `${FILES_TABLE_NAME}(name)`,
   },
@@ -192,7 +146,7 @@ export const THEMES_TABLE: Table = new Table(THEMES_TABLE_NAME, [
     type: "SMALLINT",
   },
 ]);
-export const FILES_TABLE: Table = new Table(FILES_TABLE_NAME, [
+export const FILES_TABLE_0: Table = new Table(FILES_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
@@ -210,7 +164,7 @@ export const FILES_TABLE: Table = new Table(FILES_TABLE_NAME, [
     type: "TEXT",
   },
 ]);
-export const APP_THEMES_TABLE: Table = new Table(APP_THEMES_TABLE_NAME, [
+export const APP_THEMES_TABLE_0: Table = new Table(APP_THEMES_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
@@ -221,10 +175,10 @@ export const APP_THEMES_TABLE: Table = new Table(APP_THEMES_TABLE_NAME, [
   },
 ]);
 export const ALL_TABLES = [
-  FILES_TABLE,
-  THEMES_TABLE,
-  PROMOS_TABLE,
-  DJS_TABLE,
-  EVENTS_TABLE,
-  APP_THEMES_TABLE,
+  FILES_TABLE_0,
+  THEMES_TABLE_0,
+  PROMOS_TABLE_0,
+  DJS_TABLE_0,
+  EVENTS_TABLE_0,
+  APP_THEMES_TABLE_0,
 ];
