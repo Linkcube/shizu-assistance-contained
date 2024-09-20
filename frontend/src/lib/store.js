@@ -56,20 +56,20 @@ async function openapiGet(url, bubble_error=true) {
     if (bubble_error) parseOpenapiError(response);
 }
 
-function openapiPost(url) {
-    return fetch(`${openapiUrl}/${url}`, {
-        method: "POST"
-    });
-}
-
-function openapiPostBody(url, body) {
-    return fetch(`${openapiUrl}/${url}`, {
+async function openapiPostBody(url, body, bubble_error=true) {
+    const request = fetch(`${openapiUrl}/${url}`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(body)
-    }).then(response => response.json());
+    });
+
+    const response = await request;
+    if (response.ok) {
+        return await response.json();
+    }
+    if (bubble_error) parseOpenapiError(response);
 }
 
 function openapiDelete(url) {
@@ -214,62 +214,6 @@ mutation {
         }
     }
 }`;
-
-const addDjMutation = (
-        name,
-        logo_name,
-        recording_name,
-        rtmp_server,
-        rtmp_key,
-        public_name,
-        discord_id) => {
-    let input = `name: "${name}"`;
-    if (logo_name) input += `, logo: "${logo_name}"`;
-    if (recording_name) input += `, recording: "${recording_name}"`;
-    if (rtmp_server) input += `, rtmp_server: "${rtmp_server}"`;
-    if (rtmp_key) input += `, rtmp_key: "${rtmp_key}"`;
-    if (public_name) input += `, public_name: "${public_name}"`;
-    if (discord_id) input += `, discord_id: "${discord_id}"`;
-    return `
-    mutation {
-        guiAddDj(${input}) {
-            name, logo, recording, rtmp_server, rtmp_key, public_name, discord_id
-        }
-    }`;
-}
-
-const updateDjMutation = (
-    name,
-    logo_name,
-    recording_name,
-    rtmp_server,
-    rtmp_key,
-    public_name,
-    discord_id
-) => {
-    let input = `name: "${name}"`;
-    if (logo_name) input += `, logo: "${logo_name}"`;
-    if (recording_name) input += `, recording: "${recording_name}"`;
-    if (rtmp_server) input += `, rtmp_server: "${rtmp_server}"`;
-    if (rtmp_key) input += `, rtmp_key: "${rtmp_key}"`;
-    if (public_name) input += `, public_name: "${public_name}"`;
-    if (discord_id) input += `, discord_id: "${discord_id}"`;
-
-    return `
-    mutation {
-        guiUpdateDj(${input}) {
-            name, logo, recording, rtmp_server, rtmp_key, public_name, discord_id
-        }
-    }`;
-}
-
-
-const deleteDjMutation = (dj_name) => `
-mutation {
-    guiDeleteDj(dj_name: "${dj_name}") {
-        name, logo, recording, rtmp_server, rtmp_key, public_name, discord_id
-    }
-}`
 
 const addPromoMutation = (name, promo_file) => {
     let input = `name: "${name}"`;
@@ -591,6 +535,52 @@ export const oaDeleteTheme = async (name) => {
     return await openapiDelete("theme/" + name);
 }
 
+export const oaPostNewDj = async (
+    name,
+    logo,
+    recording,
+    rtmp_server,
+    rtmp_key,
+    public_name,
+    discord_id
+) => {
+    const body = {
+        name: name,
+        logo: logo,
+        recording: recording,
+        rtmp_server: rtmp_server,
+        rtmp_key: rtmp_key,
+        public_name: public_name,
+        discord_id: discord_id
+    }
+
+    return await openapiPostBody("dj", body);
+}
+
+export const oaPostUpdateDj = async (
+    name,
+    logo,
+    recording,
+    rtmp_server,
+    rtmp_key,
+    public_name,
+    discord_id
+) => {
+    const body = {
+        logo: logo,
+        recording: recording,
+        rtmp_server: rtmp_server,
+        rtmp_key: rtmp_key,
+        public_name: public_name,
+        discord_id: discord_id
+    }
+
+    return await openapiPostBody("dj/" + name, body);
+}
+
+export const oaDeleteDj = async (name) => {
+    return await openapiDelete("dj/" + name);
+}
 
 // fetch
 export function fetchUpdateEventDateTime(name, date, start_time) {
@@ -627,44 +617,6 @@ export function fetchEditAppTheme(themeIndex, theme) {
 export function fetchDeleteAppTheme(themeIndex) {
     return graphqlFetch(deleteAppThemeMutation(themeIndex));
 }
-
-export function fetchAddDj(name, logo_path, recording_path, rtmp_server, stream_key, public_name, discord_id) {
-    graphqlFetch(addDjMutation(name, logo_path, recording_path, rtmp_server, stream_key, public_name, discord_id)).then(promise => {
-        Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				all_djs.set(response.data.guiAddDj);
-			}
-		})
-    });
-}
-
-export function fetchUpdateDj(name, logo_path, recording_path, rtmp_server, rtmp_key, public_name, discord_id) {
-    graphqlFetch(updateDjMutation(name, logo_path, recording_path, rtmp_server, rtmp_key, public_name, discord_id)).then(promise => {
-        Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				all_djs.set(response.data.guiUpdateDj);
-			}
-		})
-    });
-}
-
-export function fetchDeleteDj(dj_name) {
-    return graphqlFetch(deleteDjMutation(dj_name)).then(promise => {
-        Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				all_djs.set(response.data.guiDeleteDj);
-                return "done";
-			}
-		})
-    });
-}
-
 
 export function fetchCreateLineup(name) {
     return graphqlFetch(createLineupQuery(name)).then(promise => {

@@ -189,6 +189,32 @@ components:
           type: array
           items:
             type: string
+    UpdateDJ:
+      type: object
+      properties:
+        logo:
+          description: Logo file identifier.
+          type: string
+        recording:
+          description: Recording file identifier.
+          type: string
+        rtmp_server:
+          description: Specific RTMP server to use for live streams.
+          type: string
+        rtmp_key:
+          description: RTMP key to use for live streams.
+          type: string
+        public_name:
+          description: Public name for displaying in stream. Used if no logo is provided.
+          type: string
+        discord_id:
+          description: Discord ID, used for bookkeeping and contact.
+          type: string
+        past_events:
+          description: List of past events the DJ has performed in
+          type: array
+          items:
+            type: string
     DJs:
       type: array
       items:
@@ -772,6 +798,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DJs'
+    post:
+      tags:
+        - djs
+      summary: Create a new DJ.
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: New DJ values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DJ'
+        required: true
+      responses:
+        '200':
+          description: New DJ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJ'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: DJ already exists.
   /dj/min:
     get:
       tags:
@@ -803,6 +858,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DJ'
+    post:
+      tags:
+        - djs
+      summary: Update existing DJ.
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated DJ values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDJ'
+        required: true
+      responses:
+        '200':
+          description: Updated DJ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJ'
+        '404':
+          description: DJ not found.
+    delete:
+      tags:
+        - djs
+      summary: Delete existing DJ.
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted DJ.
+        '404':
+          description: DJ not found.
   /event:
     get:
       tags:

@@ -15,7 +15,10 @@
         fetchDeletePromo,
         fetchAddPromoToLineup,
         RECORDING_TYPE,
-        error_stack
+        error_stack,
+
+        oaFetchPromos
+
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
     import { get } from 'svelte/store';
@@ -52,6 +55,7 @@
         setTimeout(() => {
             show_save_message = false;
             if (current_error == null) {
+                oaFetchPromos();
                 close();
             }
         }, 500);

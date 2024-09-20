@@ -6,10 +6,11 @@
         MaterialSelect
     } from 'linkcube-svelte-components';
     import Modal from './Modal.svelte';
-    import { 
-        fetchAddDj,
-        fetchUpdateDj,
-        fetchDeleteDj,
+    import {
+        oaPostNewDj,
+        oaPostUpdateDj,
+        oaDeleteDj,
+        oaFetchDjs,
         RTMP_SERVERS,
         currentLineup,
         fetchAddDjToLineup,
@@ -46,16 +47,20 @@
     let logo_data = {};
     let recording_data = {};
 
-    oaFetchFileExists(logo_name).then(file => {
-        if (file) {
-            logo_data = file;
-        }
-    });
-    oaFetchFileExists(recording_name).then(file => {
-        if (file) {
-            recording_data = file;
-        }
-    });
+    if (logo_name) {
+        oaFetchFileExists(logo_name).then(file => {
+            if (file) {
+                logo_data = file;
+            }
+        });
+    }
+    if (recording_name) {
+        oaFetchFileExists(recording_name).then(file => {
+            if (file) {
+                recording_data = file;
+            }
+        });
+    }
     
     const dispatch = createEventDispatcher();
     const close = () => dispatch('close');
@@ -64,11 +69,11 @@
         current_error = error;
     });
 
-    function saveDj() {
+    async function saveDj() {
         current_error = null;
         show_save_message = true;
         if (index < 0) {
-            fetchAddDj(
+            await oaPostNewDj(
                 name,
                 logo_name,
                 recording_name,
@@ -78,7 +83,7 @@
                 discord_id
             );
         } else {
-            fetchUpdateDj(
+            await oaPostUpdateDj(
                 name,
                 logo_name,
                 recording_name,
@@ -88,9 +93,11 @@
                 discord_id
             );
         }
+
         setTimeout(() => {
             show_save_message = false;
             if (current_error == null) {
+                oaFetchDjs();
                 close();
             }
         }, 500);
@@ -112,10 +119,11 @@
         recording_name = event.detail.file_name;
     }
 
-    function removeDj() {
-        fetchDeleteDj(name).then(() => {
+    async function removeDj() {
+        await oaDeleteDj(name).then(() => {
             if (current_lineup) fetchLineup(current_lineup)
         });
+        oaFetchDjs();
         close();
     }
 

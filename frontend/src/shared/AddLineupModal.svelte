@@ -25,10 +25,11 @@
     function createLineup() {
         show_save_message = true;
         current_error = null;
-        fetchCreateLineup(name).then(_ => oaFetchEvents());
+        fetchCreateLineup(name);
         setTimeout(() => {
             show_save_message = false;
             if (current_error == null) {
+                oaFetchEvents()
                 close();
             }
         }, 500);
