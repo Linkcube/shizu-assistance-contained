@@ -191,12 +191,11 @@ fileRouter.post("/themes", async (req, res) => {
 
 fileRouter.post("/:fileName", async (req, res) => {
   const body_params: updateFileInterface = req.body;
-  const update_params: IFileObject = {
-    name: req.params.fileName,
-    root: body_params.root,
-    file_path: body_params.file_path,
-    url_path: body_params.url_path,
-  };
+  const update_params: IFileObject = Object.assign(
+    {},
+    { name: req.params.fileName },
+    body_params,
+  );
   const error = await update_file(update_params);
 
   if (error !== undefined) {

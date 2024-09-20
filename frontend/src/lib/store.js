@@ -127,49 +127,6 @@ public,
 date,
 start_time`;
 
-const themeCreateMutation = (name) => `
-mutation {
-    guiAddNewTheme(name: "${name}") { name }
-}`
-
-const themeUpdateMutation = (
-    name,
-    overlay_file,
-    starting_file,
-    ending_file,
-    target_video_height,
-    target_video_width,
-    video_offset_x,
-    video_offset_y,
-    chat_width,
-    chat_height,
-    chat_offset_x,
-    chat_offset_y
-) => {
-    let input = `name: "${name}"`;
-    if (overlay_file) input += `, overlay_file: "${overlay_file}"`;
-    if (starting_file) input += `, starting_file: "${starting_file}"`;
-    if (ending_file) input += `, ending_file: "${ending_file}"`;
-    if (target_video_height) input += `, target_video_height: ${target_video_height}`;
-    if (target_video_width) input += `, target_video_width: ${target_video_width}`;
-    if (video_offset_x) input += `, video_offset_x: ${video_offset_x}`;
-    if (video_offset_y) input += `, video_offset_y: ${video_offset_y}`;
-    if (chat_width) input += `, chat_width: ${chat_width}`;
-    if (chat_height) input += `, chat_height: ${chat_height}`;
-    if (chat_offset_x) input += `, chat_offset_x: ${chat_offset_x}`;
-    if (chat_offset_y) input += `, chat_offset_y: ${chat_offset_y}`;
-
-    return `
-    mutation {
-        guiUpdateTheme(${input}) { name }
-    }`
-}
-
-const themeDeleteMutation = (name) => `
-mutation {
-    guiDeleteTheme(theme_name: "${name}") { name }
-}`;
-
 const eventSetThemeMutation = (event_name, theme_name) => `
 mutation {
     guiSetEventTheme(event_name: "${event_name}", theme_name: "${theme_name}") { name }
@@ -550,7 +507,7 @@ export const oaFetchAppThemes = async () => {
     }
 }
 
-export const oaPostNewLogo = async (name, file_path, url_path) => {
+export const oaPostNewLogoFile = async (name, file_path, url_path) => {
     const body = {
         name: name,
         file_path: file_path,
@@ -560,7 +517,7 @@ export const oaPostNewLogo = async (name, file_path, url_path) => {
     return await openapiPostBody("file/logos", body);
 }
 
-export const oaPostNewRecording = async (name, file_path, url_path) => {
+export const oaPostNewRecordingFile = async (name, file_path, url_path) => {
     const body = {
         name: name,
         file_path: file_path,
@@ -570,7 +527,7 @@ export const oaPostNewRecording = async (name, file_path, url_path) => {
     return await openapiPostBody("file/recordings", body);
 }
 
-export const oaPostNewTheme = async (name, file_path, url_path) => {
+export const oaPostNewThemeFile = async (name, file_path, url_path) => {
     const body = {
         name: name,
         file_path: file_path,
@@ -594,34 +551,11 @@ export const oaPostDeleteFile = async (name) => {
     return await openapiDelete("file/" + name);
 }
 
-
-// fetch
-export function fetchAddTheme(name) {
-    return graphqlFetch(themeCreateMutation(name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-                return Promise.resolve(false);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiAddNewTheme);
-			}
-		})
-    });
+export const oaPostNewTheme = async (name) => {
+    return await openapiPostBody("theme", {name: name});
 }
 
-export function fetchUpdateEventDateTime(name, date, start_time) {
-    return graphqlFetch(updateEventDateTime(name, date, start_time)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiUpdateEventDateTime);
-			}
-		})
-    });
-}
-
-export function fetchUpdateTheme(
+export const oaPostUpdateTheme = async (
     name,
     overlay_file,
     starting_file,
@@ -633,38 +567,40 @@ export function fetchUpdateTheme(
     chat_width,
     chat_height,
     chat_offset_x,
-    chat_offset_y) {
-    return graphqlFetch(themeUpdateMutation(
-        name,
-        overlay_file,
-        starting_file,
-        ending_file,
-        target_video_height,
-        target_video_width,
-        video_offset_x,
-        video_offset_y,
-        chat_width,
-        chat_height,
-        chat_offset_x,
-        chat_offset_y)
-    ).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-                return Promise.resolve(false);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiUpdateTheme);
-			}
-		})
-    });
+    chat_offset_y
+) => {
+    const body = {
+        name: name,
+        overlay_file: overlay_file,
+        starting_file: starting_file,
+        ending_file: ending_file,
+        target_video_height: target_video_height,
+        target_video_width: target_video_width,
+        video_offset_x: video_offset_x,
+        video_offset_y: video_offset_y,
+        chat_width: chat_width,
+        chat_height: chat_height,
+        chat_offset_x: chat_offset_x,
+        chat_offset_y: chat_offset_y
+    }
+
+    return await openapiPostBody("theme/" + name, body);
 }
 
-export function fetchDeleteTheme(name) {
-    return graphqlFetch(themeDeleteMutation(name)).then(promise => {
+export const oaDeleteTheme = async (name) => {
+    return await openapiDelete("theme/" + name);
+}
+
+
+// fetch
+export function fetchUpdateEventDateTime(name, date, start_time) {
+    return graphqlFetch(updateEventDateTime(name, date, start_time)).then(promise => {
         return Promise.resolve(promise).then(response => {
 			if (response.hasOwnProperty("errors")) {
                 errorStackPushHelper(response.errors[0]);
-            }
+            } else if (response.hasOwnProperty("data")) {
+				return Promise.resolve(response.data.guiUpdateEventDateTime);
+			}
 		})
     });
 }

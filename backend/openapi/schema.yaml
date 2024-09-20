@@ -99,6 +99,53 @@ components:
           description: Pixel count for overlay chat to vertically offset by.
           type: integer
           format: int32
+    UpdateTheme:
+      type: object
+      properties:
+        overlay_file:
+          description: Identifier for overlay theme file.
+          type: string
+        stinger_file:
+          description: Identifier for stinger theme file.
+          type: string
+        starting_file:
+          description: Identifier for starting theme file.
+          type: string
+        ending_file:
+          description: Identifier for ending theme file.
+          type: string
+        target_video_width:
+          description: Pixel width for video files to be scaled to.
+          type: integer
+          format: int32
+        target_video_height:
+          description: Pixel height for video files to be scaled to.
+          type: integer
+          format: int32
+        video_offset_x:
+          description: Pixel count for video files to horizontally offset by.
+          type: integer
+          format: int32
+        video_offset_y:
+          description: Pixel count for video files to vertically offset by.
+          type: integer
+          format: int32
+        chat_width:
+          description: Pixel width for overlay chat.
+          type: integer
+          format: int32
+        chat_height:
+          description: Pixel height for overlay chat.
+          type: integer
+          format: int32
+        chat_offset_x:
+          description: Pixel count for overlay chat to horizontally offset by.
+          type: integer
+          format: int32
+        chat_offset_y:
+          description: Pixel count for overlay chat to vertically offset by.
+          type: integer
+          format: int32
     Themes:
       type: array
       items:
@@ -629,6 +676,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ThemesMin'
+    post:
+      tags:
+        - themes
+      summary: Create a new theme.
+      requestBody:
+        description: New theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Theme'
+        required: true
+      responses:
+        '200':
+          description: New theme.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: Theme already exists.
   /theme/{themeName}:
     get:
       tags:
@@ -648,6 +717,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Theme'
+    post:
+      tags:
+        - themes
+      summary: Update existing theme.
+      parameters:
+        - name: themeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTheme'
+        required: true
+      responses:
+        '200':
+          description: Updated theme.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '404':
+          description: Theme not found.
+    delete:
+      tags:
+        - themes
+      summary: Delete existing theme.
+      parameters:
+        - name: themeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted theme.
+        '404':
+          description: Theme not found.
   /dj:
     get:
       tags:

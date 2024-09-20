@@ -10,11 +10,11 @@
         oaFetchLogoFiles,
         oaFetchRecordingFiles,
         oaFetchThemeFiles,
-        oaPostNewLogo,
-        oaPostNewRecording,
+        oaPostNewLogoFile,
+        oaPostNewRecordingFile,
         oaPostUpdateFile,
         error_stack,
-        oaPostNewTheme,
+        oaPostNewThemeFile,
         oaPostDeleteFile,
         THEME_TYPE,
         isImageSource
@@ -140,11 +140,11 @@
 
     async function addFile() {
         if (file_type === LOGO_TYPE) {
-            await oaPostNewLogo(new_file_name, null, null);
+            await oaPostNewLogoFile(new_file_name, null, null);
         } else if (file_type === RECORDING_TYPE) {
-            await oaPostNewRecording(new_file_name, null, null);
+            await oaPostNewRecordingFile(new_file_name, null, null);
         } else {
-            await oaPostNewTheme(new_file_name, null, null);
+            await oaPostNewThemeFile(new_file_name, null, null);
         }
         selected_file_name = new_file_name;
         await fetchFiles();

@@ -8,10 +8,10 @@
     import { 
         error_stack,
         oaFetchThemes,
-        fetchAddTheme,
+        oaPostNewTheme,
         THEME_TYPE,
-        fetchUpdateTheme,
-        fetchDeleteTheme
+        oaPostUpdateTheme,
+        oaDeleteTheme
 
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
@@ -52,7 +52,7 @@
     }
 
     async function addTheme() {
-        await fetchAddTheme(new_theme_name)
+        await oaPostNewTheme(new_theme_name)
         selected_theme_name = new_theme_name;
         await getThemes();
         adding_theme = false;
@@ -94,7 +94,7 @@
     }
 
     async function removeTheme() {
-        await fetchDeleteTheme(selected_theme.name);
+        await oaDeleteTheme(selected_theme.name);
         selected_theme_name = "";
         selected_theme = {};
         await getThemes();
@@ -116,7 +116,7 @@
     }
 
     function makeUpdateCall() {
-        return fetchUpdateTheme(
+        return oaPostUpdateTheme(
             selected_theme.name,
             selected_theme.overlay_file,
             selected_theme.starting_file,

@@ -660,7 +660,46 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /** Update existing theme. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description New theme values. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["Theme"];
+                };
+            };
+            responses: {
+                /** @description New theme. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Theme"];
+                    };
+                };
+                /** @description Invalid input data. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Theme already exists. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -697,8 +736,69 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
-        delete?: never;
+        /** Update existing theme. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    themeName: string;
+                };
+                cookie?: never;
+            };
+            /** @description Updated theme values. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateTheme"];
+                };
+            };
+            responses: {
+                /** @description Updated theme. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Theme"];
+                    };
+                };
+                /** @description Theme not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        /** Delete existing theme. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    themeName: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deleted theme. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Theme not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -1138,6 +1238,56 @@ export interface components {
         Theme: {
             /** @description Theme identifier. */
             name?: string;
+            /** @description Identifier for overlay theme file. */
+            overlay_file?: string;
+            /** @description Identifier for stinger theme file. */
+            stinger_file?: string;
+            /** @description Identifier for starting theme file. */
+            starting_file?: string;
+            /** @description Identifier for ending theme file. */
+            ending_file?: string;
+            /**
+             * Format: int32
+             * @description Pixel width for video files to be scaled to.
+             */
+            target_video_width?: number;
+            /**
+             * Format: int32
+             * @description Pixel height for video files to be scaled to.
+             */
+            target_video_height?: number;
+            /**
+             * Format: int32
+             * @description Pixel count for video files to horizontally offset by.
+             */
+            video_offset_x?: number;
+            /**
+             * Format: int32
+             * @description Pixel count for video files to vertically offset by.
+             */
+            video_offset_y?: number;
+            /**
+             * Format: int32
+             * @description Pixel width for overlay chat.
+             */
+            chat_width?: number;
+            /**
+             * Format: int32
+             * @description Pixel height for overlay chat.
+             */
+            chat_height?: number;
+            /**
+             * Format: int32
+             * @description Pixel count for overlay chat to horizontally offset by.
+             */
+            chat_offset_x?: number;
+            /**
+             * Format: int32
+             * @description Pixel count for overlay chat to vertically offset by.
+             */
+            chat_offset_y?: number;
+        };
+        UpdateTheme: {
             /** @description Identifier for overlay theme file. */
             overlay_file?: string;
             /** @description Identifier for stinger theme file. */

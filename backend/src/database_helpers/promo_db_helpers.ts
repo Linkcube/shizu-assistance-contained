@@ -2,6 +2,7 @@ import {
   internal_insert_into_table,
   internal_update_table_entry,
   internal_get_row_from_table,
+  is_non_empty,
 } from "./helper_functions";
 import {
   promoNotFoundError,
@@ -31,7 +32,7 @@ const validate_promo = async (
       return invalidPromoError(`Promo ${promo_data.name} already exists!`);
     }
   }
-  if (promo_data.promo_file !== undefined) {
+  if (is_non_empty(promo_data.promo_file)) {
     exists = await pool.query(
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${promo_data.promo_file}'`,
     );
