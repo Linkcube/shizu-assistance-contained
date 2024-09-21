@@ -8,23 +8,22 @@
     import Modal from './Modal.svelte';
     import {
 		currentLineupObjects,
-        fetchLineup,
-        fetchRemoveLineupDj,
-        fetchRemoveLineupPromo,
-        fetchSwapLineupDjs,
-        fetchSwapLineupPromos,
+        oaDeleteEventDj,
+        oaDeleteEventPromo,
+        oaPostMoveEventDj,
+        oaPostMoveEventPromo,
         fetchExportLineup,
-        fetchDeleteLineup,
+        oaDeleteEvent,
         error_stack,
         oaFetchSingleEvent,
         oaFetchSingleDj,
         oaFetchSinglePromo,
         oaFetchEvents,
-        fetchEventSetTheme,
+        oaPostSetEventTheme,
         oaFetchSingleTheme,
-        fetchUpdateEventDateTime,
-        fetchAddDjToLineup,
-        fetchAddPromoToLineup,
+        oaPostUpdateEventDateTime,
+        oaPostAddEventDj,
+        oaPostAddEventPromo,
         all_djs,
         all_promos
     } from '$lib/store.js';
@@ -175,8 +174,8 @@
         }
         
         loading = true;
-        fetchSwapLineupDjs(event.name, dragging_index, last_dragover_index)
-            .then(updated_event => currentLineupObjects.set(updated_event));
+        oaPostMoveEventDj(event.name, dragging_index, last_dragover_index)
+            .then(_ => oaFetchSingleEvent(event.name));
         setTimeout(() => {
             if (current_error == null) show_export_error = false;
         }, 500);
@@ -198,8 +197,8 @@
         }
         
         loading = true;
-        fetchSwapLineupPromos(event.name, dragging_index, last_dragover_index)
-            .then(updated_event => currentLineupObjects.set(updated_event));
+        oaPostMoveEventPromo(event.name, dragging_index, last_dragover_index)
+            .then(_ => oaFetchSingleEvent(event.name));
         setTimeout(() => {
             if (current_error == null) show_export_error = false;
         }, 500);
@@ -208,13 +207,13 @@
     function removeErrorFromLineup() {
         if (last_action == EDIT_DJ_FAILED) {
             console.log(`Lineup: ${event.name}, DJ: ${edit_dj_name}`);
-            fetchRemoveLineupDj(event.name, edit_dj_name)
-                .then(updated_event => currentLineupObjects.set(updated_event));
+            oaDeleteEventDj(event.name, edit_dj_name)
+                .then(_ => oaFetchSingleEvent(event.name));
             last_action = REMOVE_DJ_FAILED;
         } else if (last_action == EDIT_PROMO_FAILED) {
             console.log(`Lineup: ${event.name}, Promo: ${edit_promo_name}`);
-            fetchRemoveLineupPromo(event.name, edit_promo_name)
-                .then(updated_event => currentLineupObjects.set(updated_event));
+            oaDeleteEventPromo(event.name, edit_promo_name)
+                .then(_ => oaFetchSingleEvent(event.name));
             last_action = REMOVE_PROMO_FAILED
         } else {
             console.log(`Unexpected error callback for ${last_action}`);
@@ -237,11 +236,12 @@
     }
 
     function deleteLineup() {
-        fetchDeleteLineup(event.name).then(() => oaFetchEvents()).then(() => close());
+        oaDeleteEvent(event.name).then(() => oaFetchEvents())
+            .then(() => close());
     }
 
     async function changeTheme(user_event) {
-        fetchEventSetTheme(event.name, user_event.detail.theme_name)
+        oaPostSetEventTheme(event.name, user_event.detail.theme_name)
             .then(_ => oaFetchSingleEvent(event.name))
             .then(_ => getThemeData());
     }
@@ -253,7 +253,7 @@
 
     function updateEventTime() {
         show_time_dialog = false;
-        fetchUpdateEventDateTime(event.name, input_date, `${input_time_hours}:${input_time_minutes}`).then(retval => {
+        oaPostUpdateEventDateTime(event.name, input_date, `${input_time_hours}:${input_time_minutes}`).then(retval => {
             currentLineupObjects.set(retval);
         });
     }
@@ -264,8 +264,8 @@
     }
 
     function addDjToEvent(dj_event) {
-        fetchAddDjToLineup(event.name, dj_event.detail.name)
-            .then(updated_event => currentLineupObjects.set(updated_event));
+        oaPostAddEventDj(event.name, dj_event.detail.name)
+            .then(_ => oaFetchSingleEvent(event.name));
     }
 
     function openAddPromoDialogue() {
@@ -274,8 +274,8 @@
     }
 
     function addPromoToEvent(promo_event) {
-        fetchAddPromoToLineup(event.name, promo_event.detail.name)
-            .then(updated_event => currentLineupObjects.set(updated_event));
+        oaPostAddEventPromo(event.name, promo_event.detail.name)
+            .then(_ => oaFetchSingleEvent(event.name));
     }
 
     if (event.theme) getThemeData();

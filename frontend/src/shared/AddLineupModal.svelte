@@ -4,7 +4,7 @@
     } from 'linkcube-svelte-components';
     import Modal from './Modal.svelte';
     import { 
-        fetchCreateLineup,
+        oaPostCreateEvent,
         error_stack,
         oaFetchEvents
     } from '$lib/store.js';
@@ -25,7 +25,7 @@
     function createLineup() {
         show_save_message = true;
         current_error = null;
-        fetchCreateLineup(name);
+        oaPostCreateEvent(name);
         setTimeout(() => {
             show_save_message = false;
             if (current_error == null) {

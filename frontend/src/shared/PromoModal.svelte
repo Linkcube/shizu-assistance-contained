@@ -9,11 +9,11 @@
     import {
         currentLineup,
         all_events,
-        fetchLineup,
+        oaFetchSingleEvent,
         fetchAddPromo,
         fetchUpdatePromo,
         fetchDeletePromo,
-        fetchAddPromoToLineup,
+        oaPostAddEventPromo,
         RECORDING_TYPE,
         error_stack,
 
@@ -70,16 +70,12 @@
     }
 
     function removePromo() {
-        fetchDeletePromo(name).then(() => {
-            if (current_lineup) fetchLineup(current_lineup)
-        });
+        fetchDeletePromo(name);
         close();
     }
 
     function addToLineup() {
-        fetchAddPromoToLineup(target_lineup, name).then(_ => {
-            if (current_lineup) fetchLineup(current_lineup)
-        });
+        oaPostAddEventPromo(target_lineup, name);
     }
 </script>
 

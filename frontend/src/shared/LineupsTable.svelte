@@ -42,7 +42,8 @@
                     index: index,
                     name: lineup.name
                 });
-            })
+            });
+            display_lineups = display_lineups.sort(compareBy("#", true));
         }
     });
     currentLineup.subscribe(value => current_lineup = value);
@@ -64,7 +65,7 @@
             case "#":
                 if (direction) return (a, b) => a.index < b.index;
                 return (a, b) => a.index > b.index;
-            case "name":
+            case "Name":
                 if (direction) return (a, b) => a.name.localeCompare(b.name) * -1;
                 return (a, b) => a.name.localeCompare(b.name);
         }

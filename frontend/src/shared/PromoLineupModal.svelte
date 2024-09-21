@@ -4,8 +4,8 @@
     } from 'linkcube-svelte-components';
     import Modal from './Modal.svelte';
     import { 
-        fetchLineup,
-        fetchRemoveLineupPromo,
+        oaFetchSingleEvent,
+        oaDeleteEventPromo,
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
 
@@ -21,7 +21,8 @@
     let file_name = promo_data.promo_file;
 
     export const removePromo = () => {
-        fetchRemoveLineupPromo(current_lineup, name).then(_ => fetchLineup(current_lineup));
+        oaDeleteEventPromo(current_lineup, name)
+            .then(_ => oaFetchSingleEvent(current_lineup));
         close();
     }
 </script>

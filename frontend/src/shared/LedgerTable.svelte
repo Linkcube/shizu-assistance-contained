@@ -114,23 +114,23 @@
                 if (direction) return (a, b) => a.name.localeCompare(b.name) * -1;
                 return (a, b) => a.name.localeCompare(b.name);
             case dj_table_fields[2]:
-                if (direction) return (a, b) => a.logo.localeCompare(b.logo) * -1;
-                return (a, b) => a.logo.localeCompare(b.logo);
+                if (direction) return (a, b) => !(Boolean(a.logo) < Boolean(b.logo));
+                return (a, b) => Boolean(a.logo) < Boolean(b.logo);
             case dj_table_fields[3]:
-                if (direction) return (a, b) => a.rtmp_server.localeCompare(b.rtmp_server) * -1;
-                return (a, b) => a.rtmp_server.localeCompare(b.rtmp_server);
+                if (direction) return (a, b) => !(Boolean(a.rtmp_server) < Boolean(b.rtmp_server));
+                return (a, b) => Boolean(a.rtmp_server) < Boolean(b.rtmp_server);
             case dj_table_fields[4]:
-                if (direction) return (a, b) => a.recording.localeCompare(b.recording) * -1;
-                return (a, b) => a.recording.localeCompare(b.recording);
+                if (direction) return (a, b) => !(Boolean(a.recording) < Boolean(b.recording));
+                return (a, b) => Boolean(a.recording) < Boolean(b.recording);
         }
     }
 
     const sortDjsBy = (event) => {
-        display_ledger_djs = display_ledger_djs.sort(compareBy(event.detail.value, event.detail.direction));
+        display_ledger_djs = display_ledger_djs.sort(compareBy(event.detail.value, !event.detail.direction));
     }
 
     const sortPromosBy = (event) => {
-        display_ledger_promos = display_ledger_promos.sort(compareBy(event.detail.value, event.detail.direction));
+        display_ledger_promos = display_ledger_promos.sort(compareBy(event.detail.value, !event.detail.direction));
     }
 
     const toggleDisplay = () => {
@@ -220,7 +220,7 @@
     {:else}
         <MaterialTable items={display_ledger_promos} columnSizes={["10%", "90%"]} height="500px">
             <div slot="header">
-                <NewMatTableRow values={["#", "name"]} type="header callback" on:callback={sortPromosBy}/>
+                <NewMatTableRow values={["#", "Name"]} type="header callback" on:callback={sortPromosBy}/>
             </div>
             <div slot="item" let:item let:index>
                 <NewMatTableRow

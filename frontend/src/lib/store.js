@@ -56,7 +56,7 @@ async function openapiGet(url, bubble_error=true) {
     if (bubble_error) parseOpenapiError(response);
 }
 
-async function openapiPostBody(url, body, bubble_error=true) {
+async function openapiPostBody(url, body) {
     const request = fetch(`${openapiUrl}/${url}`, {
         method: "POST",
         headers: {
@@ -69,13 +69,17 @@ async function openapiPostBody(url, body, bubble_error=true) {
     if (response.ok) {
         return await response.json();
     }
-    if (bubble_error) parseOpenapiError(response);
+    parseOpenapiError(response);
 }
 
-function openapiDelete(url) {
-    return fetch(`${openapiUrl}/${url}`, {
+async function openapiDelete(url) {
+    const request = fetch(`${openapiUrl}/${url}`, {
         method: "DELETE"
     });
+    const response = await request;
+    if (!response.ok) {
+        parseOpenapiError(response);
+    }
 }
 
 async function parseOpenapiError(response) {
@@ -126,11 +130,6 @@ theme,
 public,
 date,
 start_time`;
-
-const eventSetThemeMutation = (event_name, theme_name) => `
-mutation {
-    guiSetEventTheme(event_name: "${event_name}", theme_name: "${theme_name}") { name }
-}`;
 
 const addAppThemeMutation = `
 mutation {
@@ -242,107 +241,6 @@ mutation {
     guiDeletePromo(promo_name: "${promo_name}") {
         name, promo_file
     }
-}`
-
-const createLineupQuery = (name) => `
-mutation {
-    guiAddEvent(name: "${name}") {
-        ${all_event_properties}
-    }
-}`
-
-const getLineup = (name) => `
-query {
-    guiGetEvent(event_name: "${name}") {
-        ${all_event_properties}
-    }
-}`
-
-const addDjToLineupMutation = (event_name, dj_name) => `
-mutation {
-    guiAddEventDj(
-        event_name: "${event_name}",
-        dj_data: {
-            name: "${dj_name}",
-            is_live: false
-        }
-    ) {
-        ${all_event_properties}
-    }
-}`
-
-const addPromoToLineupMutation = (event_name, promo_name) => `
-mutation {
-    guiAddEventPromo(
-        event_name: "${event_name}",
-        promo_name: "${promo_name}"
-    ) {
-        ${all_event_properties}
-    }
-}`
-
-const updateLineupDjMutation = (event_name, dj_name, is_live, vj) => {
-    let input = `event_name: "${event_name}", dj_name: "${dj_name}"`;
-    if (is_live) {
-        input += ", is_live: true";
-    } else {
-        input += ", is_live: false";
-    }
-    if (vj) input += `, vj: "${vj}"`;
-    return `
-    mutation {
-        guiUpdateEventDj(${input}) { ${all_event_properties} }
-    }`
-}
-
-const updateEventDateTime = (event_name, date, start_time) => {
-    let input = `event_name: "${event_name}"`;
-    if (date) {
-        input += `, date: "${date}"`;
-    }
-    if (start_time) {
-        input += `, start_time: "${start_time}"`;
-    }
-    return `
-    mutation {
-        guiUpdateEventDateTime(${input}) {
-            ${all_event_properties}
-        }
-    }`
-}
-
-const fetchSwapLineupDjsMutation = (event_name, index_a, index_b) => `
-mutation {
-    guiMoveEventDj(
-        event_name: "${event_name}",
-        index_a: ${index_a},
-        index_b: ${index_b}
-    ) { ${all_event_properties} }
-}`
-
-const fetchSwapLineupPromosMutation = (event_name, index_a, index_b) => `
-mutation {
-    guiMoveEventPromo(
-        event_name: "${event_name}",
-        index_a: ${index_a},
-        index_b: ${index_b}
-    ) { ${all_event_properties} }
-}`
-
-const removeDjFromLineuppMutation = (event_name, dj_name) => `
-mutation {
-    guiRemoveEventDj(
-        event_name: "${event_name}",
-        dj_name: "${dj_name}"
-    ) { ${all_event_properties} }
-}`
-
-const removePromoFromLineuppMutation = (event_name, promo_name) => `
-mutation {
-    guiRemoveEventPromo(
-        event_name: "${event_name}",
-        promo_name: "${promo_name}"
-    ) { ${all_event_properties} }
 }`
 
 const exportLineupMutation = (event_name) => `
@@ -582,30 +480,72 @@ export const oaDeleteDj = async (name) => {
     return await openapiDelete("dj/" + name);
 }
 
-// fetch
-export function fetchUpdateEventDateTime(name, date, start_time) {
-    return graphqlFetch(updateEventDateTime(name, date, start_time)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				return Promise.resolve(response.data.guiUpdateEventDateTime);
-			}
-		})
-    });
+export const oaPostCreateEvent = async (name) => {
+    return await openapiPostBody("event", { name: name });
 }
 
-export function fetchEventSetTheme(event_name, theme_name) {
-    return graphqlFetch(eventSetThemeMutation(event_name, theme_name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiSetEventTheme)
-            }
-		})
-    });
+export const oaPostUpdateEventDateTime = async (name, date, start_time) =>  {
+    const body = {
+        date: date,
+        start_time: start_time
+    }
+    return await openapiPostBody(`event/${name}/dateTime`, body);
 }
+
+export const oaPostSetEventTheme = async (name, theme) => {
+    return await openapiPostBody(`event/${name}/set-theme`, { name: theme });
+}
+
+export const oaPostAddEventDj = async (name, dj_name) => {
+    const body = {
+        name: dj_name,
+        is_live: false
+    }
+    return await openapiPostBody(`event/${name}/dj`, body);
+}
+
+export const oaPostUpdateEventDj = async (name, dj_name, is_live, vj) => {
+    return await openapiPostBody(
+        `event/${name}/dj/${dj_name}`,
+        { is_live: is_live, vj: vj }
+    );
+}
+
+export const oaPostMoveEventDj = async (name, index_a, index_b) => {
+    const body = {
+        index_a: index_a,
+        index_b: index_b
+    };
+
+    return await openapiPostBody(`event/${name}/move-dj`, body);
+}
+
+export const oaDeleteEventDj = async (name, dj_name) => {
+    return await openapiDelete(`event/${name}/dj/${dj_name}`);
+}
+
+export const oaPostAddEventPromo = async (name, promo_name) => {
+    return await openapiPostBody(`event/${name}/promo`, { name: promo_name });
+}
+
+export const oaPostMoveEventPromo = async (name, index_a, index_b) => {
+    const body = {
+        index_a: index_a,
+        index_b: index_b
+    };
+
+    return await openapiPostBody(`event/${name}/move-promo`, body);
+}
+
+export const oaDeleteEventPromo = async (name, promo_name) => {
+    return await openapiDelete(`event/${name}/promo/${promo_name}`);
+}
+
+export const oaDeleteEvent = async (name) => {
+    return await openapiDelete(`event/${name}`);
+}
+
+// fetch
 export function fetchAddAppTheme() {
     return graphqlFetch(addAppThemeMutation);
 }
@@ -616,88 +556,6 @@ export function fetchEditAppTheme(themeIndex, theme) {
 
 export function fetchDeleteAppTheme(themeIndex) {
     return graphqlFetch(deleteAppThemeMutation(themeIndex));
-}
-
-export function fetchCreateLineup(name) {
-    return graphqlFetch(createLineupQuery(name)).then(promise => {
-        Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            }
-		});
-    });;
-}
-
-export function fetchLineup(name) {
-    return graphqlFetch(getLineup(name)).then(promise => {
-        Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else if (response.hasOwnProperty("data")) {
-				currentLineupObjects.set(response.data.guiGetEvent);
-			}
-		})
-    });
-}
-
-export function fetchAddDjToLineup(lineup_name, dj_name) {
-    return graphqlFetch(addDjToLineupMutation(lineup_name, dj_name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiAddEventDj);
-            }
-		});
-    });
-}
-
-export function fetchUpdateLineupDj(lineup_name, dj_name, is_live, vj) {
-    return graphqlFetch(updateLineupDjMutation(lineup_name, dj_name, is_live, vj)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiUpdateEventDj);
-            }
-		})
-    });
-}
-
-export function fetchSwapLineupDjs(lineup_name, index_a, index_b) {
-    return graphqlFetch(fetchSwapLineupDjsMutation(lineup_name, index_a, index_b)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiMoveEventDj);
-            }
-		})
-    });
-}
-
-export function fetchSwapLineupPromos(lineup_name, index_a, index_b) {
-    return graphqlFetch(fetchSwapLineupPromosMutation(lineup_name, index_a, index_b)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-			if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiMoveEventPromo);
-            }
-		})
-    });
-}
-
-export function fetchRemoveLineupDj(lineup_name, dj_name) {
-    return graphqlFetch(removeDjFromLineuppMutation(lineup_name, dj_name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiRemoveEventDj);
-            }
-		});
-    });
 }
 
 export function fetchAddPromo(name, file_path) {
@@ -737,30 +595,6 @@ export function fetchDeletePromo(index) {
     });
 }
 
-export function fetchAddPromoToLineup(lineup_name, promo_name) {
-    return graphqlFetch(addPromoToLineupMutation(lineup_name, promo_name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiAddEventPromo);
-            }
-		});
-    });
-}
-
-export function fetchRemoveLineupPromo(lineup_name, promo_name) {
-    return graphqlFetch(removePromoFromLineuppMutation(lineup_name, promo_name)).then(promise => {
-        return Promise.resolve(promise).then(response => {
-            if (response.hasOwnProperty("errors")) {
-                errorStackPushHelper(response.errors[0]);
-            } else {
-                return Promise.resolve(response.data.guiRemoveEventPromo);
-            }
-		});
-    });
-}
-
 export function fetchExportLineup(lineup_name) {
     return graphqlFetch(exportLineupMutation(lineup_name)).then(promise => {
         return Promise.resolve(promise).then(response => {
@@ -772,13 +606,4 @@ export function fetchExportLineup(lineup_name) {
             }
 		});
     });
-}
-
-const deleteLineupMutation = (name) => `
-mutation {
-    guiDeleteEvent(event_name: "${name}") { name }
-}`
-
-export function fetchDeleteLineup(lineup_name) {
-    return graphqlFetch(deleteLineupMutation(lineup_name));
 }

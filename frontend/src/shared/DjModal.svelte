@@ -13,8 +13,8 @@
         oaFetchDjs,
         RTMP_SERVERS,
         currentLineup,
-        fetchAddDjToLineup,
-        fetchLineup,
+        oaPostAddEventDj,
+        oaFetchSingleEvent,
         RECORDING_TYPE,
         LOGO_TYPE,
         error_stack,
@@ -120,17 +120,13 @@
     }
 
     async function removeDj() {
-        await oaDeleteDj(name).then(() => {
-            if (current_lineup) fetchLineup(current_lineup)
-        });
+        await oaDeleteDj(name);
         oaFetchDjs();
         close();
     }
 
     function addToLineup() {
-        fetchAddDjToLineup(target_lineup, name).then(_ => {
-            if (current_lineup) fetchLineup(current_lineup)
-        });
+        oaPostAddEventDj(target_lineup, name);
     }
 </script>
 

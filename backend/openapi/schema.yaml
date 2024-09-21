@@ -250,6 +250,21 @@ components:
         vj:
           description: Present if the visuals for a DJ are done by a VJ.
           type: string
+    UpdateLineupDJ:
+      type: object
+      properties:
+        is_live:
+          description: If the DJ is using a RTMP config for streaming.
+          type: boolean
+        vj:
+          description: Present if the visuals for a DJ are done by a VJ.
+          type: string
+    LineupPromotion:
+      type: object
+      properties:
+        name:
+          description: Name of an exsting Promotion.
+          type: string
     Event:
       type: object
       properties:
@@ -277,6 +292,57 @@ components:
           type: string
         start_time:
           description: Time the event is to be aired, in 24hr HH:MM for eastern time.
+          type: string
+    UpdateEvent:
+      type: object
+      properties:
+        djs:
+          description: Array of LineupDJ objects for an event, describes event specific values.
+          type: array
+          items:
+            $ref: '#/components/schemas/LineupDJ'
+        promos:
+          description: Array of promotional video identifiers.
+          type: array
+          items:
+            type: string
+        theme:
+          description: Theme identifier to use for an event.
+          type: string
+        public:
+          description: If the event has been announced.
+          type: boolean
+        date:
+          description: Date the event is to be aired, in YYYY/MM/DD.
+          type: string
+        start_time:
+          description: Time the event is to be aired, in 24hr HH:MM for eastern time.
+          type: string
+    UpdateEventDateTime:
+      type: object
+      properties:
+        date:
+          description: Date the event is to be aired, in YYYY/MM/DD.
+          type: string
+        start_time:
+          description: Time the event is to be aired, in 24hr HH:MM for eastern time.
+          type: string
+    MoveEventItem:
+      type: object
+      properties:
+        index_a:
+          description: Integer of the item to move.
+          type: integer
+          format: int32
+        index_b:
+          description: Integer to move the item to.
+          type: integer
+          format: int32
+    EventThemeParam:
+      type: object
+      properties:
+        name:
+          description: Name of an exsting theme.
           type: string
     Events:
       type: array
@@ -519,7 +585,7 @@ paths:
     get:
       tags:
         - files
-      sumary: Returns a file by name
+      summary: Returns a file by name
       description: Returns a file of any type by name.
       parameters:
         - name: fileName
@@ -583,7 +649,7 @@ paths:
     get:
       tags:
         - local-files
-      sumary: Returns a FileDialogBlob for logos at the root dir.
+      summary: Returns a FileDialogBlob for logos at the root dir.
       description: Used for navigating logo files on the server.
       responses:
         '200':
@@ -596,7 +662,7 @@ paths:
     get:
       tags:
         - local-files
-      sumary: Returns a FileDialogBlob for logos at a given path
+      summary: Returns a FileDialogBlob for logos at a given path
       description: Used for navigating logo files on the server.
       parameters:
         - name: logoPath
@@ -616,7 +682,7 @@ paths:
     get:
       tags:
         - local-files
-      sumary: Returns a FileDialogBlob for recordings at the root dir.
+      summary: Returns a FileDialogBlob for recordings at the root dir.
       description: Used for navigating recording files on the server.
       responses:
         '200':
@@ -629,7 +695,7 @@ paths:
     get:
       tags:
         - local-files
-      sumary: Returns a FileDialogBlob for recordings at a given path
+      summary: Returns a FileDialogBlob for recordings at a given path
       description: Used for navigating recording files on the server.
       parameters:
         - name: recordingPath
@@ -649,7 +715,7 @@ paths:
     get:
       tags:
         - local-files
-      sumary: Returns a FileDialogBlob for themes at the root dir.
+      summary: Returns a FileDialogBlob for themes at the root dir.
       description: Used for navigating theme files on the server.
       responses:
         '200':
@@ -662,7 +728,7 @@ paths:
     get:
       tags:
         - local-files
-      sumary: Returns a FileDialogBlob for themes at a given path
+      summary: Returns a FileDialogBlob for themes at a given path
       description: Used for navigating theme files on the server.
       parameters:
         - name: themePath
@@ -728,7 +794,7 @@ paths:
     get:
       tags:
         - themes
-      sumary: Returns a theme by name
+      summary: Returns a theme by name
       parameters:
         - name: themeName
           in: path
@@ -843,7 +909,7 @@ paths:
     get:
       tags:
         - djs
-      sumary: Returns a DJ by name
+      summary: Returns a DJ by name
       parameters:
         - name: djName
           in: path
@@ -913,6 +979,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Events'
+    post:
+      tags:
+        - events
+      summary: Create a new event.
+      requestBody:
+        description: New event values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        '200':
+          description: New event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: Event already exists.
   /event/min:
     get:
       tags:
@@ -929,7 +1017,7 @@ paths:
     get:
       tags:
         - events
-      sumary: Returns a event by name
+      summary: Returns a event by name
       parameters:
         - name: eventName
           in: path
@@ -944,6 +1032,300 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Event'
+    post:
+      tags:
+        - events
+      summary: Update existing event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated event values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEvent'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+    delete:
+      tags:
+        - events
+      summary: Delete existing event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted event.
+        '404':
+          description: Event not found.
+  /event/{eventName}/dateTime:
+    post:
+      tags:
+        - events
+      summary: Update an event's date and time.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated date and time values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventDateTime'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/dj:
+    post:
+      tags:
+        - events
+      summary: Add a DJ to an event's lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: DJ lineup values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineupDJ'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/dj/{djName}:
+    post:
+      tags:
+        - events
+      summary: Update an event's lineup DJ.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updates to the lineup DJ.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLineupDJ'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+    delete:
+      tags:
+        - events
+      summary: Removes a DJ from an event's lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/move-dj:
+    post:
+      tags:
+        - events
+      summary: Moves a DJ in an event lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Indexes to move.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveEventItem'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/promo:
+    post:
+      tags:
+        - events
+      summary: Add a promotion to an event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Promotion values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineupPromotion'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/promo/{promoName}:
+    delete:
+      tags:
+        - events
+      summary: Removes a Promotion from an event's lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Removed Promotion from event.
+        '404':
+          description: Event not found.
+  /event/{eventName}/move-promo:
+    post:
+      tags:
+        - events
+      summary: Moves a Promotion in an event lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Indexes to move.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveEventItem'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/set-theme:
+    post:
+      tags:
+        - events
+      summary: Sets the theme for an event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Theme name.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventThemeParam'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
   /promo:
     get:
       tags:
@@ -972,7 +1354,7 @@ paths:
     get:
       tags:
         - promos
-      sumary: Returns a promo by name
+      summary: Returns a promo by name
       parameters:
         - name: promoName
           in: path
@@ -1003,7 +1385,7 @@ paths:
     get:
       tags:
         - app-themes
-      sumary: Returns an app theme by name
+      summary: Returns an app theme by name
       parameters:
         - name: appThemeName
           in: path

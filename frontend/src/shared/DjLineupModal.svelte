@@ -6,9 +6,9 @@
     } from 'linkcube-svelte-components';
     import Modal from './Modal.svelte';
     import { 
-        fetchLineup,
-        fetchUpdateLineupDj,
-        fetchRemoveLineupDj,
+        oaFetchSingleEvent,
+        oaPostUpdateEventDj,
+        oaDeleteEventDj,
     } from '$lib/store.js';
     import { createEventDispatcher } from 'svelte';
 
@@ -40,12 +40,14 @@
     stream_key = dj_data.rtmp_key;
 
     export const removeDj = () => {
-        fetchRemoveLineupDj(current_lineup, name).then(_ => fetchLineup(current_lineup));
+        oaDeleteEventDj(current_lineup, name)
+            .then(_ => oaFetchSingleEvent(current_lineup));
         close();
     }
 
     export const saveDj = () => {
-        fetchUpdateLineupDj(current_lineup, dj_data.name, is_live, vj).then(_ => fetchLineup(current_lineup));
+        oaPostUpdateEventDj(current_lineup, dj_data.name, is_live, vj)
+            .then(_ => oaFetchSingleEvent(current_lineup));
         close();
     }
 </script>
