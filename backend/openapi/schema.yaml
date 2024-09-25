@@ -367,6 +367,12 @@ components:
         promo_file:
           description: File identifier.
           type: string
+    UpdatePromo:
+      type: object
+      properties:
+        promo_file:
+          description: File identifier.
+          type: string
     Promos:
       type: array
       items:
@@ -387,6 +393,52 @@ components:
         name:
           description: App Theme identifier
           type: string
+        style:
+          description: Color stylings for an App Theme.
+          type: object
+          properties:
+            primaryColor:
+              description: Primary color used in a theme.
+              type: string
+            secondaryColor:
+              description: Secondary color used in a theme.
+              type: string
+            backgroundColor:
+              description: Background color used in a theme.
+              type: string
+            primaryTextColor:
+              description: Primary text color used in a theme.
+              type: string
+            secondaryTextColor:
+              description: Secondary text color used in a theme.
+              type: string
+            highlightColor:
+              description: Highlight color used in a theme.
+              type: string
+            focusColor:
+              description: Focus color used in a theme.
+              type: string
+            activeColor:
+              description: Active color used in a theme.
+              type: string
+            deleteColor:
+              description: Delete color used in a theme.
+              type: string
+            cancelTextColor:
+              description: Cancel text color used in a theme.
+              type: string
+            cancelBackgroundColor:
+              description: Cancel background color used in a theme.
+              type: string
+            submitTextColor:
+              description: Submit text color used in a theme.
+              type: string
+            submitBackgroundColor:
+              description: Submit background color used in a theme.
+              type: string
+    UpdateAppTheme:
+      type: object
+      properties:
         style:
           description: Color stylings for an App Theme.
           type: object
@@ -1338,6 +1390,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promos'
+    post:
+      tags:
+        - promos
+      summary: Create a new promo.
+      requestBody:
+        description: New promo values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Promo'
+        required: true
+      responses:
+        '200':
+          description: New promo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promo'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: Promo already exists.
   /promo/min:
     get:
       tags:
@@ -1369,6 +1443,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promo'
+    post:
+      tags:
+        - promos
+      summary: Update existing promo.
+      parameters:
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated promo values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePromo'
+        required: true
+      responses:
+        '200':
+          description: Updated promo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promo'
+        '404':
+          description: Promo not found.
+    delete:
+      tags:
+        - promos
+      summary: Delete existing promo.
+      parameters:
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted promo.
+        '404':
+          description: Promo not found.
   /app-theme:
     get:
       tags:
@@ -1381,6 +1498,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppThemes'
+    post:
+      tags:
+        - app-themes
+      summary: Create a new app theme.
+      requestBody:
+        description: New app theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppTheme'
+        required: true
+      responses:
+        '200':
+          description: New app theme.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTheme'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: App theme already exists.
   /app-theme/{appThemeName}:
     get:
       tags:
@@ -1400,3 +1539,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppTheme'
+    post:
+      tags:
+        - app-themes
+      summary: Update existing app theme.
+      parameters:
+        - name: appThemeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated app theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppTheme'
+        required: true
+      responses:
+        '200':
+          description: Updated promo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTheme'
+        '404':
+          description: App theme not found.
+    delete:
+      tags:
+        - app-themes
+      summary: Delete existing app theme.
+      parameters:
+        - name: appThemeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted app theme.
+        '404':
+          description: App theme not found.

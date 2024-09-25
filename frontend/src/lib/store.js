@@ -120,127 +120,6 @@ currentThemeIndex.subscribe((newTheme) => {
 });
 
 // Queries
-const all_event_properties = `
-name,
-djs { name, is_live, vj },
-promos,
-theme,
-public,
-date,
-start_time`;
-
-const addAppThemeMutation = `
-mutation {
-    guiAddAppTheme { 
-        name,
-        style {
-            primaryColor,
-            secondaryColor,
-            backgroundColor,
-            primaryTextColor,
-            secondaryTextColor,
-            highlightColor,
-            focusColor,
-            activeColor,
-            deleteColor,
-            cancelTextColor,
-            cancelBackgroundColor,
-            submitTextColor,
-            submitBackgroundColor
-        }
-    }
-}
-`;
-
-const editAppThemeMutation = (name, newTheme) => `
-mutation {
-    guiEditAppTheme(
-        name: "${name}",
-        newThemeStyle: {
-            primaryColor: "${newTheme.style.primaryColor}",
-            secondaryColor: "${newTheme.style.secondaryColor}",
-            backgroundColor: "${newTheme.style.backgroundColor}",
-            primaryTextColor: "${newTheme.style.primaryTextColor}",
-            secondaryTextColor: "${newTheme.style.secondaryTextColor}",
-            highlightColor: "${newTheme.style.highlightColor}",
-            focusColor: "${newTheme.style.focusColor}",
-            activeColor: "${newTheme.style.activeColor}",
-            deleteColor: "${newTheme.style.deleteColor}",
-            cancelTextColor: "${newTheme.style.cancelTextColor}",
-            cancelBackgroundColor: "${newTheme.style.cancelBackgroundColor}",
-            submitTextColor: "${newTheme.style.submitTextColor}",
-            submitBackgroundColor: "${newTheme.style.submitBackgroundColor}"
-        }) { 
-        name,
-        style {
-            primaryColor,
-            secondaryColor,
-            backgroundColor,
-            primaryTextColor,
-            secondaryTextColor,
-            highlightColor,
-            focusColor,
-            activeColor,
-            deleteColor,
-            cancelTextColor,
-            cancelBackgroundColor,
-            submitTextColor,
-            submitBackgroundColor
-        }
-    }
-}`;
-
-const deleteAppThemeMutation = (name) => `
-mutation {
-    guiDeleteAppTheme(name: "${name}") { 
-        title,
-        style {
-            primaryColor,
-            secondaryColor,
-            backgroundColor,
-            primaryTextColor,
-            secondaryTextColor,
-            highlightColor,
-            focusColor,
-            activeColor,
-            deleteColor,
-            cancelTextColor,
-            cancelBackgroundColor,
-            submitTextColor,
-            submitBackgroundColor
-        }
-    }
-}`;
-
-const addPromoMutation = (name, promo_file) => {
-  let input = `name: "${name}"`;
-  if (promo_file) input += `, promo_file: "${promo_file}"`;
-  return `
-    mutation {
-        guiAddPromo(${input}) {
-            name, promo_file
-        }
-    }`;
-};
-
-const updatePromoMutation = (name, promo_file) => {
-  let input = `name: "${name}"`;
-  if (promo_file) input += `, promo_file: "${promo_file}"`;
-  return `
-    mutation {
-        guiUpdatePromo(${input}) {
-            name, promo_file
-        }
-    }`;
-};
-
-const deletePromoMutation = (promo_name) => `
-mutation {
-    guiDeletePromo(promo_name: "${promo_name}") {
-        name, promo_file
-    }
-}`;
-
 const exportLineupMutation = (event_name) => `
 mutation {
     guiExportEvent(event_name: "${event_name}")
@@ -543,56 +422,42 @@ export const oaDeleteEvent = async (name) => {
   return await openapiDelete(`event/${name}`);
 };
 
+export const oaPostCreatePromo = async (name, file) => {
+  const body = {
+    name: name,
+    promo_file: file
+  };
+
+  return await openapiPostBody("promo", body);
+}
+
+export const oaPostUpdatePromo = async (name, file) => {
+  const body = {
+    promo_file: file
+  };
+
+  return await openapiPostBody(`promo/${name}`, body);
+}
+
+export const oaDeletePromo = async (name) => {
+  return await openapiDelete(`promo/${name}`);
+}
+
+export const oaPostCreateAppTheme = async (name) => {
+  return await openapiPostBody("app-theme", { name: name});
+}
+
+export const oaPostUpdateAppTheme = async (theme) => {
+  console.log(theme);
+  const body = Object.assign({}, { style: theme.style })
+  return await openapiPostBody(`app-theme/${theme.name}`, body);
+}
+
+export const oaDeleteAppTheme = async (name) => {
+  return await openapiDelete(`app-theme/${name}`);
+}
+
 // fetch
-export function fetchAddAppTheme() {
-  return graphqlFetch(addAppThemeMutation);
-}
-
-export function fetchEditAppTheme(themeIndex, theme) {
-  return graphqlFetch(editAppThemeMutation(themeIndex, theme));
-}
-
-export function fetchDeleteAppTheme(themeIndex) {
-  return graphqlFetch(deleteAppThemeMutation(themeIndex));
-}
-
-export function fetchAddPromo(name, file_path) {
-  graphqlFetch(addPromoMutation(name, file_path)).then((promise) => {
-    Promise.resolve(promise).then((response) => {
-      if (response.hasOwnProperty("errors")) {
-        errorStackPushHelper(response.errors[0]);
-      } else if (response.hasOwnProperty("data")) {
-        all_promos.set(response.data.guiAddPromo);
-      }
-    });
-  });
-}
-
-export function fetchUpdatePromo(name, file_path) {
-  graphqlFetch(updatePromoMutation(name, file_path)).then((promise) => {
-    Promise.resolve(promise).then((response) => {
-      if (response.hasOwnProperty("errors")) {
-        errorStackPushHelper(response.errors[0]);
-      } else if (response.hasOwnProperty("data")) {
-        all_promos.set(response.data.guiUpdatePromo);
-      }
-    });
-  });
-}
-
-export function fetchDeletePromo(index) {
-  return graphqlFetch(deletePromoMutation(index)).then((promise) => {
-    Promise.resolve(promise).then((response) => {
-      if (response.hasOwnProperty("errors")) {
-        errorStackPushHelper(response.errors[0]);
-      } else if (response.hasOwnProperty("data")) {
-        all_promos.set(response.data.deletePromo);
-        return "done";
-      }
-    });
-  });
-}
-
 export function fetchExportLineup(lineup_name) {
   return graphqlFetch(exportLineupMutation(lineup_name)).then((promise) => {
     return Promise.resolve(promise).then((response) => {

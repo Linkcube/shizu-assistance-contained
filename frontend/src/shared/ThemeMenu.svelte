@@ -5,15 +5,16 @@
     MaterialTable,
     MaterialTableRow,
     MaterialSelect,
+    MaterialInput,
   } from "linkcube-svelte-components";
   import Modal from "./Modal.svelte";
   import {
     currentThemeIndex,
     currentTheme,
     oaFetchAppThemes,
-    fetchAddAppTheme,
-    fetchEditAppTheme,
-    fetchDeleteAppTheme,
+    oaPostCreateAppTheme,
+    oaPostUpdateAppTheme,
+    oaDeleteAppTheme,
     themes,
   } from "$lib/store.js";
   import { createEventDispatcher } from "svelte";
@@ -25,6 +26,8 @@
     style: {},
   };
   let themes_data = [];
+  let adding_theme = false;
+  let new_theme_name = "";
 
   const dispatch = createEventDispatcher();
   const close = () => dispatch("close");
@@ -36,47 +39,31 @@
     styleEdit = true;
   }
 
-  function changeStyle() {
+  async function changeStyle() {
     let oldIndex = get(currentThemeIndex);
     currentThemeIndex.set(-1);
     updateTheme(editThemeStyle.style);
-    fetchEditAppTheme(editIndex, editThemeStyle).then((promise) => {
-      Promise.resolve(promise).then((response) => {
-        if (response.hasOwnProperty("data")) {
-          themes.set(response.data.guiEditAppTheme);
-          currentThemeIndex.set(oldIndex);
-        }
-      });
-    });
+    await oaPostUpdateAppTheme(editThemeStyle);
+    oaFetchAppThemes();
+    currentThemeIndex.set(oldIndex);
     styleEdit = false;
   }
 
-  function addTheme() {
-    fetchAddAppTheme().then((promise) => {
-      Promise.resolve(promise).then((response) => {
-        if (response.hasOwnProperty("data")) {
-          themes.set(response.data.guiAddAppTheme);
-        }
-      });
-    });
+  async function addTheme() {
+    await oaPostCreateAppTheme(new_theme_name);
+    oaFetchAppThemes();
+    adding_theme = false;
   }
 
-  function deleteStyle() {
+  async function deleteStyle() {
     let old_name = get(currentTheme).name;
     currentThemeIndex.set(0);
-    fetchDeleteAppTheme(editIndex).then((promise) => {
-      Promise.resolve(promise).then((response) => {
-        if (response.hasOwnProperty("data")) {
-          themes.set(response.data.guiDeleteAppTheme);
-          let prev_theme = response.data.guiDeleteAppTheme.findIndex(
-            (theme) => theme.name === old_name,
-          );
-          if (prev_theme >= 0) {
-            currentThemeIndex.set(prev_theme);
-          }
-        }
-      });
-    });
+    await oaDeleteAppTheme(editThemeStyle.name);
+    await oaFetchAppThemes();
+    let prev_theme = get(themes).findIndex((theme) => theme.name === old_name);
+    if (prev_theme >= 0) {
+      currentThemeIndex.set(prev_theme);
+    }
     styleEdit = false;
   }
 
@@ -230,12 +217,28 @@
         </div>
       </div>
     </Modal>
+  {:else if adding_theme}
+    <Modal
+      on:close={() => (adding_theme = false)}
+      on:submission={addTheme}
+      z_index={5}
+    >
+      <div class="central-column">
+        <div class="row">
+          <MaterialInput label="Theme Name" bind:value={new_theme_name} />
+        </div>
+      </div>
+    </Modal>
   {:else}
     <Modal on:close={() => close()} use_submission={false}>
       <div class="top-row">
         <div class="left-side">
           <span>Style Configuration</span>
-          <IconButton icon="add_box" title="Add Style" on:click={addTheme} />
+          <IconButton
+            icon="add_box"
+            title="Add Style"
+            on:click={() => (adding_theme = true)}
+          />
         </div>
         <div class="right-side">
           <MaterialSelect label="Active Theme" bind:value={$currentThemeIndex}>

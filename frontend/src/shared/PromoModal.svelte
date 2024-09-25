@@ -9,10 +9,9 @@
   import {
     currentLineup,
     all_events,
-    oaFetchSingleEvent,
-    fetchAddPromo,
-    fetchUpdatePromo,
-    fetchDeletePromo,
+    oaPostCreatePromo,
+    oaPostUpdatePromo,
+    oaDeletePromo,
     oaPostAddEventPromo,
     RECORDING_TYPE,
     error_stack,
@@ -43,9 +42,9 @@
 
   function savePromo() {
     if (index < 0) {
-      fetchAddPromo(name, file_name);
+      oaPostCreatePromo(name, file_name).then((_) => oaFetchPromos());
     } else {
-      fetchUpdatePromo(name, file_name);
+      oaPostUpdatePromo(name, file_name).then((_) => oaFetchPromos());
     }
     setTimeout(() => {
       show_save_message = false;
@@ -65,7 +64,7 @@
   }
 
   function removePromo() {
-    fetchDeletePromo(name);
+    oaDeletePromo(name).then((_) => oaFetchPromos());
     close();
   }
 
