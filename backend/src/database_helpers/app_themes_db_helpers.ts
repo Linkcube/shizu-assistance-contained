@@ -12,7 +12,7 @@ const validate_app_theme = async (
   update: boolean,
   pool: PoolClient,
 ) => {
-  let exists = await pool.query(
+  const exists = await pool.query(
     `SELECT 1 FROM ${APP_THEMES_TABLE.name} WHERE name = '${theme_name}';`,
   );
 
