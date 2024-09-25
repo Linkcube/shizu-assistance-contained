@@ -1,0 +1,1645 @@
+openapi: 3.0.0
+basePath: '/v1'
+info:
+  title: 'Sample API'
+  description: 'sample'
+  version: 0.1.0
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        name:
+          description: File identifier
+          type: string
+        root:
+          description: Root directory of file, denotes intended use.
+          type: string
+        file_path:
+          description: Local path inside docker file mapping.
+          type: string
+        url_path:
+          description: Remote path for file, fetched at event export.
+          type: string
+    Files:
+      type: array
+      items:
+        $ref: '#/components/schemas/File'
+    NewFile:
+      type: object
+      properties:
+        name:
+          description: File identifier
+          type: string
+        file_path:
+          description: Local path inside docker file mapping.
+          type: string
+        url_path:
+          description: Remote path for file, fetched at event export.
+          type: string
+    UpdateFile:
+      type: object
+      properties:
+        root:
+          description: Root directory of file, denotes intended use.
+          type: string
+        file_path:
+          description: Local path inside docker file mapping.
+          type: string
+        url_path:
+          description: Remote path for file, fetched at event export.
+          type: string
+    Theme:
+      type: object
+      properties:
+        name:
+          description: Theme identifier.
+          type: string
+        overlay_file:
+          description: Identifier for overlay theme file.
+          type: string
+        stinger_file:
+          description: Identifier for stinger theme file.
+          type: string
+        starting_file:
+          description: Identifier for starting theme file.
+          type: string
+        ending_file:
+          description: Identifier for ending theme file.
+          type: string
+        target_video_width:
+          description: Pixel width for video files to be scaled to.
+          type: integer
+          format: int32
+        target_video_height:
+          description: Pixel height for video files to be scaled to.
+          type: integer
+          format: int32
+        video_offset_x:
+          description: Pixel count for video files to horizontally offset by.
+          type: integer
+          format: int32
+        video_offset_y:
+          description: Pixel count for video files to vertically offset by.
+          type: integer
+          format: int32
+        chat_width:
+          description: Pixel width for overlay chat.
+          type: integer
+          format: int32
+        chat_height:
+          description: Pixel height for overlay chat.
+          type: integer
+          format: int32
+        chat_offset_x:
+          description: Pixel count for overlay chat to horizontally offset by.
+          type: integer
+          format: int32
+        chat_offset_y:
+          description: Pixel count for overlay chat to vertically offset by.
+          type: integer
+          format: int32
+    UpdateTheme:
+      type: object
+      properties:
+        overlay_file:
+          description: Identifier for overlay theme file.
+          type: string
+        stinger_file:
+          description: Identifier for stinger theme file.
+          type: string
+        starting_file:
+          description: Identifier for starting theme file.
+          type: string
+        ending_file:
+          description: Identifier for ending theme file.
+          type: string
+        target_video_width:
+          description: Pixel width for video files to be scaled to.
+          type: integer
+          format: int32
+        target_video_height:
+          description: Pixel height for video files to be scaled to.
+          type: integer
+          format: int32
+        video_offset_x:
+          description: Pixel count for video files to horizontally offset by.
+          type: integer
+          format: int32
+        video_offset_y:
+          description: Pixel count for video files to vertically offset by.
+          type: integer
+          format: int32
+        chat_width:
+          description: Pixel width for overlay chat.
+          type: integer
+          format: int32
+        chat_height:
+          description: Pixel height for overlay chat.
+          type: integer
+          format: int32
+        chat_offset_x:
+          description: Pixel count for overlay chat to horizontally offset by.
+          type: integer
+          format: int32
+        chat_offset_y:
+          description: Pixel count for overlay chat to vertically offset by.
+          type: integer
+          format: int32
+    Themes:
+      type: array
+      items:
+        $ref: '#/components/schemas/Theme'
+    ThemeMin:
+      type: object
+      properties:
+        name:
+          description: Theme identifier.
+          type: string
+    ThemesMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/ThemeMin'
+    DJ:
+      type: object
+      properties:
+        name:
+          description: DJ identifier. Used in streams if no logo or public_name is provided.
+          type: string
+        logo:
+          description: Logo file identifier.
+          type: string
+        recording:
+          description: Recording file identifier.
+          type: string
+        rtmp_server:
+          description: Specific RTMP server to use for live streams.
+          type: string
+        rtmp_key:
+          description: RTMP key to use for live streams.
+          type: string
+        public_name:
+          description: Public name for displaying in stream. Used if no logo is provided.
+          type: string
+        discord_id:
+          description: Discord ID, used for bookkeeping and contact.
+          type: string
+        past_events:
+          description: List of past events the DJ has performed in
+          type: array
+          items:
+            type: string
+    UpdateDJ:
+      type: object
+      properties:
+        logo:
+          description: Logo file identifier.
+          type: string
+        recording:
+          description: Recording file identifier.
+          type: string
+        rtmp_server:
+          description: Specific RTMP server to use for live streams.
+          type: string
+        rtmp_key:
+          description: RTMP key to use for live streams.
+          type: string
+        public_name:
+          description: Public name for displaying in stream. Used if no logo is provided.
+          type: string
+        discord_id:
+          description: Discord ID, used for bookkeeping and contact.
+          type: string
+        past_events:
+          description: List of past events the DJ has performed in
+          type: array
+          items:
+            type: string
+    DJs:
+      type: array
+      items:
+        $ref: '#/components/schemas/DJ'
+    DJMin:
+      type: object
+      properties:
+        name:
+          description: DJ identifier. Used in streams if no logo or public_name is provided.
+          type: string
+        logo:
+          description: Logo file identifier.
+          type: string
+        recording:
+          description: Recording file identifier.
+          type: string
+        rtmp_server:
+          description: Specific RTMP server to use for live streams.
+          type: string
+    DJsMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/DJMin'
+    LineupDJ:
+      type: object
+      properties:
+        name:
+          description: DJ identifier
+          type: string
+        is_live:
+          description: If the DJ is using a RTMP config for streaming.
+          type: boolean
+        vj:
+          description: Present if the visuals for a DJ are done by a VJ.
+          type: string
+    UpdateLineupDJ:
+      type: object
+      properties:
+        is_live:
+          description: If the DJ is using a RTMP config for streaming.
+          type: boolean
+        vj:
+          description: Present if the visuals for a DJ are done by a VJ.
+          type: string
+    LineupPromotion:
+      type: object
+      properties:
+        name:
+          description: Name of an exsting Promotion.
+          type: string
+    Event:
+      type: object
+      properties:
+        name:
+          description: Event identifier
+          type: string
+        djs:
+          description: Array of LineupDJ objects for an event, describes event specific values.
+          type: array
+          items:
+            $ref: '#/components/schemas/LineupDJ'
+        promos:
+          description: Array of promotional video identifiers.
+          type: array
+          items:
+            type: string
+        theme:
+          description: Theme identifier to use for an event.
+          type: string
+        public:
+          description: If the event has been announced.
+          type: boolean
+        date:
+          description: Date the event is to be aired, in YYYY/MM/DD.
+          type: string
+        start_time:
+          description: Time the event is to be aired, in 24hr HH:MM for eastern time.
+          type: string
+    UpdateEvent:
+      type: object
+      properties:
+        djs:
+          description: Array of LineupDJ objects for an event, describes event specific values.
+          type: array
+          items:
+            $ref: '#/components/schemas/LineupDJ'
+        promos:
+          description: Array of promotional video identifiers.
+          type: array
+          items:
+            type: string
+        theme:
+          description: Theme identifier to use for an event.
+          type: string
+        public:
+          description: If the event has been announced.
+          type: boolean
+        date:
+          description: Date the event is to be aired, in YYYY/MM/DD.
+          type: string
+        start_time:
+          description: Time the event is to be aired, in 24hr HH:MM for eastern time.
+          type: string
+    UpdateEventDateTime:
+      type: object
+      properties:
+        date:
+          description: Date the event is to be aired, in YYYY/MM/DD.
+          type: string
+        start_time:
+          description: Time the event is to be aired, in 24hr HH:MM for eastern time.
+          type: string
+    MoveEventItem:
+      type: object
+      properties:
+        index_a:
+          description: Integer of the item to move.
+          type: integer
+          format: int32
+        index_b:
+          description: Integer to move the item to.
+          type: integer
+          format: int32
+    EventThemeParam:
+      type: object
+      properties:
+        name:
+          description: Name of an exsting theme.
+          type: string
+    Events:
+      type: array
+      items:
+        $ref: '#/components/schemas/Event'
+    EventMin:
+      type: object
+      properties:
+        name:
+          description: Event identifier
+          type: string
+    EventsMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/EventMin'
+    Promo:
+      type: object
+      properties:
+        name:
+          description: Promo identifier
+          type: string
+        promo_file:
+          description: File identifier.
+          type: string
+    UpdatePromo:
+      type: object
+      properties:
+        promo_file:
+          description: File identifier.
+          type: string
+    Promos:
+      type: array
+      items:
+        $ref: '#/components/schemas/Promo'
+    PromoMin:
+      type: object
+      properties:
+        name:
+          description: Promo identifier
+          type: string
+    PromosMin:
+      type: array
+      items:
+        $ref: '#/components/schemas/PromoMin'
+    AppTheme:
+      type: object
+      properties:
+        name:
+          description: App Theme identifier
+          type: string
+        style:
+          description: Color stylings for an App Theme.
+          type: object
+          properties:
+            primaryColor:
+              description: Primary color used in a theme.
+              type: string
+            secondaryColor:
+              description: Secondary color used in a theme.
+              type: string
+            backgroundColor:
+              description: Background color used in a theme.
+              type: string
+            primaryTextColor:
+              description: Primary text color used in a theme.
+              type: string
+            secondaryTextColor:
+              description: Secondary text color used in a theme.
+              type: string
+            highlightColor:
+              description: Highlight color used in a theme.
+              type: string
+            focusColor:
+              description: Focus color used in a theme.
+              type: string
+            activeColor:
+              description: Active color used in a theme.
+              type: string
+            deleteColor:
+              description: Delete color used in a theme.
+              type: string
+            cancelTextColor:
+              description: Cancel text color used in a theme.
+              type: string
+            cancelBackgroundColor:
+              description: Cancel background color used in a theme.
+              type: string
+            submitTextColor:
+              description: Submit text color used in a theme.
+              type: string
+            submitBackgroundColor:
+              description: Submit background color used in a theme.
+              type: string
+    UpdateAppTheme:
+      type: object
+      properties:
+        style:
+          description: Color stylings for an App Theme.
+          type: object
+          properties:
+            primaryColor:
+              description: Primary color used in a theme.
+              type: string
+            secondaryColor:
+              description: Secondary color used in a theme.
+              type: string
+            backgroundColor:
+              description: Background color used in a theme.
+              type: string
+            primaryTextColor:
+              description: Primary text color used in a theme.
+              type: string
+            secondaryTextColor:
+              description: Secondary text color used in a theme.
+              type: string
+            highlightColor:
+              description: Highlight color used in a theme.
+              type: string
+            focusColor:
+              description: Focus color used in a theme.
+              type: string
+            activeColor:
+              description: Active color used in a theme.
+              type: string
+            deleteColor:
+              description: Delete color used in a theme.
+              type: string
+            cancelTextColor:
+              description: Cancel text color used in a theme.
+              type: string
+            cancelBackgroundColor:
+              description: Cancel background color used in a theme.
+              type: string
+            submitTextColor:
+              description: Submit text color used in a theme.
+              type: string
+            submitBackgroundColor:
+              description: Submit background color used in a theme.
+              type: string
+    AppThemes:
+      type: array
+      items:
+        $ref: '#/components/schemas/AppTheme'
+    FileBlob:
+      type: object
+      properties:
+        name:
+          description: Name of the file
+          type: string
+        ext:
+          description: Extension of the file, if present.
+          type: string
+        is_dir:
+          description: Whether the file is a directory.
+          type: boolean
+    FileDialogBlob:
+      type: object
+      properties:
+        files:
+          description: Array of FileBlobs, describing each file.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileBlob'
+        path:
+          description: File path broken into an array for each directory.
+          type: array
+          items:
+            type: string
+        top_dir:
+          description: Parent directory the blob stems from, typically same as a File root.
+          type: string
+    ImportPath:
+      type: object
+      properties:
+        path:
+          description: Path for importing objects, if using docker this refers to the /imports mount.
+          type: string
+paths:
+  /file:
+    get:
+      tags:
+        - files
+      summary: Returns a list of all files.
+      responses:
+        '200':
+          description: An array of files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+  /file/logos:
+    get:
+      tags:
+        - files
+      summary: Returns a list of all logo files.
+      description: Server-side filtering of all files for logos only
+      responses:
+        '200':
+          description: An array of logo files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+    post:
+      tags:
+        - files
+      summary: Create a new logo file.
+      requestBody:
+        description: New file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewFile'
+        required: true
+      responses:
+        '200':
+          description: Newly created logo file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid input
+        '409':
+          description: File already exists
+
+  /file/recordings:
+    get:
+      tags:
+        - files
+      summary: Returns a list of all recording files.
+      description: Server-side filtering of all files for recordings only
+      responses:
+        '200':
+          description: An array of recording files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+    post:
+      tags:
+        - files
+      summary: Create a new recording file.
+      requestBody:
+        description: New file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewFile'
+        required: true
+      responses:
+        '200':
+          description: Newly created recording file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid input
+        '409':
+          description: File already exists
+  /file/themes:
+    get:
+      tags:
+        - files
+      summary: Returns a list of all theme files.
+      description: Server-side filtering of all files for themes only
+      responses:
+        '200':
+          description: An array of theme files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Files'
+    post:
+      tags:
+        - files
+      summary: Create a new theme file.
+      requestBody:
+        description: New file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewFile'
+        required: true
+      responses:
+        '200':
+          description: Newly created theme file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid input
+        '409':
+          description: File already exists
+  /file/{fileName}:
+    get:
+      tags:
+        - files
+      summary: Returns a file by name
+      description: Returns a file of any type by name.
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+    post:
+      tags:
+        - files
+      summary: Update existing file.
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated file values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFile'
+        required: true
+      responses:
+        '200':
+          description: Updated file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '404':
+          description: File not found.
+    delete:
+      tags:
+        - files
+      summary: Delete existing file.
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted file.
+        '404':
+          description: File not found.
+    
+  /file/logo-permissions/:
+    get:
+      tags:
+        - local-files
+      summary: Returns a FileDialogBlob for logos at the root dir.
+      description: Used for navigating logo files on the server.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /file/logo-permissions/{logoPath}:
+    get:
+      tags:
+        - local-files
+      summary: Returns a FileDialogBlob for logos at a given path
+      description: Used for navigating logo files on the server.
+      parameters:
+        - name: logoPath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /file/recording-permissions/:
+    get:
+      tags:
+        - local-files
+      summary: Returns a FileDialogBlob for recordings at the root dir.
+      description: Used for navigating recording files on the server.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /file/recording-permissions/{recordingPath}:
+    get:
+      tags:
+        - local-files
+      summary: Returns a FileDialogBlob for recordings at a given path
+      description: Used for navigating recording files on the server.
+      parameters:
+        - name: recordingPath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /file/theme-permissions/:
+    get:
+      tags:
+        - local-files
+      summary: Returns a FileDialogBlob for themes at the root dir.
+      description: Used for navigating theme files on the server.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /file/theme-permissions/{themePath}:
+    get:
+      tags:
+        - local-files
+      summary: Returns a FileDialogBlob for themes at a given path
+      description: Used for navigating theme files on the server.
+      parameters:
+        - name: themePath
+          in: path
+          required: false
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDialogBlob'
+  /theme:
+    get:
+      tags:
+        - themes
+      summary: Returns a list of all themes.
+      responses:
+        '200':
+          description: An array of themes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Themes'
+  /theme/min:
+    get:
+      tags:
+        - themes
+      summary: Returns a list of all themes with minimal properties.
+      responses:
+        '200':
+          description: An array of themes with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThemesMin'
+    post:
+      tags:
+        - themes
+      summary: Create a new theme.
+      requestBody:
+        description: New theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Theme'
+        required: true
+      responses:
+        '200':
+          description: New theme.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: Theme already exists.
+  /theme/{themeName}:
+    get:
+      tags:
+        - themes
+      summary: Returns a theme by name
+      parameters:
+        - name: themeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+    post:
+      tags:
+        - themes
+      summary: Update existing theme.
+      parameters:
+        - name: themeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTheme'
+        required: true
+      responses:
+        '200':
+          description: Updated theme.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '404':
+          description: Theme not found.
+    delete:
+      tags:
+        - themes
+      summary: Delete existing theme.
+      parameters:
+        - name: themeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted theme.
+        '404':
+          description: Theme not found.
+  /dj:
+    get:
+      tags:
+        - djs
+      summary: Returns a list of all djs.
+      responses:
+        '200':
+          description: An array of djs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJs'
+    post:
+      tags:
+        - djs
+      summary: Create a new DJ.
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: New DJ values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DJ'
+        required: true
+      responses:
+        '200':
+          description: New DJ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJ'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: DJ already exists.
+  /dj/min:
+    get:
+      tags:
+        - djs
+      summary: Returns a list of all djs with minimal properties.
+      responses:
+        '200':
+          description: An array of djs with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJsMin'
+  /dj/{djName}:
+    get:
+      tags:
+        - djs
+      summary: Returns a DJ by name
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJ'
+    post:
+      tags:
+        - djs
+      summary: Update existing DJ.
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated DJ values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDJ'
+        required: true
+      responses:
+        '200':
+          description: Updated DJ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DJ'
+        '404':
+          description: DJ not found.
+    delete:
+      tags:
+        - djs
+      summary: Delete existing DJ.
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted DJ.
+        '404':
+          description: DJ not found.
+  /event:
+    get:
+      tags:
+        - events
+      summary: Returns a list of all events.
+      responses:
+        '200':
+          description: An array of events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Events'
+    post:
+      tags:
+        - events
+      summary: Create a new event.
+      requestBody:
+        description: New event values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        '200':
+          description: New event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: Event already exists.
+  /event/min:
+    get:
+      tags:
+        - events
+      summary: Returns a list of all events with minimal properties.
+      responses:
+        '200':
+          description: An array of events with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsMin'
+  /event/{eventName}:
+    get:
+      tags:
+        - events
+      summary: Returns a event by name
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+    post:
+      tags:
+        - events
+      summary: Update existing event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated event values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEvent'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+    delete:
+      tags:
+        - events
+      summary: Delete existing event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted event.
+        '404':
+          description: Event not found.
+  /event/{eventName}/dateTime:
+    post:
+      tags:
+        - events
+      summary: Update an event's date and time.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated date and time values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventDateTime'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/dj:
+    post:
+      tags:
+        - events
+      summary: Add a DJ to an event's lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: DJ lineup values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineupDJ'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/dj/{djName}:
+    post:
+      tags:
+        - events
+      summary: Update an event's lineup DJ.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updates to the lineup DJ.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLineupDJ'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+    delete:
+      tags:
+        - events
+      summary: Removes a DJ from an event's lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/move-dj:
+    post:
+      tags:
+        - events
+      summary: Moves a DJ in an event lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Indexes to move.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveEventItem'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/promo:
+    post:
+      tags:
+        - events
+      summary: Add a promotion to an event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Promotion values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineupPromotion'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/promo/{promoName}:
+    delete:
+      tags:
+        - events
+      summary: Removes a Promotion from an event's lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Removed Promotion from event.
+        '404':
+          description: Event not found.
+  /event/{eventName}/move-promo:
+    post:
+      tags:
+        - events
+      summary: Moves a Promotion in an event lineup.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Indexes to move.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveEventItem'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/set-theme:
+    post:
+      tags:
+        - events
+      summary: Sets the theme for an event.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Theme name.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventThemeParam'
+        required: true
+      responses:
+        '200':
+          description: Updated event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found.
+  /event/{eventName}/export:
+    post:
+      tags:
+        - events
+      summary: Exports an event to a local json file.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Exported event.
+        '409':
+          description: Event export failed.
+  /promo:
+    get:
+      tags:
+        - promos
+      summary: Returns a list of all promos.
+      responses:
+        '200':
+          description: An array of promos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promos'
+    post:
+      tags:
+        - promos
+      summary: Create a new promo.
+      requestBody:
+        description: New promo values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Promo'
+        required: true
+      responses:
+        '200':
+          description: New promo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promo'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: Promo already exists.
+  /promo/min:
+    get:
+      tags:
+        - promos
+      summary: Returns a list of all promos with minimal properties.
+      responses:
+        '200':
+          description: An array of promos with minimal properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromosMin'
+  /promo/{promoName}:
+    get:
+      tags:
+        - promos
+      summary: Returns a promo by name
+      parameters:
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promo'
+    post:
+      tags:
+        - promos
+      summary: Update existing promo.
+      parameters:
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated promo values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePromo'
+        required: true
+      responses:
+        '200':
+          description: Updated promo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promo'
+        '404':
+          description: Promo not found.
+    delete:
+      tags:
+        - promos
+      summary: Delete existing promo.
+      parameters:
+        - name: promoName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted promo.
+        '404':
+          description: Promo not found.
+  /app-theme:
+    get:
+      tags:
+        - app-themes
+      summary: Returns a list of all app themes.
+      responses:
+        '200':
+          description: An array of app themes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppThemes'
+    post:
+      tags:
+        - app-themes
+      summary: Create a new app theme.
+      requestBody:
+        description: New app theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppTheme'
+        required: true
+      responses:
+        '200':
+          description: New app theme.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTheme'
+        '400':
+          description: Invalid input data.
+        '409':
+          description: App theme already exists.
+  /app-theme/{appThemeName}:
+    get:
+      tags:
+        - app-themes
+      summary: Returns an app theme by name
+      parameters:
+        - name: appThemeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTheme'
+    post:
+      tags:
+        - app-themes
+      summary: Update existing app theme.
+      parameters:
+        - name: appThemeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      requestBody:
+        description: Updated app theme values.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppTheme'
+        required: true
+      responses:
+        '200':
+          description: Updated promo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTheme'
+        '404':
+          description: App theme not found.
+    delete:
+      tags:
+        - app-themes
+      summary: Delete existing app theme.
+      parameters:
+        - name: appThemeName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Deleted app theme.
+        '404':
+          description: App theme not found.
+  /import/ledger:
+    post:
+      tags:
+        - imports
+      summary: Imports a ledger file from older versions of the program.
+      requestBody:
+        description: Path to the ledger json file.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportPath'
+        required: true
+      responses:
+        '200':
+          description: Import success.
+        '400':
+          description: Invalid input data.
+        '409':
+          description: The import failed.
+  /import/lineups:
+    post:
+      tags:
+        - imports
+      summary: Imports a lineup files from older versions of the program.
+      requestBody:
+        description: Path to the lineup directory.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportPath'
+        required: true
+      responses:
+        '200':
+          description: Import success.
+        '400':
+          description: Invalid input data.
+        '409':
+          description: The import failed.

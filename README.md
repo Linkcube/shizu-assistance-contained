@@ -75,3 +75,7 @@ This section will list the impact of architectural changes made to aspects of th
 
 - A new entry has been added for OBS themes, this keeps track of assets for starting, ending, and overlay files.
 - Events now have a `theme` field for export
+
+## API Documentation
+
+After standing up the docker containers, a redoc .html file will have been built. This can be accessed from {your-host}:4004/openapi/redoc for barebones documentation on the backend api.

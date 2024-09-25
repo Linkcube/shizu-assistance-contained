@@ -2,6 +2,7 @@ import {
   internal_insert_into_table,
   internal_update_table_entry,
   internal_get_row_from_table,
+  is_non_empty,
 } from "./helper_functions";
 import { djNotFoundError, invalidDjError, invalidFileError } from "../errors";
 import { DJS_TABLE, FILES_TABLE, EVENTS_TABLE } from "../tables";
@@ -26,7 +27,7 @@ const validate_dj = async (
       return invalidDjError(`DJ ${dj_data.name} already exists!`);
     }
   }
-  if (dj_data.logo !== undefined) {
+  if (is_non_empty(dj_data.logo)) {
     exists = await pool.query(
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${dj_data.logo}'`,
     );
@@ -36,7 +37,7 @@ const validate_dj = async (
       );
     }
   }
-  if (dj_data.recording !== undefined) {
+  if (is_non_empty(dj_data.recording)) {
     exists = await pool.query(
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${dj_data.recording}'`,
     );

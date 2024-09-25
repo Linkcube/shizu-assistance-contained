@@ -2,6 +2,7 @@ import {
   internal_insert_into_table,
   internal_update_table_entry,
   internal_get_row_from_table,
+  is_non_empty,
 } from "./helper_functions";
 import {
   fileNotFoundError,
@@ -29,7 +30,7 @@ const validate_theme = async (
       return invalidThemeError(`Theme ${theme_data.name} already exists!`);
     }
   }
-  if (theme_data.overlay_file !== undefined) {
+  if (is_non_empty(theme_data.overlay_file)) {
     exists = await pool.query(
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.overlay_file}';`,
     );
@@ -39,7 +40,7 @@ const validate_theme = async (
       );
     }
   }
-  if (theme_data.stinger_file !== undefined) {
+  if (is_non_empty(theme_data.stinger_file)) {
     exists = await pool.query(
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.stinger_file}';`,
     );
@@ -49,7 +50,7 @@ const validate_theme = async (
       );
     }
   }
-  if (theme_data.starting_file !== undefined) {
+  if (is_non_empty(theme_data.starting_file)) {
     exists = await pool.query(
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.starting_file}';`,
     );
@@ -59,7 +60,7 @@ const validate_theme = async (
       );
     }
   }
-  if (theme_data.ending_file !== undefined) {
+  if (is_non_empty(theme_data.ending_file)) {
     exists = await pool.query(
       `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.ending_file}';`,
     );

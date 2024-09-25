@@ -176,3 +176,7 @@ export const internal_update_table_entry = async (
 
   await pool.query(update_query);
 };
+
+export const is_non_empty = (value: any) => {
+  return value !== undefined && value !== null;
+};
