@@ -1,5 +1,4 @@
 import { writable, get } from "svelte/store";
-import fetchGraphQL from "fetch-graphql";
 
 export const settings = writable({});
 export const ledger = writable({});
@@ -18,7 +17,6 @@ export const current_event_object = writable({});
 
 export const serverUrl = `${location.protocol}//${window.location.hostname}:4004`;
 export const staticAssetsBase = `${location.protocol}//${window.location.hostname}:4004`;
-const graphqlUrl = `${serverUrl}/gui/graphql`;
 const openapiUrl = `${serverUrl}/openapi`;
 
 export const RTMP_SERVERS = [
@@ -37,10 +35,6 @@ export const THEME_TYPE = 3;
 
 export function isImageSource(source_path) {
   return source_path.match(/\.(jpeg|jpg|gif|png)$/) != null;
-}
-
-function graphqlFetch(query) {
-  return fetchGraphQL(graphqlUrl, query);
 }
 
 async function openapiGet(url, bubble_error = true) {
@@ -124,12 +118,6 @@ currentThemeIndex.subscribe((newTheme) => {
     localStorage.setItem("theme_index", newTheme);
   }
 });
-
-// Queries
-const exportLineupMutation = (event_name) => `
-mutation {
-    guiExportEvent(event_name: "${event_name}")
-}`;
 
 const errorStackPushHelper = (error) => {
   error_stack.set(error);
@@ -465,18 +453,4 @@ export const oaDeleteAppTheme = async (name) => {
 
 export const oaPostExportEvent = async (name) => {
   return await openapiPostBody(`event/${name}/export`, {});
-}
-
-// fetch
-export function fetchExportLineup(lineup_name) {
-  return graphqlFetch(exportLineupMutation(lineup_name)).then((promise) => {
-    return Promise.resolve(promise).then((response) => {
-      if (response.hasOwnProperty("errors")) {
-        errorStackPushHelper(response.errors[0]);
-        return Promise.resolve(false);
-      } else {
-        return Promise.resolve(true);
-      }
-    });
-  });
-}
+};

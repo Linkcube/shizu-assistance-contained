@@ -2,65 +2,8 @@ import express from "express";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import { port } from "./config";
-import {
-  guiGetFiles,
-  guiGetLogoFiles,
-  guiGetRecordingFiles,
-  guiGetThemeFiles,
-  guiGetThemes,
-  guiGetEvents,
-  guiGetPromos,
-  guiGetDjs,
-  guiGetFile,
-  guiGetTheme,
-  guiGetEvent,
-  guiGetPromo,
-  guiGetDj,
-  guiGetAppThemes,
-  guiGetLogoPermissions,
-  guiGetRecordingPermissions,
-  guiGetThemePermissions,
-} from "./gui_reader";
-import {
-  guiAddNewFile,
-  guiAddNewLogoFile,
-  guiAddNewRecordingFile,
-  guiAddNewThemeFile,
-  guiAddNewTheme,
-  guiAddDj,
-  guiAddPromo,
-  guiAddEvent,
-  guiAddEventDj,
-  guiAddEventPromo,
-  guiUpdateFile,
-  guiUpdateTheme,
-  guiUpdateDj,
-  guiUpdatePromo,
-  guiUpdateEvent,
-  guiUpdateEventDj,
-  guiRemoveEventDj,
-  guiRemoveEventPromo,
-  guiMoveEventDj,
-  guiMoveEventPromo,
-  guiSetEventTheme,
-  guiDeleteFile,
-  guiDeleteTheme,
-  guiDeleteDj,
-  guiDeletePromo,
-  guiDeleteEvent,
-  guiExportEvent,
-  guiImportLegacyLedger,
-  guiImportLegacyEvents,
-  guiAddAppTheme,
-  guiEditAppTheme,
-  guiDeleteAppTheme,
-  guiUpdateEventDateTime,
-} from "./gui_writer";
 import { create_tables, database_pool } from "./database";
 import cors from "cors";
-import { GUI_SCHEMA } from "./gui_schema";
-import { createHandler } from "graphql-http/lib/use/express";
-import { ruruHTML } from "ruru/server";
 import {
   staticLogoPermission,
   staticRecordingPermission,
@@ -76,58 +19,6 @@ import { appThemeRouter } from "./openapi_routers/app_theme_router";
 import { importRouter } from "./openapi_routers/import_router";
 
 // API server
-const gui_root = {
-  guiGetFiles,
-  guiGetLogoFiles,
-  guiGetRecordingFiles,
-  guiGetThemeFiles,
-  guiGetThemes,
-  guiGetEvents,
-  guiGetPromos,
-  guiGetDjs,
-  guiGetFile,
-  guiGetTheme,
-  guiGetEvent,
-  guiAddEventDj,
-  guiAddEventPromo,
-  guiGetPromo,
-  guiGetDj,
-  guiAddNewFile,
-  guiAddNewLogoFile,
-  guiAddNewRecordingFile,
-  guiAddNewThemeFile,
-  guiAddNewTheme,
-  guiAddDj,
-  guiAddPromo,
-  guiAddEvent,
-  guiUpdateFile,
-  guiUpdateTheme,
-  guiUpdateDj,
-  guiUpdatePromo,
-  guiUpdateEvent,
-  guiUpdateEventDj,
-  guiRemoveEventDj,
-  guiRemoveEventPromo,
-  guiMoveEventDj,
-  guiMoveEventPromo,
-  guiSetEventTheme,
-  guiDeleteFile,
-  guiDeleteTheme,
-  guiDeleteDj,
-  guiDeletePromo,
-  guiDeleteEvent,
-  guiExportEvent,
-  guiImportLegacyLedger,
-  guiImportLegacyEvents,
-  guiGetAppThemes,
-  guiAddAppTheme,
-  guiEditAppTheme,
-  guiDeleteAppTheme,
-  guiGetLogoPermissions,
-  guiGetRecordingPermissions,
-  guiGetThemePermissions,
-  guiUpdateEventDateTime,
-};
 const app = express();
 const logo_permissions = staticLogoPermission();
 const rec_permissions = staticRecordingPermission();
@@ -136,14 +27,6 @@ const themes_permissions = staticThemePermission();
 export const create_server = () => {
   app.use(cors());
   app.use(morgan("common"));
-
-  app.all(
-    "/gui/graphql",
-    createHandler({
-      rootValue: gui_root,
-      schema: GUI_SCHEMA,
-    }),
-  );
   app.use(
     `/${encodeURIComponent(logo_permissions.id)}`,
     express.static(logo_permissions.path),
@@ -171,15 +54,6 @@ export const create_server = () => {
     // if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
     res.send(
       `Idle: ${database_pool.idleCount}, Waiting: ${database_pool.waitingCount}, Total: ${database_pool.totalCount}`,
-    );
-  });
-
-  app.get("/gui/ruru", (req, res, next) => {
-    res.writeHead(200, { "Content-Type": "text/html" });
-    return res.end(
-      ruruHTML({
-        endpoint: "/gui/graphql",
-      }),
     );
   });
 
