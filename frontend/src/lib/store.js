@@ -66,9 +66,15 @@ async function openapiPostBody(url, body) {
 
   const response = await request;
   if (response.ok) {
-    return await response.json();
+    try {
+      return await response.json();
+    } catch (e) {
+      return true;
+    }
   }
   parseOpenapiError(response);
+
+  return undefined;
 }
 
 async function openapiDelete(url) {
@@ -425,36 +431,40 @@ export const oaDeleteEvent = async (name) => {
 export const oaPostCreatePromo = async (name, file) => {
   const body = {
     name: name,
-    promo_file: file
+    promo_file: file,
   };
 
   return await openapiPostBody("promo", body);
-}
+};
 
 export const oaPostUpdatePromo = async (name, file) => {
   const body = {
-    promo_file: file
+    promo_file: file,
   };
 
   return await openapiPostBody(`promo/${name}`, body);
-}
+};
 
 export const oaDeletePromo = async (name) => {
   return await openapiDelete(`promo/${name}`);
-}
+};
 
 export const oaPostCreateAppTheme = async (name) => {
-  return await openapiPostBody("app-theme", { name: name});
-}
+  return await openapiPostBody("app-theme", { name: name });
+};
 
 export const oaPostUpdateAppTheme = async (theme) => {
   console.log(theme);
-  const body = Object.assign({}, { style: theme.style })
+  const body = Object.assign({}, { style: theme.style });
   return await openapiPostBody(`app-theme/${theme.name}`, body);
-}
+};
 
 export const oaDeleteAppTheme = async (name) => {
   return await openapiDelete(`app-theme/${name}`);
+};
+
+export const oaPostExportEvent = async (name) => {
+  return await openapiPostBody(`event/${name}/export`, {});
 }
 
 // fetch

@@ -8,6 +8,7 @@ import {
   add_event_dj,
   add_event_promo,
   delete_event,
+  export_event,
   get_event,
   insert_into_events,
   move_event_dj,
@@ -362,4 +363,18 @@ eventRouter.post("/:eventName/set-theme", async (req, res) => {
   const event = await get_event(req.params.eventName);
   res.status(200);
   res.send(event);
+});
+
+eventRouter.post("/:eventName/export", async (req, res) => {
+  const error = await export_event(req.params.eventName);
+  if (error !== undefined) {
+    res.status(409);
+    return res.send({
+      errorType: error.name,
+      message: error.message,
+    });
+  }
+
+  res.status(200);
+  res.send();
 });

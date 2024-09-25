@@ -12,7 +12,7 @@
     oaDeleteEventPromo,
     oaPostMoveEventDj,
     oaPostMoveEventPromo,
-    fetchExportLineup,
+    oaPostExportEvent,
     oaDeleteEvent,
     error_stack,
     oaFetchSingleEvent,
@@ -243,8 +243,8 @@
     last_action = EXPORT_FAILED;
     // show_export_dialog = true;
     show_export_error = true;
-    fetchExportLineup(event.name).then((response) => {
-      if (response) show_export_error = false;
+    oaPostExportEvent(event.name).then((response) => {
+      if (response === true) show_export_error = false;
     });
   }
 

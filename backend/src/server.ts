@@ -73,6 +73,7 @@ import { themeRouter } from "./openapi_routers/theme_router";
 import { eventRouter } from "./openapi_routers/event_router";
 import { promoRouter } from "./openapi_routers/promo_router";
 import { appThemeRouter } from "./openapi_routers/app_theme_router";
+import { importRouter } from "./openapi_routers/import_router";
 
 // API server
 const gui_root = {
@@ -198,6 +199,7 @@ export const create_server = () => {
   app.use("/openapi/event", eventRouter);
   app.use("/openapi/promo", promoRouter);
   app.use("/openapi/app-theme", appThemeRouter);
+  app.use("/openapi/import", importRouter);
 
   create_tables();
 

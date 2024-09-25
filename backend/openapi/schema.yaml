@@ -514,6 +514,12 @@ components:
         top_dir:
           description: Parent directory the blob stems from, typically same as a File root.
           type: string
+    ImportPath:
+      type: object
+      properties:
+        path:
+          description: Path for importing objects, if using docker this refers to the /imports mount.
+          type: string
 paths:
   /file:
     get:
@@ -1378,6 +1384,23 @@ paths:
                 $ref: '#/components/schemas/Event'
         '404':
           description: Event not found.
+  /event/{eventName}/export:
+    post:
+      tags:
+        - events
+      summary: Exports an event to a local json file.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: Exported event.
+        '409':
+          description: Event export failed.
   /promo:
     get:
       tags:
@@ -1582,3 +1605,41 @@ paths:
           description: Deleted app theme.
         '404':
           description: App theme not found.
+  /import/ledger:
+    post:
+      tags:
+        - imports
+      summary: Imports a ledger file from older versions of the program.
+      requestBody:
+        description: Path to the ledger json file.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportPath'
+        required: true
+      responses:
+        '200':
+          description: Import success.
+        '400':
+          description: Invalid input data.
+        '409':
+          description: The import failed.
+  /import/lineups:
+    post:
+      tags:
+        - imports
+      summary: Imports a lineup files from older versions of the program.
+      requestBody:
+        description: Path to the lineup directory.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportPath'
+        required: true
+      responses:
+        '200':
+          description: Import success.
+        '400':
+          description: Invalid input data.
+        '409':
+          description: The import failed.
