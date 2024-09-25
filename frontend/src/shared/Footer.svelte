@@ -1,7 +1,7 @@
 <footer>
   <div class="text-row">
     <div class="fit">
-      <p>Shizu Assistance (Contained) Ver. 1.0.0</p>
+      <p>Shizu Assistance (Contained) Ver. 1.1.0</p>
     </div>
   </div>
 </footer>
