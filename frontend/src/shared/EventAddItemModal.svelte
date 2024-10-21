@@ -1,6 +1,10 @@
 <script>
   import { error_stack } from "$lib/store";
-  import { MaterialInput } from "linkcube-svelte-components";
+  import {
+    MaterialInput,
+    MaterialTable,
+    MaterialTableRow,
+  } from "linkcube-svelte-components";
   import { createEventDispatcher } from "svelte";
   import ErrorMessage from "./ErrorMessage.svelte";
   import Modal from "./Modal.svelte";
@@ -63,22 +67,22 @@
       />
     </div>
     <div class="row">
-      <NewMatTable
+      <MaterialTable
         items={displayed_items}
         columnSizes={["10%", "90%"]}
         height="500px"
       >
         <div slot="header">
-          <NewMatTableRow values={["#", "name"]} type="header" />
+          <MaterialTableRow values={["#", "name"]} type="header" />
         </div>
         <div slot="item" let:item let:index>
-          <NewMatTableRow
+          <MaterialTableRow
             values={[`${index + 1}`, item.name]}
             type="click row"
             on:click={() => dispatchAddItem(item.name)}
           />
         </div>
-      </NewMatTable>
+      </MaterialTable>
     </div>
   </div>
 </Modal>
