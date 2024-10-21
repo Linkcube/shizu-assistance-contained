@@ -37,20 +37,23 @@
   let show_file_dialog = false;
   let current_error = null;
   let show_save_message = false;
+  let confirm_delete = false;
 
   error_stack.subscribe((error) => (current_error = error));
 
-  function savePromo() {
+  async function savePromo() {
+    current_error = null;
+    show_save_message = true;
     if (index < 0) {
-      oaPostCreatePromo(name, file_name).then((_) => oaFetchPromos());
+      await oaPostCreatePromo(name, file_name);
     } else {
-      oaPostUpdatePromo(name, file_name).then((_) => oaFetchPromos());
+      await oaPostUpdatePromo(name, file_name);
     }
+
     setTimeout(() => {
       show_save_message = false;
       if (current_error == null) {
-        oaFetchPromos();
-        close();
+        oaFetchPromos().finally(() => close());
       }
     }, 500);
   }
@@ -63,8 +66,9 @@
     file_name = event.detail.file_name;
   }
 
-  function removePromo() {
-    oaDeletePromo(name).then((_) => oaFetchPromos());
+  async function removePromo() {
+    await oaDeletePromo(name);
+    oaFetchPromos();
     close();
   }
 
@@ -80,19 +84,35 @@
     on:close={() => (show_file_dialog = false)}
     on:submission={updateFile}
   />
+{:else if confirm_delete}
+  <Modal
+    on:close={() => (confirm_delete = false)}
+    on:submission={removePromo}
+    z_index={5}
+  >
+    <div class="central-column">
+      <h2 class="row">Delete: {name}</h2>
+      <span class="row"
+        >Are you sure you want to permanently delete this promotion?</span
+      >
+      <span class="row">Deletion will remove the item from all events.</span>
+    </div>
+  </Modal>
 {:else}
-  <Modal on:close={close} on:submission={savePromo}>
+  <Modal on:close={close} on:submission={savePromo} z_index={5}>
     <div class="central-column">
       <div class="row">
-        <MaterialInput label="Promo Name" bind:value={name} />
         {#if index >= 0}
+          <span>{name}</span>
           <div class="delete">
             <IconButton
               icon="delete_forever"
               title="Delete Promo"
-              on:click={removePromo}
+              on:click={() => (confirm_delete = true)}
             />
           </div>
+        {:else}
+          <MaterialInput label="Promo Name" bind:value={name} />
         {/if}
       </div>
       <div class="row">

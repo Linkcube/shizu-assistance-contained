@@ -38,6 +38,8 @@
   import ErrorMessage from "./ErrorMessage.svelte";
   import EventChecklistModal from "./EventChecklistModal.svelte";
   import EventAdditemModal from "./EventAddItemModal.svelte";
+  import DjModal from "../shared/DjModal.svelte";
+  import PromoModal from "../shared/PromoModal.svelte";
 
   const dispatch = createEventDispatcher();
   const close = () => dispatch("close");
@@ -79,16 +81,20 @@
   let theme_data = null;
   let show_event_checklist = false;
   let days_to_event = 0;
+  let confirm_delete = false;
 
-  let edit_dj_index = -1;
   let edit_dj_name = "";
   let edit_dj_is_live = false;
   let edit_dj_vj = "";
   let edit_dj_promise = Promise.resolve();
+  let show_dj_edit_dialog = false;
+  let show_dj_create_dialog = false;
 
   let edit_promo_index = -1;
   let edit_promo_name = "";
   let edit_promo_promise = Promise.resolve();
+  let show_promo_edit_dialog = false;
+  let show_promo_create_dialog = false;
 
   let input_date = "";
   let input_time_hours = "00";
@@ -134,7 +140,6 @@
   const editDj = (index, name, is_live, vj) => {
     show_export_error = true;
     last_action = EDIT_DJ_FAILED;
-    edit_dj_index = index;
     edit_dj_name = name;
     edit_dj_is_live = is_live;
     edit_dj_vj = vj;
@@ -298,6 +303,64 @@
     );
   }
 
+  function editDjEntry() {
+    show_dj_dialog = false;
+    show_dj_edit_dialog = true;
+  }
+
+  async function closeEditDj() {
+    show_dj_edit_dialog = false;
+    try {
+      let dj_data = await oaFetchSingleDj(edit_dj_name);
+      edit_dj_promise = Promise.resolve(dj_data);
+      show_dj_dialog = true;
+    } catch {
+      show_dj_dialog = false;
+      oaFetchSingleEvent(event.name);
+    }
+  }
+
+  function editPromoEntry() {
+    show_promo_dialog = false;
+    show_promo_edit_dialog = true;
+  }
+
+  async function closeEditPromo() {
+    console.log("Called!!");
+    show_promo_edit_dialog = false;
+    try {
+      let promo_data = await oaFetchSinglePromo(edit_promo_name);
+      console.log(promo_data);
+      edit_promo_promise = Promise.resolve(promo_data);
+      show_promo_dialog = true;
+    } catch {
+      show_promo_dialog = false;
+      oaFetchSingleEvent(event.name);
+    }
+  }
+
+  function openCreateDjDialog() {
+    show_dj_create_dialog = true;
+    show_add_dj_dialog = false;
+  }
+
+  function closeCreateDjDialog() {
+    show_dj_create_dialog = false;
+    show_add_dj_dialog = true;
+    all_dj_info = get(all_djs);
+  }
+
+  function openCreatePromoDialog() {
+    show_promo_create_dialog = true;
+    show_add_promo_dialog = false;
+  }
+
+  function closeCreatePromoDialog() {
+    show_promo_create_dialog = false;
+    show_add_promo_dialog = true;
+    all_promo_info = get(all_promos);
+  }
+
   if (event.theme) getThemeData();
 </script>
 
@@ -310,14 +373,18 @@
 {#if show_dj_dialog}
   {#await edit_dj_promise then dj_data}
     <DjLineupModal
-      index={edit_dj_index}
       name={edit_dj_name}
       is_live={edit_dj_is_live}
       current_lineup={event.name}
       vj={edit_dj_vj}
       {dj_data}
       on:close={() => (show_dj_dialog = false)}
+      on:edit={editDjEntry}
     />
+  {/await}
+{:else if show_dj_edit_dialog}
+  {#await edit_dj_promise then dj_data}
+    <DjModal index={0} name={edit_dj_name} {dj_data} on:close={closeEditDj} />
   {/await}
 {:else if show_promo_dialog}
   {#await edit_promo_promise then promo_data}
@@ -327,6 +394,16 @@
       current_lineup={event.name}
       {promo_data}
       on:close={() => (show_promo_dialog = false)}
+      on:edit={editPromoEntry}
+    />
+  {/await}
+{:else if show_promo_edit_dialog}
+  {#await edit_promo_promise then promo_data}
+    <PromoModal
+      index={edit_promo_index}
+      name={edit_promo_name}
+      {promo_data}
+      on:close={closeEditPromo}
     />
   {/await}
 {:else if show_themes_dialog}
@@ -374,14 +451,33 @@
     all_items={all_dj_info}
     on:item_added={addDjToEvent}
     on:close={() => (show_add_dj_dialog = false)}
+    on:createNew={openCreateDjDialog}
   />
+{:else if show_dj_create_dialog}
+  <DjModal index={-1} dj_data={{}} on:close={closeCreateDjDialog} />
 {:else if show_add_promo_dialog}
   <EventAdditemModal
     items_type="Promos"
     all_items={all_promo_info}
     on:item_added={addPromoToEvent}
     on:close={() => (show_add_promo_dialog = false)}
+    on:createNew={openCreatePromoDialog}
   />
+{:else if show_promo_create_dialog}
+  <PromoModal index={-1} promo_data={{}} on:close={closeCreatePromoDialog} />
+{:else if confirm_delete}
+  <Modal
+    on:close={() => (confirm_delete = false)}
+    on:submission={deleteLineup}
+    z_index={5}
+  >
+    <div class="central-column">
+      <h2 class="row">Delete: {event.name}</h2>
+      <span class="row"
+        >Are you sure you want to permanently delete this event?</span
+      >
+    </div>
+  </Modal>
 {/if}
 
 <Modal on:close={close} use_submission={false} max_width="80%">
@@ -413,7 +509,7 @@
           <IconButton
             icon="delete_forever"
             title="Delete Event"
-            on:click={deleteLineup}
+            on:click={() => (confirm_delete = true)}
           />
         </div>
       </div>

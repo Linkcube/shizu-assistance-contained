@@ -46,7 +46,7 @@ async function openapiGet(url, bubble_error = true) {
   if (response.ok) {
     return await response.json();
   }
-  if (bubble_error) parseOpenapiError(response);
+  if (bubble_error) return parseOpenapiError(response);
 }
 
 async function openapiPostBody(url, body) {
@@ -88,6 +88,8 @@ async function parseOpenapiError(response) {
     message: jsonbody.message,
     errorType: jsonbody.errorType,
   });
+
+  return Promise.reject();
 }
 
 export function updateTheme(style) {
@@ -155,13 +157,16 @@ const filePermissionsHelper = (url, sub_dirs) => {
 };
 
 export const oaFetchLogoPermissions = async (sub_dirs) => {
+  localStorage.setItem("last_logo_path", JSON.stringify(sub_dirs));
   return await filePermissionsHelper("file/logo-permissions", sub_dirs);
 };
 
 export const oaFetchRecordingPermissions = async (sub_dirs) => {
+  localStorage.setItem("last_recording_path", JSON.stringify(sub_dirs));
   return await filePermissionsHelper("file/recording-permissions", sub_dirs);
 };
 export const oaFetchThemePermissions = async (sub_dirs) => {
+  localStorage.setItem("last_theme_path", JSON.stringify(sub_dirs));
   return await filePermissionsHelper("file/theme-permissions", sub_dirs);
 };
 

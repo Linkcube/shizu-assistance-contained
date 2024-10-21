@@ -68,6 +68,20 @@
     });
   }
 
+  // Remember last used path
+  let last_used_path = null;
+  if (file_type == LOGO_TYPE) {
+    last_used_path = localStorage.getItem("last_logo_path");
+  } else if (file_type == RECORDING_TYPE) {
+    last_used_path = localStorage.getItem("last_recording_path");
+  } else if (file_type == THEME_TYPE) {
+    last_used_path = localStorage.getItem("last_theme_path");
+  }
+
+  if (last_used_path != null) {
+    current_path = JSON.parse(last_used_path);
+  }
+
   async function fetchFileBlob() {
     if (file_type == LOGO_TYPE) {
       const file_blob = await oaFetchLogoPermissions(current_path);
@@ -183,7 +197,7 @@
   }
 
   const enterSearch = () => {
-    if (search_value === "") {
+    if (search_value === "" || search_value === null) {
       display_files = current_files;
     } else {
       display_files = current_files.filter((file) =>

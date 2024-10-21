@@ -201,7 +201,7 @@
   }
 
   const enterSearch = () => {
-    if (search_value === "") {
+    if (search_value === "" || search_value === null) {
       display_files = current_files;
     } else {
       display_files = current_files.filter((file) =>
@@ -357,7 +357,7 @@
           <div class="row">
             <IconButton
               icon="note_add"
-              title="Select Logo"
+              title="Select Server File"
               on:click={selectLocalFile}
             />
             <IconButton

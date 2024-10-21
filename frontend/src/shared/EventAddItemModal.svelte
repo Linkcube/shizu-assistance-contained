@@ -1,11 +1,14 @@
 <script>
   import { error_stack } from "$lib/store";
-  import { MaterialInput } from "linkcube-svelte-components";
+  import {
+    MaterialInput,
+    MaterialTable,
+    MaterialTableRow,
+    IconButton,
+  } from "linkcube-svelte-components";
   import { createEventDispatcher } from "svelte";
   import ErrorMessage from "./ErrorMessage.svelte";
   import Modal from "./Modal.svelte";
-  import NewMatTable from "./NewMatTable.svelte";
-  import NewMatTableRow from "./NewMatTableRow.svelte";
 
   export let all_items = [];
   export let items_type = "DJs";
@@ -21,7 +24,7 @@
   const close = () => dispatch("close");
 
   const enterSearch = () => {
-    if (search_value === "") {
+    if (search_value === "" || search_value === null) {
       displayed_items = all_items;
     } else {
       displayed_items = all_items.filter((item) =>
@@ -36,14 +39,20 @@
     });
     add_item_confirmation = true;
   };
+
+  const addItemConfirmationClear = () => {
+    add_item_confirmation = false;
+    search_value = "";
+    displayed_items = all_items;
+  };
+
+  const createItem = () => {
+    dispatch("createNew");
+  };
 </script>
 
 {#if add_item_confirmation}
-  <Modal
-    on:close={() => (add_item_confirmation = false)}
-    use_submission={false}
-    z_index={7}
-  >
+  <Modal on:close={addItemConfirmationClear} use_submission={false} z_index={7}>
     {#if current_error}
       <ErrorMessage error={current_error} />
     {:else}
@@ -53,32 +62,39 @@
 {/if}
 <Modal on:close={close} use_submission={false} z_index={5}>
   <div class="column">
-    <div class="row">
-      <span>Add DJs to Event</span>
+    <div class="row header">
+      <span class="align-center">Add {items_type} to Event</span>
       <MaterialInput
         label="Search {items_type}"
         bind:value={search_value}
         on:blur={enterSearch}
         on:enter={enterSearch}
       />
+      <div class="create-item align-center">
+        <IconButton
+          icon="add"
+          title="Create {items_type}"
+          on:click={createItem}
+        />
+      </div>
     </div>
     <div class="row">
-      <NewMatTable
+      <MaterialTable
         items={displayed_items}
         columnSizes={["10%", "90%"]}
         height="500px"
       >
         <div slot="header">
-          <NewMatTableRow values={["#", "name"]} type="header" />
+          <MaterialTableRow values={["#", "name"]} type="header" />
         </div>
         <div slot="item" let:item let:index>
-          <NewMatTableRow
+          <MaterialTableRow
             values={[`${index + 1}`, item.name]}
             type="click row"
             on:click={() => dispatchAddItem(item.name)}
           />
         </div>
-      </NewMatTable>
+      </MaterialTable>
     </div>
   </div>
 </Modal>
@@ -92,5 +108,13 @@
   .row {
     display: flex;
     flex-direction: row;
+  }
+
+  .header {
+    justify-content: space-around;
+  }
+
+  .align-center {
+    align-content: center;
   }
 </style>
