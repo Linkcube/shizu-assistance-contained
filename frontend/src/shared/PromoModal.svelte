@@ -37,6 +37,7 @@
   let show_file_dialog = false;
   let current_error = null;
   let show_save_message = false;
+  let confirm_delete = false;
 
   error_stack.subscribe((error) => (current_error = error));
 
@@ -83,6 +84,20 @@
     on:close={() => (show_file_dialog = false)}
     on:submission={updateFile}
   />
+{:else if confirm_delete}
+  <Modal
+    on:close={() => (confirm_delete = false)}
+    on:submission={removePromo}
+    z_index={5}
+  >
+    <div class="central-column">
+      <h2 class="row">Delete: {name}</h2>
+      <span class="row"
+        >Are you sure you want to permanently delete this promotion?</span
+      >
+      <span class="row">Deletion will remove the item from all events.</span>
+    </div>
+  </Modal>
 {:else}
   <Modal on:close={close} on:submission={savePromo} z_index={5}>
     <div class="central-column">
@@ -93,7 +108,7 @@
             <IconButton
               icon="delete_forever"
               title="Delete Promo"
-              on:click={removePromo}
+              on:click={() => (confirm_delete = true)}
             />
           </div>
         {:else}

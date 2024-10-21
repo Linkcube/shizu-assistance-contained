@@ -28,6 +28,7 @@
   let new_theme_name = "";
   let show_save_message = false;
   let current_error = null;
+  let confirm_delete = false;
 
   const dispatch = createEventDispatcher();
   const close = () => dispatch("close");
@@ -158,6 +159,20 @@
       </div>
     </div>
   </Modal>
+{:else if confirm_delete}
+  <Modal
+    on:close={() => (confirm_delete = false)}
+    on:submission={removeTheme}
+    z_index={5}
+  >
+    <div class="central-column">
+      <h2 class="row">Delete: {selected_theme.name}</h2>
+      <span class="row"
+        >Are you sure you want to permanently delete this theme?</span
+      >
+      <span class="row">Deletion will remove the item from all events.</span>
+    </div>
+  </Modal>
 {:else}
   <Modal on:close={close} on:submission={submitTheme} z_index={5}>
     <div class="central-column">
@@ -187,7 +202,7 @@
               <IconButton
                 icon="delete_forever"
                 title="Delete Theme"
-                on:click={removeTheme}
+                on:click={() => (confirm_delete = true)}
               />
             </div>
           {/if}

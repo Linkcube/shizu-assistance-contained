@@ -200,7 +200,7 @@
   {#if show_djs}
     <MaterialTable
       items={display_ledger_djs}
-      columnSizes={["10%", "30%", "20%", "20%", "20%"]}
+      columnSizes={["10%", "30%", "17%", "17%", "25%"]}
       height="500px"
     >
       <div slot="header">

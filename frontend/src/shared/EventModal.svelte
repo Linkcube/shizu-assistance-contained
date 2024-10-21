@@ -81,6 +81,7 @@
   let theme_data = null;
   let show_event_checklist = false;
   let days_to_event = 0;
+  let confirm_delete = false;
 
   let edit_dj_name = "";
   let edit_dj_is_live = false;
@@ -464,6 +465,19 @@
   />
 {:else if show_promo_create_dialog}
   <PromoModal index={-1} promo_data={{}} on:close={closeCreatePromoDialog} />
+{:else if confirm_delete}
+  <Modal
+    on:close={() => (confirm_delete = false)}
+    on:submission={deleteLineup}
+    z_index={5}
+  >
+    <div class="central-column">
+      <h2 class="row">Delete: {event.name}</h2>
+      <span class="row"
+        >Are you sure you want to permanently delete this event?</span
+      >
+    </div>
+  </Modal>
 {/if}
 
 <Modal on:close={close} use_submission={false} max_width="80%">
@@ -495,7 +509,7 @@
           <IconButton
             icon="delete_forever"
             title="Delete Event"
-            on:click={deleteLineup}
+            on:click={() => (confirm_delete = true)}
           />
         </div>
       </div>

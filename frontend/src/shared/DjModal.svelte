@@ -34,6 +34,7 @@
   let show_recording_dialog = false;
   let current_error = null;
   let show_save_message = false;
+  let confirm_delete = false;
 
   let logo_name = dj_data.logo;
   let recording_name = dj_data.recording;
@@ -140,6 +141,20 @@
     on:close={() => (show_recording_dialog = false)}
     on:submission={updateRecording}
   />
+{:else if confirm_delete}
+  <Modal
+    on:close={() => (confirm_delete = false)}
+    on:submission={removeDj}
+    z_index={5}
+  >
+    <div class="central-column">
+      <h2 class="row">Delete: {name}</h2>
+      <span class="row"
+        >Are you sure you want to permanently delete this DJ?</span
+      >
+      <span class="row">Deletion will remove the item from all events.</span>
+    </div>
+  </Modal>
 {:else}
   <Modal on:close={close} on:submission={saveDj} z_index={5}>
     <div class="central-column">
@@ -150,7 +165,7 @@
             <IconButton
               icon="delete_forever"
               title="Delete DJ"
-              on:click={removeDj}
+              on:click={() => (confirm_delete = true)}
             />
           </div>
         {:else}

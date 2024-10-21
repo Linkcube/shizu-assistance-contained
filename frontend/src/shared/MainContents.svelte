@@ -37,7 +37,7 @@
     flex-direction: row;
   }
 
-  @media (max-width: 800px) {
+  @media (max-width: 1100px) {
     .flex-display {
       flex-direction: column;
       margin-right: 60px;
