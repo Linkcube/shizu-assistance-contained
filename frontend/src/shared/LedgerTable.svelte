@@ -54,7 +54,7 @@
   });
 
   const enterSearch = () => {
-    if (search_value === "") {
+    if (search_value === "" || search_value === null) {
       if (show_djs) {
         display_ledger_djs = ledger_djs;
       } else {

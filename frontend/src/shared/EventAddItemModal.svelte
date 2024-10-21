@@ -24,7 +24,7 @@
   const close = () => dispatch("close");
 
   const enterSearch = () => {
-    if (search_value === "") {
+    if (search_value === "" || search_value === null) {
       displayed_items = all_items;
     } else {
       displayed_items = all_items.filter((item) =>

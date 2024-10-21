@@ -201,7 +201,7 @@
   }
 
   const enterSearch = () => {
-    if (search_value === "") {
+    if (search_value === "" || search_value === null) {
       display_files = current_files;
     } else {
       display_files = current_files.filter((file) =>
