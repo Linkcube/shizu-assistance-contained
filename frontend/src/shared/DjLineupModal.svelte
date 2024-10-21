@@ -12,7 +12,6 @@
   } from "$lib/store.js";
   import { createEventDispatcher } from "svelte";
 
-  export let index = 0;
   export let current_lineup = "";
   export let name = "";
   export let is_live = false;
@@ -52,6 +51,10 @@
     );
     close();
   };
+
+  const editDj = () => {
+    dispatch("edit");
+  }
 </script>
 
 {#if !error_on_init}
@@ -59,6 +62,13 @@
     <div class="central-column">
       <div class="row">
         <p>Name: {name}</p>
+        <div class="edit">
+          <IconButton
+            icon="edit"
+            title="Edit DJ Values"
+            on:click={editDj}
+          />
+        </div>
         <div class="delete">
           <IconButton
             icon="delete"
@@ -104,7 +114,11 @@
   }
 
   .delete {
-    margin-left: auto;
     --secondary-text-color: var(--delete-color, red);
+  }
+
+  .edit {
+    margin-left: auto;
+    --secondary-text-color: var(--primary-color, lightblue);
   }
 </style>

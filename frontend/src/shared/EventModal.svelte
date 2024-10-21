@@ -38,6 +38,8 @@
   import ErrorMessage from "./ErrorMessage.svelte";
   import EventChecklistModal from "./EventChecklistModal.svelte";
   import EventAdditemModal from "./EventAddItemModal.svelte";
+  import DjModal from "../shared/DjModal.svelte";
+  import PromoModal from "../shared/PromoModal.svelte";
 
   const dispatch = createEventDispatcher();
   const close = () => dispatch("close");
@@ -80,15 +82,16 @@
   let show_event_checklist = false;
   let days_to_event = 0;
 
-  let edit_dj_index = -1;
   let edit_dj_name = "";
   let edit_dj_is_live = false;
   let edit_dj_vj = "";
   let edit_dj_promise = Promise.resolve();
+  let show_dj_edit_dialog = false;
 
   let edit_promo_index = -1;
   let edit_promo_name = "";
   let edit_promo_promise = Promise.resolve();
+  let show_promo_edit_dialog = false;
 
   let input_date = "";
   let input_time_hours = "00";
@@ -134,7 +137,6 @@
   const editDj = (index, name, is_live, vj) => {
     show_export_error = true;
     last_action = EDIT_DJ_FAILED;
-    edit_dj_index = index;
     edit_dj_name = name;
     edit_dj_is_live = is_live;
     edit_dj_vj = vj;
@@ -298,6 +300,28 @@
     );
   }
 
+  function editDjEntry() {
+    show_dj_dialog = false;
+    show_dj_edit_dialog = true;
+  }
+
+  function closeEditDj() {
+    edit_dj_promise = oaFetchSingleDj(edit_dj_name);
+    show_dj_dialog = true;
+    show_dj_edit_dialog = false;
+  }
+
+  function editPromoEntry() {
+    show_promo_dialog = false;
+    show_promo_edit_dialog = true;
+  }
+
+  function closeEditPromo() {
+    edit_promo_promise = oaFetchSinglePromo(edit_promo_name)
+    show_promo_dialog = true;
+    show_promo_edit_dialog = false;
+  }
+
   if (event.theme) getThemeData();
 </script>
 
@@ -310,13 +334,22 @@
 {#if show_dj_dialog}
   {#await edit_dj_promise then dj_data}
     <DjLineupModal
-      index={edit_dj_index}
       name={edit_dj_name}
       is_live={edit_dj_is_live}
       current_lineup={event.name}
       vj={edit_dj_vj}
       {dj_data}
       on:close={() => (show_dj_dialog = false)}
+      on:edit={editDjEntry}
+    />
+  {/await}
+{:else if show_dj_edit_dialog}
+  {#await edit_dj_promise then dj_data}
+    <DjModal
+      index={0}
+      name={edit_dj_name}
+      {dj_data}
+      on:close={closeEditDj}
     />
   {/await}
 {:else if show_promo_dialog}
@@ -327,6 +360,16 @@
       current_lineup={event.name}
       {promo_data}
       on:close={() => (show_promo_dialog = false)}
+      on:edit={editPromoEntry}
+    />
+  {/await}
+{:else if show_promo_edit_dialog}
+  {#await edit_promo_promise then promo_data}
+    <PromoModal
+      index={edit_promo_index}
+      name={edit_promo_name}
+      {promo_data}
+      on:close={closeEditPromo}
     />
   {/await}
 {:else if show_themes_dialog}

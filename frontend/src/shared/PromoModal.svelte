@@ -81,7 +81,7 @@
     on:submission={updateFile}
   />
 {:else}
-  <Modal on:close={close} on:submission={savePromo}>
+  <Modal on:close={close} on:submission={savePromo} z_index={5}>
     <div class="central-column">
       <div class="row">
         <MaterialInput label="Promo Name" bind:value={name} />

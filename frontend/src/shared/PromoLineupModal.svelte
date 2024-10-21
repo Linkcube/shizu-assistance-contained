@@ -21,6 +21,10 @@
     );
     close();
   };
+
+  const editPromo = () => {
+    dispatch("edit");
+  }
 </script>
 
 {#if !error_on_init}
@@ -28,6 +32,13 @@
     <div class="central-column">
       <div class="row">
         <p>Name: {name}</p>
+        <div class="edit">
+          <IconButton
+            icon="edit"
+            title="Edit Promotion Values"
+            on:click={editPromo}
+          />
+        </div>
         <div class="delete">
           <IconButton
             icon="delete"
@@ -55,7 +66,11 @@
   }
 
   .delete {
-    margin-left: auto;
     --secondary-text-color: var(--delete-color, red);
+  }
+
+  .edit {
+    margin-left: auto;
+    --secondary-text-color: var(--primary-color, lightblue);
   }
 </style>

@@ -12,9 +12,7 @@
     oaDeleteDj,
     oaFetchDjs,
     RTMP_SERVERS,
-    currentLineup,
     oaPostAddEventDj,
-    oaFetchSingleEvent,
     RECORDING_TYPE,
     LOGO_TYPE,
     error_stack,
@@ -30,7 +28,6 @@
   export let name = "";
   export let dj_data;
 
-  const current_lineup = get(currentLineup);
   const lineup_names = get(all_events).map((event) => event.name);
   let target_lineup = lineup_names[0];
   let show_logo_dialog = false;
@@ -145,7 +142,7 @@
     on:submission={updateRecording}
   />
 {:else}
-  <Modal on:close={close} on:submission={saveDj}>
+  <Modal on:close={close} on:submission={saveDj} z_index={5}>
     <div class="central-column">
       <div class="row">
         {#if index >= 0}
