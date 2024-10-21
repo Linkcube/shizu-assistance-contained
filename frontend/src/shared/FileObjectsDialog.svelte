@@ -357,7 +357,7 @@
           <div class="row">
             <IconButton
               icon="note_add"
-              title="Select Logo"
+              title="Select Server File"
               on:click={selectLocalFile}
             />
             <IconButton
