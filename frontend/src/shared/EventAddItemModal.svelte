@@ -8,8 +8,6 @@
   import { createEventDispatcher } from "svelte";
   import ErrorMessage from "./ErrorMessage.svelte";
   import Modal from "./Modal.svelte";
-  import NewMatTable from "./NewMatTable.svelte";
-  import NewMatTableRow from "./NewMatTableRow.svelte";
 
   export let all_items = [];
   export let items_type = "DJs";
@@ -40,11 +38,17 @@
     });
     add_item_confirmation = true;
   };
+
+  const addItemConfirmationClear = () => {
+    add_item_confirmation = false;
+    search_value = "";
+    displayed_items = all_items;
+  }
 </script>
 
 {#if add_item_confirmation}
   <Modal
-    on:close={() => (add_item_confirmation = false)}
+    on:close={addItemConfirmationClear}
     use_submission={false}
     z_index={7}
   >
