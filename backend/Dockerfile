@@ -27,9 +27,9 @@ HEALTHCHECK --interval=30s \
 # copy in our source code last, as it changes the most
 COPY . /code
 
-RUN npm run build
 RUN npm run build-api
 RUN npm run build-redoc
+RUN npm run build
 
 FROM development as dev-envs
 RUN <<EOF
