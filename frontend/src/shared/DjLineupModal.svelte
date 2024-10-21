@@ -54,7 +54,7 @@
 
   const editDj = () => {
     dispatch("edit");
-  }
+  };
 </script>
 
 {#if !error_on_init}
@@ -63,11 +63,7 @@
       <div class="row">
         <p>Name: {name}</p>
         <div class="edit">
-          <IconButton
-            icon="edit"
-            title="Edit DJ Values"
-            on:click={editDj}
-          />
+          <IconButton icon="edit" title="Edit DJ Values" on:click={editDj} />
         </div>
         <div class="delete">
           <IconButton

@@ -24,7 +24,7 @@
 
   const editPromo = () => {
     dispatch("edit");
-  }
+  };
 </script>
 
 {#if !error_on_init}

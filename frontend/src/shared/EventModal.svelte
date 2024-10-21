@@ -87,11 +87,13 @@
   let edit_dj_vj = "";
   let edit_dj_promise = Promise.resolve();
   let show_dj_edit_dialog = false;
+  let show_dj_create_dialog = false;
 
   let edit_promo_index = -1;
   let edit_promo_name = "";
   let edit_promo_promise = Promise.resolve();
   let show_promo_edit_dialog = false;
+  let show_promo_create_dialog = false;
 
   let input_date = "";
   let input_time_hours = "00";
@@ -305,10 +307,16 @@
     show_dj_edit_dialog = true;
   }
 
-  function closeEditDj() {
-    edit_dj_promise = oaFetchSingleDj(edit_dj_name);
-    show_dj_dialog = true;
+  async function closeEditDj() {
     show_dj_edit_dialog = false;
+    try {
+      let dj_data = await oaFetchSingleDj(edit_dj_name);
+      edit_dj_promise = Promise.resolve(dj_data);
+      show_dj_dialog = true;
+    } catch {
+      show_dj_dialog = false;
+      oaFetchSingleEvent(event.name);
+    }
   }
 
   function editPromoEntry() {
@@ -316,10 +324,40 @@
     show_promo_edit_dialog = true;
   }
 
-  function closeEditPromo() {
-    edit_promo_promise = oaFetchSinglePromo(edit_promo_name)
-    show_promo_dialog = true;
+  async function closeEditPromo() {
+    console.log("Called!!");
     show_promo_edit_dialog = false;
+    try {
+      let promo_data = await oaFetchSinglePromo(edit_promo_name);
+      console.log(promo_data);
+      edit_promo_promise = Promise.resolve(promo_data);
+      show_promo_dialog = true;
+    } catch {
+      show_promo_dialog = false;
+      oaFetchSingleEvent(event.name);
+    }
+  }
+
+  function openCreateDjDialog() {
+    show_dj_create_dialog = true;
+    show_add_dj_dialog = false;
+  }
+
+  function closeCreateDjDialog() {
+    show_dj_create_dialog = false;
+    show_add_dj_dialog = true;
+    all_dj_info = get(all_djs);
+  }
+
+  function openCreatePromoDialog() {
+    show_promo_create_dialog = true;
+    show_add_promo_dialog = false;
+  }
+
+  function closeCreatePromoDialog() {
+    show_promo_create_dialog = false;
+    show_add_promo_dialog = true;
+    all_promo_info = get(all_promos);
   }
 
   if (event.theme) getThemeData();
@@ -345,12 +383,7 @@
   {/await}
 {:else if show_dj_edit_dialog}
   {#await edit_dj_promise then dj_data}
-    <DjModal
-      index={0}
-      name={edit_dj_name}
-      {dj_data}
-      on:close={closeEditDj}
-    />
+    <DjModal index={0} name={edit_dj_name} {dj_data} on:close={closeEditDj} />
   {/await}
 {:else if show_promo_dialog}
   {#await edit_promo_promise then promo_data}
@@ -417,14 +450,20 @@
     all_items={all_dj_info}
     on:item_added={addDjToEvent}
     on:close={() => (show_add_dj_dialog = false)}
+    on:createNew={openCreateDjDialog}
   />
+{:else if show_dj_create_dialog}
+  <DjModal index={-1} dj_data={{}} on:close={closeCreateDjDialog} />
 {:else if show_add_promo_dialog}
   <EventAdditemModal
     items_type="Promos"
     all_items={all_promo_info}
     on:item_added={addPromoToEvent}
     on:close={() => (show_add_promo_dialog = false)}
+    on:createNew={openCreatePromoDialog}
   />
+{:else if show_promo_create_dialog}
+  <PromoModal index={-1} promo_data={{}} on:close={closeCreatePromoDialog} />
 {/if}
 
 <Modal on:close={close} use_submission={false} max_width="80%">

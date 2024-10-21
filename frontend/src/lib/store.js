@@ -46,7 +46,7 @@ async function openapiGet(url, bubble_error = true) {
   if (response.ok) {
     return await response.json();
   }
-  if (bubble_error) parseOpenapiError(response);
+  if (bubble_error) return parseOpenapiError(response);
 }
 
 async function openapiPostBody(url, body) {
@@ -88,6 +88,8 @@ async function parseOpenapiError(response) {
     message: jsonbody.message,
     errorType: jsonbody.errorType,
   });
+
+  return Promise.reject();
 }
 
 export function updateTheme(style) {

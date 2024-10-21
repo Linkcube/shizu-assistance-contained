@@ -40,17 +40,19 @@
 
   error_stack.subscribe((error) => (current_error = error));
 
-  function savePromo() {
+  async function savePromo() {
+    current_error = null;
+    show_save_message = true;
     if (index < 0) {
-      oaPostCreatePromo(name, file_name).then((_) => oaFetchPromos());
+      await oaPostCreatePromo(name, file_name);
     } else {
-      oaPostUpdatePromo(name, file_name).then((_) => oaFetchPromos());
+      await oaPostUpdatePromo(name, file_name);
     }
+
     setTimeout(() => {
       show_save_message = false;
       if (current_error == null) {
-        oaFetchPromos();
-        close();
+        oaFetchPromos().finally(() => close());
       }
     }, 500);
   }
@@ -63,8 +65,9 @@
     file_name = event.detail.file_name;
   }
 
-  function removePromo() {
-    oaDeletePromo(name).then((_) => oaFetchPromos());
+  async function removePromo() {
+    await oaDeletePromo(name);
+    oaFetchPromos();
     close();
   }
 
@@ -84,8 +87,8 @@
   <Modal on:close={close} on:submission={savePromo} z_index={5}>
     <div class="central-column">
       <div class="row">
-        <MaterialInput label="Promo Name" bind:value={name} />
         {#if index >= 0}
+          <span>{name}</span>
           <div class="delete">
             <IconButton
               icon="delete_forever"
@@ -93,6 +96,8 @@
               on:click={removePromo}
             />
           </div>
+        {:else}
+          <MaterialInput label="Promo Name" bind:value={name} />
         {/if}
       </div>
       <div class="row">

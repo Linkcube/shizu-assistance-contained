@@ -94,8 +94,7 @@
     setTimeout(() => {
       show_save_message = false;
       if (current_error == null) {
-        oaFetchDjs();
-        close();
+        oaFetchDjs().finally(() => close());
       }
     }, 500);
   }

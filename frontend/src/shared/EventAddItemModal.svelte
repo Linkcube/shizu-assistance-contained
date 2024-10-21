@@ -4,6 +4,7 @@
     MaterialInput,
     MaterialTable,
     MaterialTableRow,
+    IconButton,
   } from "linkcube-svelte-components";
   import { createEventDispatcher } from "svelte";
   import ErrorMessage from "./ErrorMessage.svelte";
@@ -43,15 +44,15 @@
     add_item_confirmation = false;
     search_value = "";
     displayed_items = all_items;
-  }
+  };
+
+  const createItem = () => {
+    dispatch("createNew");
+  };
 </script>
 
 {#if add_item_confirmation}
-  <Modal
-    on:close={addItemConfirmationClear}
-    use_submission={false}
-    z_index={7}
-  >
+  <Modal on:close={addItemConfirmationClear} use_submission={false} z_index={7}>
     {#if current_error}
       <ErrorMessage error={current_error} />
     {:else}
@@ -61,14 +62,21 @@
 {/if}
 <Modal on:close={close} use_submission={false} z_index={5}>
   <div class="column">
-    <div class="row">
-      <span>Add DJs to Event</span>
+    <div class="row header">
+      <span class="align-center">Add {items_type} to Event</span>
       <MaterialInput
         label="Search {items_type}"
         bind:value={search_value}
         on:blur={enterSearch}
         on:enter={enterSearch}
       />
+      <div class="create-item align-center">
+        <IconButton
+          icon="add"
+          title="Create {items_type}"
+          on:click={createItem}
+        />
+      </div>
     </div>
     <div class="row">
       <MaterialTable
@@ -100,5 +108,13 @@
   .row {
     display: flex;
     flex-direction: row;
+  }
+
+  .header {
+    justify-content: space-around;
+  }
+
+  .align-center {
+    align-content: center;
   }
 </style>
