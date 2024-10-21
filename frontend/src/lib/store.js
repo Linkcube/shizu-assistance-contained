@@ -157,13 +157,16 @@ const filePermissionsHelper = (url, sub_dirs) => {
 };
 
 export const oaFetchLogoPermissions = async (sub_dirs) => {
+  localStorage.setItem("last_logo_path", JSON.stringify(sub_dirs));
   return await filePermissionsHelper("file/logo-permissions", sub_dirs);
 };
 
 export const oaFetchRecordingPermissions = async (sub_dirs) => {
+  localStorage.setItem("last_recording_path", JSON.stringify(sub_dirs));
   return await filePermissionsHelper("file/recording-permissions", sub_dirs);
 };
 export const oaFetchThemePermissions = async (sub_dirs) => {
+  localStorage.setItem("last_theme_path", JSON.stringify(sub_dirs));
   return await filePermissionsHelper("file/theme-permissions", sub_dirs);
 };
 
