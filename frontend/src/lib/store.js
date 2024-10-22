@@ -150,7 +150,7 @@ export const oaFetchFileExists = async (file) => {
 
 const filePermissionsHelper = (url, sub_dirs) => {
   if (sub_dirs.length > 0) {
-    url += "/" + sub_dirs.join("/");
+    url += "/" + encodeURIComponent(sub_dirs.join("/"));
   }
   console.log(url);
   return openapiGet(url);

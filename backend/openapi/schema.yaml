@@ -721,7 +721,7 @@ paths:
       tags:
         - local-files
       summary: Returns a FileDialogBlob for logos at a given path
-      description: Used for navigating logo files on the server.
+      description: Used for navigating logo files on the server. Expects a string encoded with encodeURIComponent.
       parameters:
         - name: logoPath
           in: path
@@ -754,7 +754,7 @@ paths:
       tags:
         - local-files
       summary: Returns a FileDialogBlob for recordings at a given path
-      description: Used for navigating recording files on the server.
+      description: Used for navigating recording files on the server. Expects a string encoded with encodeURIComponent.
       parameters:
         - name: recordingPath
           in: path
@@ -787,7 +787,7 @@ paths:
       tags:
         - local-files
       summary: Returns a FileDialogBlob for themes at a given path
-      description: Used for navigating theme files on the server.
+      description: Used for navigating theme files on the server. Expects a string encoded with encodeURIComponent.
       parameters:
         - name: themePath
           in: path
