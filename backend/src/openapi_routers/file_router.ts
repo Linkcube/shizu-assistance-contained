@@ -37,7 +37,8 @@ fileRouter.get("/logo-permissions", async (req, res) => {
 });
 
 fileRouter.get("/logo-permissions/:logoPath", async (req, res) => {
-  const file_blob = await getLocalLogoFiles(req.params.logoPath.split("/"));
+  const decoded_path = decodeURIComponent(req.params.logoPath);
+  const file_blob = await getLocalLogoFiles(decoded_path.split("/"));
   res.status(200);
   return res.send(file_blob);
 });
@@ -49,9 +50,8 @@ fileRouter.get("/recording-permissions", async (req, res) => {
 });
 
 fileRouter.get("/recording-permissions/:recordingPath", async (req, res) => {
-  const file_blob = await getLocalRecordingFiles(
-    req.params.recordingPath.split("/"),
-  );
+  const decoded_path = decodeURIComponent(req.params.recordingPath);
+  const file_blob = await getLocalRecordingFiles(decoded_path.split("/"));
   res.status(200);
   return res.send(file_blob);
 });
@@ -63,7 +63,8 @@ fileRouter.get("/theme-permissions", async (req, res) => {
 });
 
 fileRouter.get("/theme-permissions/:themePath", async (req, res) => {
-  const file_blob = await getLocalThemeFiles(req.params.themePath.split("/"));
+  const decoded_path = decodeURIComponent(req.params.themePath);
+  const file_blob = await getLocalThemeFiles(decoded_path.split("/"));
   res.status(200);
   return res.send(file_blob);
 });

@@ -35,6 +35,7 @@ export const root_map = new Map([
 ]);
 
 export const getLocalLogoFiles = (sub_dirs: string[]) => {
+  console.log(sub_dirs);
   const new_path = join(LOGOS_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
 
