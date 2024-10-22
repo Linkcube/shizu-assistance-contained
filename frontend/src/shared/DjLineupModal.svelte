@@ -60,7 +60,7 @@
 {#if !error_on_init}
   <Modal on:close={close} on:submission={saveDj} z_index={5}>
     <div class="central-column">
-      <div class="row">
+      <div class="row margin-left">
         <p>Name: {name}</p>
         <div class="edit">
           <IconButton icon="edit" title="Edit DJ Values" on:click={editDj} />
@@ -73,19 +73,19 @@
           />
         </div>
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <p>Logo: {logo_name ? logo_name : "Not Set"}</p>
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <p>Recording: {recording_name ? recording_name : "Not Set"}</p>
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <p>RTMP Server: {rtmp_server ? rtmp_server : "Not Set"}</p>
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <p>Stream Key: {stream_key ? stream_key : "Not Set"}</p>
       </div>
-      <div class="row">
+      <div class="row margin-left margin-top">
         <MaterialSelect label="Is Live" bind:value={is_live}>
           <option value={false}>False</option>
           <option value={true}>True</option>
@@ -99,6 +99,11 @@
 {/if}
 
 <style>
+  p {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
   .central-column {
     display: flex;
     flex-direction: column;
@@ -116,5 +121,13 @@
   .edit {
     margin-left: auto;
     --secondary-text-color: var(--primary-color, lightblue);
+  }
+
+  .margin-left {
+    margin-left: 8px
+  }
+
+  .margin-top {
+    margin-top: 8px;
   }
 </style>

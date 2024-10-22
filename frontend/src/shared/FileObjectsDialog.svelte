@@ -282,15 +282,14 @@
 {/if}
 
 <div class="modal" role="dialog" aria-modal="true" bind:this={modal}>
-  <div class="nav-header row">
-    <p>Select {file_type_title}</p>
-    <div class="display-button icon-container">
-      <IconButton icon="add" title="Add File" on:click={openAddFile} />
-    </div>
-  </div>
-  <br />
   <div class="main row">
     <div class="body column">
+      <div class="nav-header row">
+        <p class="margin-right">Select {file_type_title}</p>
+        <div class="display-button icon-container">
+          <IconButton icon="add" title="Add File" on:click={openAddFile} />
+        </div>
+      </div>
       <div class="nav-header row">
         <div class="nav-header-sort" on:click={sortByName}>
           <span>Name</span>
@@ -327,7 +326,7 @@
       <span class="row">File Details</span>
       {#if selected_file}
         <div class="row">
-          <span class="preview-text">{selected_file.name}</span>
+          <span class="preview-text">Name: {selected_file.name}</span>
         </div>
         <div class="row">
           {#if selected_file.file_path}
@@ -499,7 +498,6 @@
   .row {
     display: flex;
     flex-direction: row;
-    line-height: 1.5;
   }
 
   .material-icons {
@@ -557,6 +555,8 @@
   .preview {
     width: 30%;
     min-width: 100px;
+    margin: 8px;
+    line-height: 1.5;
   }
 
   .file-selection-row {
@@ -589,16 +589,17 @@
 
   .preview-text {
     text-overflow: ellipsis;
+    align-content: center;
   }
 
   .icon-container {
-    margin-top: 10px;
-    margin-right: 10px;
+    align-content: center;
   }
 
   .inline-icon {
     margin-left: 0px;
     margin-right: 0px;
+    margin-bottom: 0px;
   }
 
   .check-color {
@@ -612,5 +613,9 @@
   .delete {
     margin-left: auto;
     --secondary-text-color: var(--delete-color, red);
+  }
+
+  .margin-right {
+    margin-right: 8px
   }
 </style>

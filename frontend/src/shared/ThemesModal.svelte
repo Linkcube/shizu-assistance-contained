@@ -187,18 +187,20 @@
           {/each}
         </MaterialSelect>
         {#if selected_theme}
-          <span>{selected_theme.name}</span>
+          <span class="align">{selected_theme.name}</span>
         {:else}
-          <span>Add a Theme</span>
+          <span class="align">Add a Theme</span>
         {/if}
         <div class="row">
-          <IconButton
-            icon="add"
-            title="Add Theme"
-            on:click={() => (adding_theme = true)}
-          />
+          <div class="align">
+            <IconButton
+              icon="add"
+              title="Add Theme"
+              on:click={() => (adding_theme = true)}
+            />
+          </div>
           {#if selected_theme}
-            <div class="delete">
+            <div class="delete align">
               <IconButton
                 icon="delete_forever"
                 title="Delete Theme"
@@ -326,5 +328,9 @@
 
   .delete {
     --secondary-text-color: var(--delete-color, red);
+  }
+
+  .align {
+    align-content: center;
   }
 </style>
