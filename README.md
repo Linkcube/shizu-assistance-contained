@@ -15,6 +15,10 @@ Check out [Environment Setup](https://github.com/Linkcube/shizu-assistance-conta
 
 Run `docker compose up -d` in the root directory.
 
+## Usage
+
+Example walkthrough can be found at [Here](Walkthrough.md)
+
 ## Access
 
 This program is intended to be interracted with either through the included GUI service, or through a 3rd party bot (TBD), allowing flexibility of use.
