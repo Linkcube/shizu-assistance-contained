@@ -158,9 +158,9 @@
 {:else}
   <Modal on:close={close} on:submission={saveDj} z_index={5}>
     <div class="central-column">
-      <div class="row">
+      <div class="row margin-right">
         {#if index >= 0}
-          <span>{name}</span>
+          <span class="margin-left">{name}</span>
           <div class="delete">
             <IconButton
               icon="delete_forever"
@@ -176,21 +176,22 @@
         <MaterialInput label="Public Name" bind:value={public_name} />
         <MaterialInput label="Discord ID" bind:value={discord_id} />
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <div class="icon-container">
           <IconButton icon="photo" title="Select Logo" on:click={selectLogo} />
         </div>
         <p>Logo: {logo_name ? logo_name : "Not Set"}</p>
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <MaterialSelect label="RTMP Server" bind:value={rtmp_server}>
           {#each RTMP_SERVERS as { id, name }}
             <option value={id}>{name}</option>
           {/each}
         </MaterialSelect>
+        <div class="margin-left margin-right" />
         <MaterialInput label="Stream Key" bind:value={stream_key} />
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <div class="icon-container">
           <IconButton
             icon="video_file"
@@ -203,6 +204,7 @@
       {#if index >= 0 && lineup_names.length != 0}
         <div class="row">
           <MaterialButton value="Add to Lineup" on:click={addToLineup} />
+          <div class="margin-left margin-right" />
           <MaterialSelect label="Lineups" bind:value={target_lineup}>
             {#each lineup_names as name}
               <option value={name}>{name}</option>
@@ -245,5 +247,13 @@
 
   .saving {
     color: var(--secondary-text-color, red);
+  }
+
+  .margin-left {
+    margin-left: 8px;
+  }
+
+  .margin-right {
+    margin-right: 8px;
   }
 </style>

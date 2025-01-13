@@ -101,7 +101,7 @@
 {:else}
   <Modal on:close={close} on:submission={savePromo} z_index={5}>
     <div class="central-column">
-      <div class="row">
+      <div class="row margin-left margin-right">
         {#if index >= 0}
           <span>{name}</span>
           <div class="delete">
@@ -115,7 +115,7 @@
           <MaterialInput label="Promo Name" bind:value={name} />
         {/if}
       </div>
-      <div class="row">
+      <div class="row margin-left">
         <div class="icon-container">
           <IconButton
             icon="video_file"
@@ -128,6 +128,7 @@
       {#if index >= 0 && lineup_names.length != 0}
         <div class="row">
           <MaterialButton value="Add to Lineup" on:click={addToLineup} />
+          <div class="margin-left margin-right" />
           <MaterialSelect label="Lineups" bind:value={target_lineup}>
             {#each lineup_names as name}
               <option value={name}>{name}</option>
@@ -170,5 +171,13 @@
 
   .saving {
     color: var(--secondary-text-color, red);
+  }
+
+  .margin-left {
+    margin-left: 8px;
+  }
+
+  .margin-right {
+    margin-right: 8px;
   }
 </style>

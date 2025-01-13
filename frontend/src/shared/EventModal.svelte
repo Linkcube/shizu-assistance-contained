@@ -421,17 +421,18 @@
     <div class="column">
       <span class="row">Event Date and Start Time</span>
       <div class="row date-time">
-        <span>Date: </span>
+        <span class="margin-right">Date: </span>
         <input type="date" bind:value={input_date} />
       </div>
       <br />
       <div class="row date-time">
-        <span>Start Time (Eastern Time): </span>
+        <span class="align margin-right">Start Time (Eastern Time): </span>
         <MaterialSelect label="Hour" bind:value={input_time_hours}>
           {#each HOURS as hour}
             <option value={hour}>{hour}</option>
           {/each}
         </MaterialSelect>
+        <div class="margin-left margin-right" />
         <MaterialSelect label="Minute" bind:value={input_time_minutes}>
           {#each MINUTES as minute}
             <option value={minute}>{minute}</option>
@@ -589,8 +590,7 @@
           <div class="row">
             <span>Theme: {theme_data.name}</span>
           </div>
-          <div class="row">
-            <span>- Overlay </span>
+          <div class="row margin-left">
             {#if theme_data.overlay_file}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
@@ -598,9 +598,9 @@
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Overlay </span>
           </div>
-          <div class="row">
-            <span>- Starting </span>
+          <div class="row margin-left">
             {#if theme_data.starting_file}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
@@ -608,9 +608,9 @@
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Starting </span>
           </div>
-          <div class="row">
-            <span>- Ending </span>
+          <div class="row margin-left">
             {#if theme_data.ending_file}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
@@ -618,26 +618,27 @@
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Ending </span>
           </div>
-          <div class="row">
-            <span>- Video Settings </span>
-            {#if theme_data.target_video_width && theme_data.target_video_height && theme_data.video_offset_x && theme_data.video_offset_y}
+          <div class="row margin-left">
+            {#if theme_data.target_video_width !== null && theme_data.target_video_height !== null && theme_data.video_offset_x !== null && theme_data.video_offset_y !== null}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
               >
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Video Settings </span>
           </div>
-          <div class="row">
-            <span>- Chat Settings </span>
-            {#if theme_data.chat_width && theme_data.chat_height && theme_data.chat_offset_x && theme_data.chat_offset_y}
+          <div class="row margin-left">
+            {#if theme_data.chat_width !== null && theme_data.chat_height !== null && theme_data.chat_offset_x !== null && theme_data.chat_offset_y !== null}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
               >
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Chat Settings </span>
           </div>
         {:else}
           <div class="row">
@@ -711,5 +712,17 @@
 
   .date-time {
     margin-top: 10px;
+  }
+
+  .align {
+    align-content: center;
+  }
+
+  .margin-right {
+    margin-right: 8px;
+  }
+
+  .margin-left {
+    margin-left: 8px;
   }
 </style>
