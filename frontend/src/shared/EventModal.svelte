@@ -590,8 +590,7 @@
           <div class="row">
             <span>Theme: {theme_data.name}</span>
           </div>
-          <div class="row">
-            <span>- Overlay </span>
+          <div class="row margin-left">
             {#if theme_data.overlay_file}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
@@ -599,9 +598,9 @@
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Overlay </span>
           </div>
-          <div class="row">
-            <span>- Starting </span>
+          <div class="row margin-left">
             {#if theme_data.starting_file}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
@@ -609,9 +608,9 @@
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Starting </span>
           </div>
-          <div class="row">
-            <span>- Ending </span>
+          <div class="row margin-left">
             {#if theme_data.ending_file}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
@@ -619,26 +618,27 @@
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Ending </span>
           </div>
-          <div class="row">
-            <span>- Video Settings </span>
-            {#if theme_data.target_video_width && theme_data.target_video_height && theme_data.video_offset_x && theme_data.video_offset_y}
+          <div class="row margin-left">
+            {#if theme_data.target_video_width !== null && theme_data.target_video_height !== null && theme_data.video_offset_x !== null && theme_data.video_offset_y !== null}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
               >
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Video Settings </span>
           </div>
-          <div class="row">
-            <span>- Chat Settings </span>
-            {#if theme_data.chat_width && theme_data.chat_height && theme_data.chat_offset_x && theme_data.chat_offset_y}
+          <div class="row margin-left">
+            {#if theme_data.chat_width !== null && theme_data.chat_height !== null && theme_data.chat_offset_x !== null && theme_data.chat_offset_y !== null}
               <span class="material-icons large-icon check-color"
                 >check_circle</span
               >
             {:else}
               <span class="material-icons large-icon cancel-color">cancel</span>
             {/if}
+            <span>Chat Settings </span>
           </div>
         {:else}
           <div class="row">

@@ -188,7 +188,7 @@
             <option value={id}>{name}</option>
           {/each}
         </MaterialSelect>
-        <div class="margin-left margin-right"/>
+        <div class="margin-left margin-right" />
         <MaterialInput label="Stream Key" bind:value={stream_key} />
       </div>
       <div class="row margin-left">
@@ -204,7 +204,7 @@
       {#if index >= 0 && lineup_names.length != 0}
         <div class="row">
           <MaterialButton value="Add to Lineup" on:click={addToLineup} />
-          <div class="margin-left margin-right"/>
+          <div class="margin-left margin-right" />
           <MaterialSelect label="Lineups" bind:value={target_lineup}>
             {#each lineup_names as name}
               <option value={name}>{name}</option>

@@ -616,6 +616,6 @@
   }
 
   .margin-right {
-    margin-right: 8px
+    margin-right: 8px;
   }
 </style>
