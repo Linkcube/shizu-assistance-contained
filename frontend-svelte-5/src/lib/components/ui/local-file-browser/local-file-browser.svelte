@@ -50,11 +50,28 @@
 	export async function openDialogue() {
 		file_browser_selected_file = {} as LocalFile;
 		file_browser_open = true;
+
+		let initial_path = [];
+
+		// Remember last used path
+		let last_used_path = null;
+		if (file_type == 'logos') {
+			last_used_path = localStorage.getItem('last_logo_path');
+		} else if (file_type == 'recordings') {
+			last_used_path = localStorage.getItem('last_recording_path');
+		} else if (file_type == 'themes') {
+			last_used_path = localStorage.getItem('last_theme_path');
+		}
+
+		if (last_used_path != null) {
+			initial_path = JSON.parse(last_used_path);
+		}
+
 		let permissions: Permissions;
 		if (file_type === 'logos') {
-			permissions = await getLogoPermissions([]);
+			permissions = await getLogoPermissions(initial_path);
 		} else {
-			permissions = await getRecordingPermissions([]);
+			permissions = await getRecordingPermissions(initial_path);
 		}
 
 		file_browser_files = permissions.files;

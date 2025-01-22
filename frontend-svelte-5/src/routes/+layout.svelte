@@ -40,7 +40,9 @@
 			{/if}
 			<a
 				href="/promotions"
-				class="transition-colors hover:text-foreground/80 text-foreground{path.startsWith('/promos')
+				class="transition-colors hover:text-foreground/80 text-foreground{path.startsWith(
+					'/promotions'
+				)
 					? ''
 					: '/50'}"
 			>

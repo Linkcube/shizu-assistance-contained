@@ -152,7 +152,6 @@ const filePermissionsHelper = (url, sub_dirs) => {
   if (sub_dirs.length > 0) {
     url += "/" + encodeURIComponent(sub_dirs.join("/"));
   }
-  console.log(url);
   return openapiGet(url);
 };
 
@@ -447,7 +446,6 @@ export const oaPostCreateAppTheme = async (name) => {
 };
 
 export const oaPostUpdateAppTheme = async (theme) => {
-  console.log(theme);
   const body = Object.assign({}, { style: theme.style });
   return await openapiPostBody(`app-theme/${theme.name}`, body);
 };

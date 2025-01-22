@@ -28,6 +28,9 @@ export const createCols = (ledger_path: string, delete_function: (name: string) 
 				}),
 			cell: ({ row }) => {
 				return renderSnippet(CheckValue, row.original.logo);
+			},
+			sortingFn: (rowA, rowB) => {
+				return rowA.original.logo && rowB.original.logo ? 0 : rowA.original.logo ? -1 : 1;
 			}
 		},
 		{
@@ -42,6 +45,13 @@ export const createCols = (ledger_path: string, delete_function: (name: string) 
 				if (row.original.rtmp_server && row.original.rtmp_key)
 					val = row.original.rtmp_server.toUpperCase();
 				return renderSnippet(CrossOrValue, val);
+			},
+			sortingFn: (rowA, rowB) => {
+				return rowA.original.rtmp_server && rowB.original.rtmp_server
+					? rowA.original.rtmp_server.localeCompare(rowB.original.rtmp_server)
+					: rowA.original.rtmp_server
+						? -1
+						: 1;
 			}
 		},
 		{
@@ -53,6 +63,13 @@ export const createCols = (ledger_path: string, delete_function: (name: string) 
 				}),
 			cell: ({ row }) => {
 				return renderSnippet(CheckValue, row.original.recording);
+			},
+			sortingFn: (rowA, rowB) => {
+				return rowA.original.recording && rowB.original.recording
+					? 0
+					: rowA.original.recording
+						? -1
+						: 1;
 			}
 		},
 		{

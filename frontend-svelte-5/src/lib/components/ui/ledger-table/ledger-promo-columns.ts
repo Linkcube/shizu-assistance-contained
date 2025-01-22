@@ -28,6 +28,13 @@ export const createCols = (ledger_path: string, delete_function: (name: string) 
 				}),
 			cell: ({ row }) => {
 				return renderSnippet(CheckValue, row.original.promo_file);
+			},
+			sortingFn: (rowA, rowB) => {
+				return rowA.original.promo_file && rowB.original.promo_file
+					? 0
+					: rowA.original.promo_file
+						? -1
+						: 1;
 			}
 		},
 		{

@@ -39,7 +39,6 @@ const filePermissionsHelper = (url: string, sub_dirs: string[]): Promise<Permiss
 	if (sub_dirs.length > 0) {
 		url += '/' + encodeURIComponent(sub_dirs.join('/'));
 	}
-	console.log(url);
 	return openapiGet(url);
 };
 

@@ -6,7 +6,7 @@
 	import { type File } from '$lib/fileController';
 	import FileObjectsSheet from '$lib/components/ui/file-objects-sheet/file-objects-sheet.svelte';
 	import { toast } from 'svelte-sonner';
-	import { updateSingle } from '$lib/djController';
+	import { deleteSingle, updateSingle } from '$lib/djController';
 
 	let previousPage: string = base;
 
@@ -21,7 +21,6 @@
 	let fileObjectSheetInstance: FileObjectsSheet;
 
 	const submitChanges = () => {
-		console.log($state.snapshot(dj));
 		updateSingle(
 			dj.name,
 			dj.logo,
@@ -51,6 +50,7 @@
 	};
 
 	const deleteDj = () => {
+		deleteSingle(dj.name);
 		if (previousPage) {
 			goto(previousPage);
 		} else {

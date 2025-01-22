@@ -36,4 +36,5 @@
 	}
 </script>
 
+<h1 class="scroll-m-20 py-2 text-center text-4xl font-bold tracking-tight lg:text-5xl">DJs</h1>
 <LedgerTable data={base_djs} columns={createCols('djs', deleteDjAction)} />
