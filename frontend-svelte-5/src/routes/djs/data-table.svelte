@@ -3,17 +3,17 @@
 		type ColumnDef,
 		type PaginationState,
 		type SortingState,
-        type ColumnFiltersState,
+		type ColumnFiltersState,
 		getCoreRowModel,
 		getPaginationRowModel,
 		getSortedRowModel,
-        getFilteredRowModel,
+		getFilteredRowModel
 	} from '@tanstack/table-core';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-    import { Input } from "$lib/components/ui/input/index.js";
-    import * as Select from "$lib/components/ui/select/index.js";
+	import { Input } from '$lib/components/ui/input/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
@@ -21,12 +21,11 @@
 	};
 
 	let { data, columns }: DataTableProps<TData, TValue> = $props();
-    let pageSize = $state("15");
+	let pageSize = $state('15');
 
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: $state.snapshot(+pageSize) });
 	let sorting = $state<SortingState>([]);
-    let columnFilters = $state<ColumnFiltersState>([]);
-    
+	let columnFilters = $state<ColumnFiltersState>([]);
 
 	const table = createSvelteTable({
 		get data() {
@@ -36,7 +35,7 @@
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
 		state: {
 			get pagination() {
 				return pagination;
@@ -44,9 +43,9 @@
 			get sorting() {
 				return sorting;
 			},
-            get columnFilters() {
-        return columnFilters;
-      },
+			get columnFilters() {
+				return columnFilters;
+			}
 		},
 		onPaginationChange: (updater) => {
 			if (typeof updater === 'function') {
@@ -62,37 +61,35 @@
 				sorting = updater;
 			}
 		},
-        onColumnFiltersChange: (updater) => {
-      if (typeof updater === "function") {
-        columnFilters = updater(columnFilters);
-      } else {
-        columnFilters = updater;
-      }
-    },
+		onColumnFiltersChange: (updater) => {
+			if (typeof updater === 'function') {
+				columnFilters = updater(columnFilters);
+			} else {
+				columnFilters = updater;
+			}
+		}
 	});
 
-    const updatePageSize = () => {
-        table.setPageSize($state.snapshot(+pageSize));
-    }
+	const updatePageSize = () => {
+		table.setPageSize($state.snapshot(+pageSize));
+	};
 </script>
 
-<h1 class="text-center scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl py-2">
-    All DJs
-</h1>
-<div class="items-center align-middle px-40">
-    <div class="flex items-center py-4">
-        <Input
-          placeholder="Filter DJs..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onchange={(e) => {
-            table.getColumn("name")?.setFilterValue(e.currentTarget.value);
-          }}
-          oninput={(e) => {
-            table.getColumn("name")?.setFilterValue(e.currentTarget.value);
-          }}
-          class="max-w-sm"
-        />
-      </div>
+<h1 class="scroll-m-20 py-2 text-center text-4xl font-bold tracking-tight lg:text-5xl">All DJs</h1>
+<div class="items-center px-40 align-middle">
+	<div class="flex items-center py-4">
+		<Input
+			placeholder="Filter DJs..."
+			value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+			onchange={(e) => {
+				table.getColumn('name')?.setFilterValue(e.currentTarget.value);
+			}}
+			oninput={(e) => {
+				table.getColumn('name')?.setFilterValue(e.currentTarget.value);
+			}}
+			class="max-w-sm"
+		/>
+	</div>
 	<div class="rounded-md border">
 		<Table.Root>
 			<Table.Header>
@@ -129,17 +126,17 @@
 		</Table.Root>
 	</div>
 	<div class="flex items-center justify-end space-x-2 py-4">
-        <Select.Root type="single" name="pageSize" bind:value={pageSize} onValueChange={updatePageSize}>
-            <Select.Trigger class="w-[120px]">
-                {pageSize} Entries
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value=5>5</Select.Item>
-              <Select.Item value=10>10</Select.Item>
-              <Select.Item value=15>15</Select.Item>
-              <Select.Item value=20>20</Select.Item>
-            </Select.Content>
-          </Select.Root>
+		<Select.Root type="single" name="pageSize" bind:value={pageSize} onValueChange={updatePageSize}>
+			<Select.Trigger class="w-[120px]">
+				{pageSize} Entries
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="5">5</Select.Item>
+				<Select.Item value="10">10</Select.Item>
+				<Select.Item value="15">15</Select.Item>
+				<Select.Item value="20">20</Select.Item>
+			</Select.Content>
+		</Select.Root>
 		<Button
 			variant="outline"
 			size="sm"

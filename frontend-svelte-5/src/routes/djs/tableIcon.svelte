@@ -7,7 +7,7 @@
 
 {#snippet CheckValue(value: {})}
 	{#if value === null || value === undefined}
-		<Ban class="mr-2 size-4 text-destructive" />
+		<Ban class="mr-2 size-4 text-muted" />
 	{:else}
 		<CircleCheckBig class="mr-2 size-4 text-primary" />
 	{/if}
@@ -15,7 +15,7 @@
 
 {#snippet CrossOrValue(value: {})}
 	{#if value === null || value === undefined || value == false}
-		<Ban class="mr-2 size-4 text-destructive" />
+		<Ban class="mr-2 size-4 text-muted" />
 	{:else}
 		{value}
 	{/if}

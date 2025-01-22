@@ -1,28 +1,51 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { ModeWatcher } from 'mode-watcher';
 	import Github from 'lucide-svelte/icons/github';
 	import '../app.css';
 	let { children } = $props();
+
+	let path = $derived($page.url.pathname);
 </script>
 
 <ModeWatcher />
 
-<header class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+<header
+	class="sticky top-0 z-50 w-full border-b border-border/40 ring-primary/95 backdrop-blur supports-[backdrop-filter]:bg-primary/60"
+>
 	<div class="container flex h-14 max-w-screen-2xl items-center">
-		<a class="mr-6 flex items-center space-x-2" href="/">
-			Tasukete Shizu!
-		</a>
+		<a class="mr-6 flex items-center space-x-2" href="/"> Tasukete Shizu! </a>
 		<nav class="flex items-center gap-6 text-sm">
-			<a href="/djs" class="hover:text-foreground/80 transition-colors text-foreground/60">
-				DJs
-			</a>
-			<a href="/promos" class="hover:text-foreground/80 transition-colors text-foreground/60">
+			<!-- Needs an implicit #if block for just the first one, tailwind is weird. -->
+			{#if path.startsWith('/djs')}
+				<a href="/djs" class="text-foreground transition-colors hover:text-foreground/80"> DJs </a>
+			{:else}
+				<a href="/djs" class="text-foreground/50 transition-colors hover:text-foreground/80">
+					DJs
+				</a>
+			{/if}
+			<a
+				href="/promos"
+				class="transition-colors hover:text-foreground/80 text-foreground{path.startsWith('/promos')
+					? ''
+					: '/50'}"
+			>
 				Promotions
 			</a>
-			<a href="/events" class="hover:text-foreground/80 transition-colors text-foreground/60">
+			<a
+				href="/events"
+				class="transition-colors hover:text-foreground/80 text-foreground{path.startsWith('/events')
+					? ''
+					: '/50'}"
+			>
 				Events
 			</a>
-			<a href="/help" class="hover:text-foreground/80 transition-colors text-foreground/60">
+			<a
+				href="/help"
+				class="transition-colors hover:text-foreground/80 text-foreground{path.startsWith('/help')
+					? ''
+					: '/50'}"
+			>
 				Help
 			</a>
 		</nav>

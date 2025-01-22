@@ -27,7 +27,7 @@ export const columns: ColumnDef<DJ>[] = [
 		}
 	},
 	{
-		accessorKey: 'rtmp',
+		accessorKey: 'rtmp_server',
 		header: ({ column }) =>
 			renderComponent(DataTableNameButton, {
 				name: 'RTMP',

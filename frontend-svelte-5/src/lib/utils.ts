@@ -25,7 +25,7 @@ const errorStackPushHelper = (error: ErrorMessage) => {
 };
 
 export const RTMP_SERVERS = [
-	{ id: null, name: 'Unset' },
+	{ id: '', name: 'Unset' },
 	{ id: 'us-west', name: 'US West' },
 	{ id: 'us-east', name: 'US East' },
 	{ id: 'jp', name: 'Japan' },
