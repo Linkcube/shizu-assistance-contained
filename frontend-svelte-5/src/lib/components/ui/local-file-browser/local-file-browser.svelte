@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { type LocalFile } from '$lib/fileController';
+	import {
+		getLogoPermissions,
+		getRecordingPermissions,
+		type LocalFile,
+		type Permissions
+	} from '$lib/fileController';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -10,23 +15,26 @@
 	import Folder from 'lucide-svelte/icons/folder';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { staticAssetsBase } from '$lib/utils';
 
 	const isImageSource = (source_path: string) => {
 		return source_path.match(/\.(jpeg|jpg|gif|png)$/) != null;
 	};
 
-	let {
-		file_browser_open,
-		file_browser_path,
-		file_browser_top_dir,
-		file_browser_search,
-		file_browser_selected_file,
-		file_browser_files,
-		file_browser_preview_path,
-		navigateUpFileBrowser,
-		selectFileBrowser,
-		submitLocalFile
-	} = $props();
+	type Props = {
+		file_type: string;
+		submitLocalFile: (file_path: string[], local_file: LocalFile) => void;
+	};
+
+	let { file_type, submitLocalFile }: Props = $props();
+
+	let file_browser_open: boolean = $state(false);
+	let file_browser_path: string[] = $state([]);
+	let file_browser_top_dir: string = $state('');
+	let file_browser_search: string = $state('');
+	let file_browser_selected_file: LocalFile = $state({} as LocalFile);
+	let file_browser_files: LocalFile[] = $state([]);
+	let file_browser_preview_path: string = $state('');
 
 	function localfileCompare(a: LocalFile, b: LocalFile) {
 		return a.is_dir && b.is_dir ? 0 : a.is_dir ? -1 : 1;
@@ -38,6 +46,58 @@
 			.sort(localfileCompare)
 			.filter((file: LocalFile) => file.name.toLowerCase().includes(file_browser_search))
 	);
+
+	export async function openDialogue() {
+		file_browser_selected_file = {} as LocalFile;
+		file_browser_open = true;
+		let permissions: Permissions;
+		if (file_type === 'logos') {
+			permissions = await getLogoPermissions([]);
+		} else {
+			permissions = await getRecordingPermissions([]);
+		}
+
+		file_browser_files = permissions.files;
+		file_browser_path = permissions.path;
+		file_browser_top_dir = permissions.top_dir;
+	}
+
+	const navigateUpFileBrowser = async (index: number) => {
+		navigateFileBrowser(file_browser_path.slice(0, index));
+	};
+
+	const navigateDownFileBrowser = async (dir: string) => {
+		let tmp_path = file_browser_path.slice();
+		tmp_path.push(dir);
+		navigateFileBrowser(tmp_path);
+	};
+
+	const navigateFileBrowser = async (path: string[]) => {
+		file_browser_selected_file = {} as LocalFile;
+		let permissions: Permissions;
+		if (file_type === 'logos') {
+			permissions = await getLogoPermissions(path);
+		} else {
+			permissions = await getRecordingPermissions(path);
+		}
+		file_browser_files = permissions.files;
+		file_browser_path = permissions.path;
+		file_browser_top_dir = permissions.top_dir;
+	};
+
+	const selectFileBrowser = (file: LocalFile) => {
+		if (file.is_dir) {
+			navigateDownFileBrowser(file.name);
+		} else {
+			file_browser_selected_file = file;
+			file_browser_preview_path = `${staticAssetsBase}/${file_type}/${file_browser_path.join('/')}/${file.name + file.ext}`;
+		}
+	};
+
+	const submit = () => {
+		file_browser_open = false;
+		submitLocalFile(file_browser_path, file_browser_selected_file);
+	};
 </script>
 
 <Dialog.Root bind:open={file_browser_open}>
@@ -154,7 +214,11 @@
 			</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer>
-			<Button onclick={submitLocalFile}>Submit</Button>
+			{#if file_browser_selected_file?.name}
+				<Button onclick={submit}>Select</Button>
+			{:else}
+				<Button disabled>Select</Button>
+			{/if}
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

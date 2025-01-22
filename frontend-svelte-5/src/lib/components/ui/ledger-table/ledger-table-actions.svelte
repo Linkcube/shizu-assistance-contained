@@ -6,7 +6,11 @@
 	import Trash2 from 'lucide-svelte/icons/trash';
 	import { goto } from '$app/navigation';
 
-	let { name }: { name: string } = $props();
+	let {
+		name,
+		path,
+		delete_item
+	}: { name: string; path: string; delete_item: (name: string) => void } = $props();
 </script>
 
 <DropdownMenu.Root>
@@ -21,13 +25,13 @@
 	<DropdownMenu.Content>
 		<DropdownMenu.Group>
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
-			<DropdownMenu.Item onclick={() => goto(`/djs/${name}`)}>
+			<DropdownMenu.Item onclick={() => goto(`/${path}/${name}`)}>
 				<Pencil class="mr-2 size-4" />
 				Edit
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item>
+		<DropdownMenu.Item onclick={() => delete_item(name)}>
 			<Trash2 class="mr-2 size-4 text-destructive" />
 			<span class="text-destructive">Delete</span>
 		</DropdownMenu.Item>

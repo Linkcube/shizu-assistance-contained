@@ -76,7 +76,7 @@
 </script>
 
 <h1 class="scroll-m-20 py-2 text-center text-4xl font-bold tracking-tight lg:text-5xl">All DJs</h1>
-<div class="items-center px-40 align-middle">
+<div class="items-center px-0 align-middle sm:px-20 lg:px-40">
 	<div class="flex items-center py-4">
 		<Input
 			placeholder="Filter DJs..."

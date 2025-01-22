@@ -4,10 +4,30 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import FileImage from 'lucide-svelte/icons/file-image';
 	import Film from 'lucide-svelte/icons/film';
+	import FileX from 'lucide-svelte/icons/file-x';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { RTMP_SERVERS } from '$lib/utils';
+	import type { DJ } from '$lib/djController';
 
-	let { dj = $bindable(), submitChanges, deleteDj, selectLogo, selectRecording } = $props();
+	type Props = {
+		dj: DJ;
+		submitChanges: () => void;
+		deleteDj: () => void;
+		selectLogo: () => void;
+		selectRecording: () => void;
+		unsetLogoFile: () => void;
+		unsetRecordingFile: () => void;
+	};
+
+	let {
+		dj = $bindable(),
+		submitChanges,
+		deleteDj,
+		selectLogo,
+		selectRecording,
+		unsetLogoFile,
+		unsetRecordingFile
+	}: Props = $props();
 
 	const rtmpTriggerContent = $derived(
 		RTMP_SERVERS.find((r) => r.id === dj.rtmp_server && r.id !== '')?.name ?? 'RTMP Server'
@@ -30,22 +50,35 @@
 	</div>
 	<div class="flex w-full flex-col justify-between gap-1.5 py-4">
 		<Label for="discord-id">DJ Logo</Label>
-		<Button variant="outline" onclick={selectLogo}>
-			<FileImage class="mr-2 h-4 w-4" />
-			Select Logo
-		</Button>
+		<div class="flex flex-row">
+			<Button class="basis-1/2" variant="outline" onclick={selectLogo}>
+				<FileImage class="mr-2 h-4 w-4" />
+				Select Logo
+			</Button>
+			<Button class="basis-1/2" variant="secondary" onclick={unsetLogoFile}>
+				<FileX class="mr-2 h-4 w-4" />
+				Unset
+			</Button>
+		</div>
 		<p class="text-sm text-muted-foreground">{dj.logo ? `Current: ${dj.logo}` : 'No Logo Set'}</p>
 	</div>
 	<div class="flex w-full flex-col justify-between gap-1.5 py-4">
 		<Label for="discord-id">DJ Recording</Label>
-		<Button variant="outline" onclick={selectRecording}>
-			<Film class="mr-2 h-4 w-4" />
-			Select Recording
-		</Button>
+		<div class="flex flex-row">
+			<Button class="basis-1/2" variant="outline" onclick={selectRecording}>
+				<Film class="mr-2 h-4 w-4" />
+				Select Recording
+			</Button>
+			<Button class="basis-1/2" variant="secondary" onclick={unsetRecordingFile}>
+				<FileX class="mr-2 h-4 w-4" />
+				Unset
+			</Button>
+		</div>
 		<p class="text-sm text-muted-foreground">
 			{dj.recording ? `Current: ${dj.recording}` : 'No Recording Set'}
 		</p>
 	</div>
+
 	<div class="flex w-full flex-row justify-between gap-1.5 py-4">
 		<div class="basis-1/5 flex-col">
 			<Label for="server-select">RTMP Server</Label>
@@ -78,7 +111,7 @@
 		</div>
 	</div>
 	<div class="flex w-full flex-row justify-between gap-1.5 py-4">
-		<Button class="w-full" onclick={submitChanges}>Submit</Button>
+		<Button class="w-full" onclick={submitChanges}>Save</Button>
 		<Button variant="destructive" class="w-full" onclick={deleteDj}>Delete</Button>
 	</div>
 </div>

@@ -12,13 +12,14 @@ export function cn(...inputs: ClassValue[]) {
 const serverUrl = 'http://localhost:4004';
 export const staticAssetsBase = 'http://localhost:4004';
 const openapiUrl = `${serverUrl}/openapi`;
-const error_stack = writable();
 
-interface ErrorMessage {
+export interface ErrorMessage {
 	statusCode: number;
 	message: string;
 	errorType: string;
 }
+
+export const error_stack = writable({} as ErrorMessage);
 
 const errorStackPushHelper = (error: ErrorMessage) => {
 	error_stack.set(error);
@@ -78,6 +79,7 @@ export async function openapiDelete(url: string) {
 	if (!response.ok) {
 		parseOpenapiError(response);
 	}
+	return response.ok;
 }
 
 async function parseOpenapiError(response: Response) {

@@ -2,13 +2,27 @@
 	import { page } from '$app/stores';
 	import { ModeWatcher } from 'mode-watcher';
 	import Github from 'lucide-svelte/icons/github';
+	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import '../app.css';
 	let { children } = $props();
+	import { error_stack } from '$lib/utils';
+	import { toast } from 'svelte-sonner';
 
 	let path = $derived($page.url.pathname);
+
+	error_stack.subscribe((new_error) => {
+		toast.error(`${new_error.statusCode}: ${new_error.errorType}.`, {
+			description: new_error.message,
+			action: {
+				label: 'OK',
+				onClick: () => console.info('OK')
+			}
+		});
+	});
 </script>
 
 <ModeWatcher />
+<Toaster />
 
 <header
 	class="sticky top-0 z-50 w-full border-b border-border/40 ring-primary/95 backdrop-blur supports-[backdrop-filter]:bg-primary/60"
@@ -25,7 +39,7 @@
 				</a>
 			{/if}
 			<a
-				href="/promos"
+				href="/promotions"
 				class="transition-colors hover:text-foreground/80 text-foreground{path.startsWith('/promos')
 					? ''
 					: '/50'}"

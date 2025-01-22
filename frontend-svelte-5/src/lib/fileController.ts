@@ -114,6 +114,6 @@ export const updateSingleFile = async (
 	return await openapiPostBody('file/' + name, body);
 };
 
-export const deleteSingleFile = async (name: string): Promise<void> => {
+export const deleteSingleFile = async (name: string): Promise<boolean> => {
 	return await openapiDelete('file/' + name);
 };
