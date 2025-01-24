@@ -16,7 +16,7 @@
 
 	let { data }: PageProps = $props();
 	let dj = $state(data.dj);
-	let file_type = $state('logos');
+	let file_type: 'logos' | 'recordings' = $state('logos');
 
 	let fileObjectSheetInstance: FileObjectsSheet;
 

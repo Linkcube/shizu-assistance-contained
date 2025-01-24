@@ -5,16 +5,24 @@ export interface Promotion {
 	promo_file: string;
 }
 
+export interface PromotionMin {
+	name: string;
+}
+
 export async function getAll(): Promise<Promotion[] | undefined> {
 	return await openapiGet('promo/');
+}
+
+export async function getMin(): Promise<PromotionMin[] | undefined> {
+	return await openapiGet('promo/min');
 }
 
 export async function getSingle(promo_name: string): Promise<Promotion | undefined> {
 	return await openapiGet('promo/' + promo_name);
 }
 
-export async function addSingle(name: string, promo_file: string): Promise<Promotion | undefined> {
-	const body = { name, promo_file };
+export async function addSingle(name: string): Promise<Promotion | undefined> {
+	const body = { name };
 	return await openapiPostBody('promo', body);
 }
 

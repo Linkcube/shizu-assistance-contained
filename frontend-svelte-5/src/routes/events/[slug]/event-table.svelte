@@ -1,31 +1,231 @@
 <script lang="ts">
-	import { type Event } from '$lib/eventController';
+	import { updateSingle as updateSingleEvent, type Event } from '$lib/eventController';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import EventDjTable from './event-dj-table.svelte';
 	import EventPromoTable from './event-promo-table.svelte';
 	import EventTheme from './event-theme.svelte';
-	import { updateSingle as UpdateSingleTheme } from '$lib/themeController';
+	import { updateSingle as updateSingleTheme, type Theme } from '$lib/themeController';
+	import LineupSelectionSheet from './lineup-selection-sheet.svelte';
+	import { getMin as getMinDjs } from '$lib/djController';
+	import { getMin as getMinPromos } from '$lib/promotionsController';
+	import FileObjectsSheet from '$lib/components/ui/file-objects-sheet/file-objects-sheet.svelte';
+	import type { File } from '$lib/fileController';
+	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
+	import CalendarIcon from 'lucide-svelte/icons/calendar';
+	import {
+		DateFormatter,
+		type DateValue,
+		getLocalTimeZone,
+		parseDate
+	} from '@internationalized/date';
+	import { cn } from '$lib/utils.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
+	import { Calendar } from '$lib/components/ui/calendar/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		event: Event;
+		saveChanges: () => void;
+		deleteEvent: () => void;
 	};
 
-	let { event = $bindable() }: Props = $props();
+	let { event = $bindable(), saveChanges, deleteEvent }: Props = $props();
 	let event_theme: EventTheme;
 
-	function submit() {
-		let theme = event_theme.getSelectedTheme();
-		if (theme) {
-			UpdateSingleTheme(theme);
-		}
+	let lineup_type: 'djs' | 'promos' = $state('djs');
+	let lineup_existing: string[] = $state([]);
+	let lineup_all: string[] = $state([]);
+	let lineup_instance: LineupSelectionSheet;
+
+	let fileObjectSheetInstance: FileObjectsSheet;
+	let selected_theme: Theme = $state({} as Theme);
+	let file_type: 'theme-overlay' | 'theme-op' | 'theme-ed' = $state('theme-overlay');
+
+	const df = new DateFormatter('en-US', {
+		dateStyle: 'long'
+	});
+
+	let date_value = $state<DateValue | undefined>();
+	let contentRef = $state<HTMLElement | null>(null);
+	let start_hour = $state('00');
+	let start_minute = $state('00');
+
+	if (event.start_time) {
+		start_hour = event.start_time.split(':')[0];
+		start_minute = event.start_time.split(':')[1];
 	}
+
+	const HOURS = Array.from(Array(24).keys()).map((val) => {
+		let hour = val.toString();
+		if (hour.length === 1) return `0${hour}`;
+		return hour;
+	});
+	const MINUTES = Array.from(Array(60).keys()).map((val) => {
+		let minute = val.toString();
+		if (minute.length === 1) return `0${minute}`;
+		return minute;
+	});
+
+	if (event.date) {
+		date_value = parseDate(event.date);
+	}
+
+	function submit() {
+		event.start_time = `${start_hour}:${start_minute}`;
+		console.log($state.snapshot(event));
+		let theme = event_theme?.getSelectedTheme();
+		if (date_value) {
+			event.date = date_value.toString();
+			console.log(event.date);
+		}
+		if (theme) {
+			updateSingleTheme(theme);
+		}
+
+		saveChanges();
+	}
+
+	const openDjLineup = async () => {
+		lineup_type = 'djs';
+		lineup_existing = event.djs.map((dj) => dj.name);
+		const all_djs = await getMinDjs();
+		if (all_djs) {
+			lineup_all = all_djs.map((dj) => dj.name);
+		}
+
+		lineup_instance.openLineupSheet();
+	};
+
+	const openPromoLineup = async () => {
+		lineup_type = 'promos';
+		lineup_existing = event.promos;
+		const all_promos = await getMinPromos();
+		if (all_promos) {
+			lineup_all = all_promos.map((promo) => promo.name);
+		}
+
+		lineup_instance.openLineupSheet();
+	};
+
+	const submitLineupSelection = (new_items: string[]) => {
+		console.log(new_items);
+		if (lineup_type === 'djs') {
+			new_items.forEach((name) => event.djs.push({ name: name, is_live: false, vj: '' }));
+		} else {
+			new_items.forEach((name) => event.promos.push(name));
+		}
+	};
+
+	const submitFile = (selected_file: File) => {
+		if (file_type === 'theme-overlay') {
+			event_theme.updateThemeOverlay(selected_file.name);
+		} else if (file_type === 'theme-op') {
+			event_theme.updateThemeOp(selected_file.name);
+		} else {
+			event_theme.updateThemeEd(selected_file.name);
+		}
+	};
+
+	const selectOverlay = (theme: Theme) => {
+		file_type = 'theme-overlay';
+		selected_theme = theme;
+		fileObjectSheetInstance.openFileSheet();
+	};
+
+	const selectStarting = (theme: Theme) => {
+		file_type = 'theme-op';
+		selected_theme = theme;
+		fileObjectSheetInstance.openFileSheet();
+	};
+
+	const selectEnding = (theme: Theme) => {
+		file_type = 'theme-ed';
+		selected_theme = theme;
+		fileObjectSheetInstance.openFileSheet();
+	};
 </script>
 
 <div class="mx-auto flex min-w-80 flex-col px-10 py-4 md:px-40">
 	<div class="flex flex-col justify-around lg:flex-row">
-		<EventDjTable bind:event_djs={event.djs} />
+		<EventDjTable bind:event_djs={event.djs} {openDjLineup} />
 		<Separator class="my-4 lg:hidden"></Separator>
-		<EventPromoTable bind:event_promos={event.promos} />
+		<EventPromoTable bind:event_promos={event.promos} {openPromoLineup} />
 	</div>
-	<EventTheme bind:event bind:this={event_theme} />
+	<EventTheme bind:event bind:this={event_theme} {selectOverlay} {selectStarting} {selectEnding} />
+	<!-- Event public and datetime settings -->
+	<LineupSelectionSheet
+		bind:this={lineup_instance}
+		event_name={event.name}
+		items_type={lineup_type}
+		existing_items={lineup_existing}
+		all_items={lineup_all}
+		makeSelection={submitLineupSelection}
+	/>
+	<Separator class="my-4"></Separator>
+	<div class="flex flex-col items-center lg:flex-row lg:justify-around">
+		<div class="flex items-center space-x-2">
+			<Checkbox id="public" bind:checked={event.public} aria-labelledby="terms-label" />
+			<Label
+				id="public-label"
+				for="public"
+				class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			>
+				Event is Public
+			</Label>
+		</div>
+		<Popover.Root>
+			<Popover.Trigger
+				class={cn(
+					buttonVariants({
+						variant: 'outline',
+						class: 'w-[280px] justify-start text-left font-normal'
+					}),
+					!date_value && 'text-muted-foreground'
+				)}
+			>
+				<CalendarIcon />
+				{date_value ? df.format(date_value.toDate(getLocalTimeZone())) : 'Pick a date'}
+			</Popover.Trigger>
+			<Popover.Content bind:ref={contentRef} class="w-auto p-0">
+				<Calendar type="single" bind:value={date_value} />
+			</Popover.Content>
+		</Popover.Root>
+		<div class="flex flex-row">
+			<Label
+				class="mx-2 content-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			>
+				Start Time:
+			</Label>
+			<Select.Root type="single" bind:value={start_hour}>
+				<Select.Trigger class="w-fit">{start_hour}</Select.Trigger>
+				<Select.Content>
+					{#each HOURS as hour}
+						<Select.Item value={hour}>{hour}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+			<Select.Root type="single" bind:value={start_minute}>
+				<Select.Trigger class="w-fit">{start_minute}</Select.Trigger>
+				<Select.Content>
+					{#each MINUTES as minute}
+						<Select.Item value={minute}>{minute}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+	</div>
+	<div class="my-1.5 flex w-full flex-row justify-between gap-1.5">
+		<Button class="w-full" onclick={submit}>Save Changes</Button>
+		<Button class="w-full" variant="destructive" onclick={deleteEvent}>Delete</Button>
+	</div>
 </div>
+
+<FileObjectsSheet
+	bind:theme={selected_theme}
+	{file_type}
+	{submitFile}
+	bind:this={fileObjectSheetInstance}
+/>

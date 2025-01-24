@@ -20,9 +20,12 @@
 
 	type Props = {
 		event_djs: EventDj[];
+		openDjLineup: () => void;
 	};
 
-	let { event_djs = $bindable() }: Props = $props();
+	let { event_djs = $bindable(), openDjLineup }: Props = $props();
+
+	if (!event_djs) event_djs = [];
 
 	let edit_vj_dialogue_open = $state(false);
 	let edit_vj_text = $state('');
@@ -78,12 +81,27 @@
 		edit_vj_dj.vj = edit_vj_text;
 		edit_vj_dialogue_open = false;
 	};
+
+	const handleKeyUp = (index: number, event: KeyboardEvent) => {
+		if (event.key === 'ArrowUp') {
+			if (index === 0) return;
+			dragging_index = index;
+			last_dragover_index = index - 1;
+			handleDjDragEnd();
+		}
+		if (event.key === 'ArrowDown') {
+			if (index === event_djs.length - 1) return;
+			dragging_index = index;
+			last_dragover_index = index + 1;
+			handleDjDragEnd();
+		}
+	};
 </script>
 
 <div class="flex w-full flex-col px-5">
 	<div class="mx-auto mt-4 flex w-full max-w-4xl flex-row justify-between">
 		<h1 class="scroll-m-20 py-2 text-center text-xl font-bold tracking-tight">DJ Lineup</h1>
-		<Button variant="outline" onclick={() => console.log('hi')}>
+		<Button variant="outline" onclick={openDjLineup}>
 			<Plus class="mr-2 h-4 w-4" />
 			Add DJs
 		</Button>
@@ -110,6 +128,7 @@
 					ondragstart={(event) => handleDragStart(i, event)}
 					ondragover={(event) => handleDragOver(i, event)}
 					ondragend={handleDjDragEnd}
+					onkeyup={(event) => handleKeyUp(i, event)}
 					animate:flip
 				>
 					<Table.Cell class="font-medium">{i + 1}.</Table.Cell>
@@ -156,7 +175,7 @@
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item onclick={() => deleteEventDjItem(event_dj.name)}>
 									<Trash2 class="mr-2 size-4 text-destructive" />
-									<span class="text-destructive">Delete</span>
+									<span class="text-destructive">Remove</span>
 								</DropdownMenu.Item>
 							</DropdownMenu.Content>
 						</DropdownMenu.Root>
@@ -167,7 +186,6 @@
 	</Table.Root>
 
 	<Dialog.Root bind:open={edit_vj_dialogue_open}>
-		<Dialog.Trigger></Dialog.Trigger>
 		<Dialog.Content>
 			<Dialog.Header>
 				<Dialog.Title>Set the VJ text for {edit_vj_dj.name}</Dialog.Title>

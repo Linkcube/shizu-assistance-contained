@@ -86,8 +86,8 @@ export const addRecordingFile = async (
 
 export const addThemeFile = async (
 	name: string,
-	file_path: string,
-	url_path: string
+	file_path?: string,
+	url_path?: string
 ): Promise<File> => {
 	const body = {
 		name: name,

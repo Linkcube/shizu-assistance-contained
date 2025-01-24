@@ -12,19 +12,26 @@
 	import Plus from 'lucide-svelte/icons/plus';
 	import { cn } from '$lib/utils.js';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { getAll, type Theme } from '$lib/themeController';
+	import { addSingle, getAll, type Theme } from '$lib/themeController';
 	import { tick } from 'svelte';
 	import type { Event } from '$lib/eventController';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import Trash2 from 'lucide-svelte/icons/trash';
 
 	type Props = {
 		event: Event;
+		selectOverlay: (selected_theme: Theme) => void;
+		selectStarting: (selected_theme: Theme) => void;
+		selectEnding: (selected_theme: Theme) => void;
 	};
 
-	let { event = $bindable() }: Props = $props();
+	let { event = $bindable(), selectOverlay, selectStarting, selectEnding }: Props = $props();
 
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 	let themes: Theme[] = $state([]);
+	let create_theme_open = $state(false);
+	let create_theme_name = $state('');
 
 	const selected_theme = $derived(themes.find((f) => f.name === event.theme));
 
@@ -46,54 +53,92 @@
 		return $state.snapshot(selected_theme);
 	}
 
+	const openCreateTheme = () => {
+		create_theme_open = true;
+	};
+
+	const createTheme = async () => {
+		let response = await addSingle(create_theme_name);
+		if (response) {
+			event.theme = response.name;
+			updateThemesList();
+			// toast
+		}
+		create_theme_open = false;
+	};
+
+	export const updateThemeOp = (new_op: string) => {
+		let currently_selected_theme = themes.find((f) => f.name === event.theme);
+		if (!currently_selected_theme) return;
+		currently_selected_theme.starting_file = new_op;
+	};
+
+	export const updateThemeEd = (new_ed: string) => {
+		let currently_selected_theme = themes.find((f) => f.name === event.theme);
+		if (!currently_selected_theme) return;
+		currently_selected_theme.ending_file = new_ed;
+	};
+
+	export const updateThemeOverlay = (new_overlay: string) => {
+		let currently_selected_theme = themes.find((f) => f.name === event.theme);
+		if (!currently_selected_theme) return;
+		currently_selected_theme.overlay_file = new_overlay;
+	};
+
 	updateThemesList();
 </script>
 
 {#snippet ThemeSelect()}
-	<Popover.Root bind:open>
-		<Popover.Trigger bind:ref={triggerRef}>
-			{#snippet child({ props })}
-				<Button
-					variant="outline"
-					class="w-[200px] justify-between"
-					{...props}
-					role="combobox"
-					aria-expanded={open}
-				>
-					{selected_theme?.name || 'Select a theme...'}
-					<ChevronsUpDown class="opacity-50" />
-				</Button>
-			{/snippet}
-		</Popover.Trigger>
-		<Popover.Content class="w-[200px] p-0">
-			<Command.Root>
-				<Command.Input placeholder="Search theme..." />
-				<Command.List>
-					<Command.Empty>No framework found.</Command.Empty>
-					<Command.Group>
-						{#each themes as theme}
-							<Command.Item
-								value={theme.name}
-								onSelect={() => {
-									event.theme = theme.name;
-									closeAndFocusTrigger();
-								}}
-							>
-								<Check class={cn(event.theme !== theme.name && 'text-transparent')} />
-								{theme.name}
-							</Command.Item>
-						{/each}
-					</Command.Group>
-				</Command.List>
-			</Command.Root>
-		</Popover.Content>
-	</Popover.Root>
+	<div>
+		<Popover.Root bind:open>
+			<Popover.Trigger bind:ref={triggerRef}>
+				{#snippet child({ props })}
+					<Button
+						variant="outline"
+						class="w-full justify-between"
+						{...props}
+						role="combobox"
+						aria-expanded={open}
+					>
+						{selected_theme?.name || 'Select a theme...'}
+						<ChevronsUpDown class="opacity-50" />
+					</Button>
+				{/snippet}
+			</Popover.Trigger>
+			<Popover.Content class="w-full p-0">
+				<Command.Root>
+					<Command.Input placeholder="Search theme..." />
+					<Command.List>
+						<Command.Empty>No framework found.</Command.Empty>
+						<Command.Group>
+							{#each themes as theme}
+								<Command.Item
+									value={theme.name}
+									onSelect={() => {
+										event.theme = theme.name;
+										closeAndFocusTrigger();
+									}}
+								>
+									<Check class={cn(event.theme !== theme.name && 'text-transparent')} />
+									{theme.name}
+								</Command.Item>
+							{/each}
+						</Command.Group>
+					</Command.List>
+				</Command.Root>
+			</Popover.Content>
+		</Popover.Root>
+	</div>
 {/snippet}
 
 {#snippet StartingFile()}
 	{#if selected_theme}
 		<div class="flex">
-			<Button class="basis-1/2" variant="outline" onclick={() => console.log('hi')}>
+			<Button
+				class="w-full"
+				variant="outline"
+				onclick={() => selectStarting($state.snapshot(selected_theme))}
+			>
 				{#if selected_theme.starting_file}
 					<Film class="mr-2 h-4 w-4 text-primary" />
 				{:else}
@@ -108,7 +153,11 @@
 {#snippet EndingFile()}
 	{#if selected_theme}
 		<div class="flex">
-			<Button class="basis-1/2" variant="outline" onclick={() => console.log('hi')}>
+			<Button
+				class="w-full"
+				variant="outline"
+				onclick={() => selectEnding($state.snapshot(selected_theme))}
+			>
 				{#if selected_theme.ending_file}
 					<Film class="mr-2 h-4 w-4 text-primary" />
 				{:else}
@@ -123,7 +172,11 @@
 {#snippet OverlayFile()}
 	{#if selected_theme}
 		<div class="flex">
-			<Button class="basis-1/2" variant="outline" onclick={() => console.log('hi')}>
+			<Button
+				class="w-full"
+				variant="outline"
+				onclick={() => selectOverlay($state.snapshot(selected_theme))}
+			>
 				{#if selected_theme.overlay_file}
 					<FileImage class="mr-2 h-4 w-4 text-primary" />
 				{:else}
@@ -265,31 +318,50 @@
 	{/if}
 {/snippet}
 
-<div class="mx-auto mt-4 flex w-full max-w-4xl flex-row justify-between">
+<div class="mx-auto mt-4 flex w-full max-w-4xl flex-row items-center justify-between">
 	<h1 class="scroll-m-20 py-2 text-center text-xl font-bold tracking-tight">Event Theme</h1>
-	<Button variant="outline" onclick={() => console.log('hi')}>
-		<Plus class="mr-2 h-4 w-4" />
-		New Theme
-	</Button>
+	<div class="flex flex-row">
+		<Button variant="outline" onclick={openCreateTheme}>
+			<Plus class="mr-2 h-4 w-4" />
+			New Theme
+		</Button>
+		{#if selected_theme}
+			<Button variant="destructive" onclick={openCreateTheme} class="mx-2">
+				<Trash2 class="mr-2 size-4" />
+				<span>Delete</span>
+			</Button>
+		{/if}
+	</div>
 </div>
 <Separator class="my-4 flex lg:hidden" orientation="horizontal" />
 {#if selected_theme}
 	<div class="flex flex-col justify-around lg:flex-row">
-		<div class="flex w-full justify-between lg:justify-around">
-			{@render ThemeSelect()}
-			{@render VideoConfig()}
-		</div>
-		<div class="flex w-full justify-between lg:justify-around">
-			{@render ChatConfig()}
-			{@render StartingFile()}
-		</div>
-		<div class="flex w-full justify-between lg:justify-around">
-			{@render EndingFile()}
-			{@render OverlayFile()}
-		</div>
+		{@render ThemeSelect()}
+		{@render VideoConfig()}
+		{@render ChatConfig()}
+		{@render StartingFile()}
+		{@render EndingFile()}
+		{@render OverlayFile()}
 	</div>
 {:else}
 	<div class="flex flex-col justify-start lg:flex-row">
 		{@render ThemeSelect()}
 	</div>
 {/if}
+
+<Dialog.Root bind:open={create_theme_open}>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title>Create a new theme</Dialog.Title>
+			<Dialog.Description>
+				<div class="flex flex-row items-center justify-between pt-4">
+					Name:
+					<Input class="w-80" type="text" placeholder="Name" bind:value={create_theme_name} />
+				</div>
+			</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer>
+			<Button type="submit" onclick={createTheme}>Create</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>

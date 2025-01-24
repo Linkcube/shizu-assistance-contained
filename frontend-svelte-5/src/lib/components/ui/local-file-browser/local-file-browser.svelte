@@ -23,7 +23,7 @@
 	};
 
 	type Props = {
-		file_type: string;
+		file_type: 'logos' | 'recordings' | 'theme-overlay' | 'theme-op' | 'theme-ed';
 		submitLocalFile: (file_path: string[], local_file: LocalFile) => void;
 	};
 
@@ -60,7 +60,7 @@
 			last_used_path = localStorage.getItem('last_logo_path');
 		} else if (file_type == 'recordings') {
 			last_used_path = localStorage.getItem('last_recording_path');
-		} else if (file_type == 'themes') {
+		} else {
 			last_used_path = localStorage.getItem('last_theme_path');
 		}
 
@@ -113,7 +113,10 @@
 			navigateDownFileBrowser(file.name);
 		} else {
 			file_browser_selected_file = file;
-			file_browser_preview_path = `${staticAssetsBase}/${file_type}/${file_browser_path.join('/')}/${file.name + file.ext}`;
+			file_browser_preview_path = `
+			${staticAssetsBase}/
+			${file_type === 'logos' || file_type === 'recordings' ? file_type : 'themes'}/
+			${file_browser_path.join('/')}/${file.name + file.ext}`;
 		}
 	};
 

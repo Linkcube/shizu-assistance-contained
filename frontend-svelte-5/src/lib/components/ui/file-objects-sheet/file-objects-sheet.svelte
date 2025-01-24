@@ -5,9 +5,11 @@
 	import {
 		addLogoFile,
 		addRecordingFile,
+		addThemeFile,
 		deleteSingleFile,
 		getAllLogos,
 		getAllRecordings,
+		getAllThemes,
 		updateSingleFile,
 		type File,
 		type LocalFile
@@ -23,15 +25,23 @@
 	import { toast } from 'svelte-sonner';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import type { Promotion } from '$lib/promotionsController';
+	import type { Theme } from '$lib/themeController';
 
 	type Props = {
 		dj?: DJ;
 		promo?: Promotion;
-		file_type: string;
+		theme?: Theme;
+		file_type: 'logos' | 'recordings' | 'theme-overlay' | 'theme-op' | 'theme-ed';
 		submitFile: (selected_file: File) => void;
 	};
 
-	let { dj = $bindable(), promo = $bindable(), file_type, submitFile }: Props = $props();
+	let {
+		dj = $bindable(),
+		promo = $bindable(),
+		theme = $bindable(),
+		file_type,
+		submitFile
+	}: Props = $props();
 
 	let file_sheet_open = $state(false);
 	let files: File[] = $state([]);
@@ -47,6 +57,16 @@
 	let create_file_name = $state('');
 
 	let localFileBrowserInstance: LocalFileBrowser;
+
+	let select_file_msg = $derived.by(() => {
+		if (file_type === 'logos') {
+			return 'Select Logo';
+		} else if (file_type === 'recordings') {
+			return 'Select Recording';
+		} else {
+			return 'Select Theme File';
+		}
+	});
 
 	const selectFile = (file: File) => {
 		selected_file = file;
@@ -96,6 +116,20 @@
 					}
 				})
 				.catch((e) => console.log(e));
+		} else if (theme !== undefined) {
+			files_promise = getAllThemes();
+			files_promise
+				.then((themes) => {
+					files = themes.slice().sort(sortFiles);
+					if (file_type === 'theme-overlay' && theme.overlay_file) {
+						selected_file = themes.filter((themes) => themes.name === theme.overlay_file)[0];
+					} else if (file_type === 'theme-op' && theme.starting_file) {
+						selected_file = themes.filter((themes) => themes.name === theme.starting_file)[0];
+					} else if (file_type === 'theme-ed' && theme.ending_file) {
+						selected_file = themes.filter((themes) => themes.name === theme.ending_file)[0];
+					}
+				})
+				.catch((e) => console.log(e));
 		}
 	};
 
@@ -110,13 +144,27 @@
 					}
 				})
 				.catch((e) => console.log(e));
-		} else {
+		} else if (file_type === 'recordings') {
 			files_promise = getAllRecordings();
 			files_promise
 				.then((recs) => {
 					files = recs.slice().sort(sortFiles);
 					if (selected_file) {
 						selected_file = recs.filter((rec) => rec.name === selected_file.name)[0];
+					}
+				})
+				.catch((e) => console.log(e));
+		} else {
+			files_promise = getAllThemes();
+			files_promise
+				.then((themes) => {
+					files = themes.slice().sort(sortFiles);
+					if (file_type === 'theme-overlay' && theme?.overlay_file) {
+						selected_file = themes.filter((themes) => themes.name === theme.overlay_file)[0];
+					} else if (file_type === 'theme-op' && theme?.starting_file) {
+						selected_file = themes.filter((themes) => themes.name === theme.starting_file)[0];
+					} else if (file_type === 'theme-ed' && theme?.ending_file) {
+						selected_file = themes.filter((themes) => themes.name === theme.ending_file)[0];
 					}
 				})
 				.catch((e) => console.log(e));
@@ -133,6 +181,13 @@
 			}
 		} else if (promo !== undefined) {
 			if (promo.promo_file === selected_file.name) promo.promo_file = '';
+		} else if (theme !== undefined) {
+			if (file_type === 'theme-overlay' && theme?.overlay_file === selected_file.name)
+				theme.overlay_file = '';
+			if (file_type === 'theme-op' && theme?.starting_file === selected_file.name)
+				theme.starting_file = '';
+			if (file_type === 'theme-ed' && theme?.ending_file === selected_file.name)
+				theme.ending_file = '';
 		}
 		reloadData();
 	};
@@ -185,6 +240,11 @@
 		} else if (promo !== undefined) {
 			promo.promo_file = create_file_name;
 			await addRecordingFile(create_file_name);
+		} else if (theme !== undefined) {
+			if (file_type === 'theme-overlay') theme.overlay_file = create_file_name;
+			if (file_type === 'theme-op') theme.starting_file = create_file_name;
+			if (file_type === 'theme-ed') theme.ending_file = create_file_name;
+			await addThemeFile(create_file_name);
 		}
 		reloadData();
 		create_file_open = false;
@@ -196,7 +256,7 @@
 		<Sheet.Header>
 			<Sheet.Title>
 				<div class="flex flex-row items-center justify-between">
-					Select {file_type}
+					{select_file_msg}
 					<Input class="w-40" type="text" placeholder="Search" bind:value={file_search} />
 				</div>
 			</Sheet.Title>
@@ -268,12 +328,17 @@
 						{#if isImageSource(selected_file.file_path)}
 							<img
 								class="w-full"
-								src={`${staticAssetsBase}/${file_type}/${selected_file.file_path}`}
+								src={`${staticAssetsBase}/
+									${file_type === 'logos' || file_type === 'recordings' ? file_type : 'themes'}/
+									${selected_file.file_path}`}
 								alt="Preview"
 							/>
 						{:else}
-							<video controls src={`${staticAssetsBase}/${file_type}/${selected_file.file_path}`}
-								><track kind="captions" /></video
+							<video
+								controls
+								src={`${staticAssetsBase}/
+									${file_type === 'logos' || file_type === 'recordings' ? file_type : 'themes'}/
+									${selected_file.file_path}`}><track kind="captions" /></video
 							>
 						{/if}
 					{/if}

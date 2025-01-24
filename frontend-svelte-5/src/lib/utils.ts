@@ -19,6 +19,11 @@ export interface ErrorMessage {
 	errorType: string;
 }
 
+export interface LineupItem {
+	name: string;
+	selected: boolean;
+}
+
 export const error_stack = writable({} as ErrorMessage);
 
 const errorStackPushHelper = (error: ErrorMessage) => {

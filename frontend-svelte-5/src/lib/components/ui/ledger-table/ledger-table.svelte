@@ -4,6 +4,7 @@
 		type PaginationState,
 		type SortingState,
 		type ColumnFiltersState,
+		type RowSelectionState,
 		getCoreRowModel,
 		getPaginationRowModel,
 		getSortedRowModel,
@@ -18,14 +19,16 @@
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
 		data: TData[];
+		sidebar?: boolean;
 	};
 
-	let { data, columns }: DataTableProps<TData, TValue> = $props();
+	let { data, columns, sidebar = false }: DataTableProps<TData, TValue> = $props();
 	let pageSize = $state('15');
 
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: $state.snapshot(+pageSize) });
 	let sorting = $state<SortingState>([]);
 	let columnFilters = $state<ColumnFiltersState>([]);
+	let rowSelection = $state<RowSelectionState>({});
 
 	const table = createSvelteTable({
 		get data() {
@@ -45,6 +48,9 @@
 			},
 			get columnFilters() {
 				return columnFilters;
+			},
+			get rowSelection() {
+				return rowSelection;
 			}
 		},
 		onPaginationChange: (updater) => {
@@ -67,15 +73,26 @@
 			} else {
 				columnFilters = updater;
 			}
+		},
+		onRowSelectionChange: (updater) => {
+			if (typeof updater === 'function') {
+				rowSelection = updater(rowSelection);
+			} else {
+				rowSelection = updater;
+			}
 		}
 	});
 
 	const updatePageSize = () => {
 		table.setPageSize($state.snapshot(+pageSize));
 	};
+
+	export const getSelectedRows = () => {
+		return table.getFilteredSelectedRowModel().rows;
+	};
 </script>
 
-<div class="items-center px-0 align-middle sm:px-20 lg:px-40">
+<div class="items-center px-0 align-middle {sidebar ? '' : 'sm:px-20 lg:px-40'}">
 	<div class="flex items-center py-4">
 		<Input
 			placeholder="Search"
@@ -122,6 +139,14 @@
 					</Table.Row>
 				{/each}
 			</Table.Body>
+			{#if sidebar}
+				<Table.Footer>
+					<div class="flex-1 text-sm text-muted-foreground">
+						{table.getFilteredSelectedRowModel().rows.length} of{' '}
+						{table.getFilteredRowModel().rows.length} row(s) selected.
+					</div>
+				</Table.Footer>
+			{/if}
 		</Table.Root>
 	</div>
 	<div class="flex items-center justify-end space-x-2 py-4">

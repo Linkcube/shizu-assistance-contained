@@ -11,9 +11,12 @@
 
 	type Props = {
 		event_promos: string[];
+		openPromoLineup: () => void;
 	};
 
-	let { event_promos = $bindable() }: Props = $props();
+	let { event_promos = $bindable(), openPromoLineup }: Props = $props();
+
+	if (!event_promos) event_promos = [];
 
 	let dragging_index = 0;
 	let last_dragover_index = 0;
@@ -49,12 +52,27 @@
 	const deleteEventPromoItem = async (promo_name: string) => {
 		event_promos = event_promos.filter((promo) => promo !== promo_name);
 	};
+
+	const handleKeyUp = (index: number, event: KeyboardEvent) => {
+		if (event.key === 'ArrowUp') {
+			if (index === 0) return;
+			dragging_index = index;
+			last_dragover_index = index - 1;
+			handleDjDragEnd();
+		}
+		if (event.key === 'ArrowUp') {
+			if (index === event_promos.length - 1) return;
+			dragging_index = index;
+			last_dragover_index = index + 1;
+			handleDjDragEnd();
+		}
+	};
 </script>
 
 <div class="flex w-full flex-col px-5">
 	<div class="mx-auto mt-4 flex w-full max-w-4xl flex-row justify-between">
 		<h1 class="scroll-m-20 py-2 text-center text-xl font-bold tracking-tight">Event Promotions</h1>
-		<Button variant="outline" onclick={() => console.log('hi')}>
+		<Button variant="outline" onclick={openPromoLineup}>
 			<Plus class="mr-2 h-4 w-4" />
 			Add Promotions
 		</Button>
@@ -79,6 +97,7 @@
 					ondragstart={(event) => handleDragStart(i, event)}
 					ondragover={(event) => handleDragOver(i, event)}
 					ondragend={handleDjDragEnd}
+					onkeyup={(event) => handleKeyUp(i, event)}
 					animate:flip
 				>
 					<Table.Cell class="font-medium">{i + 1}.</Table.Cell>
@@ -107,7 +126,7 @@
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item onclick={() => deleteEventPromoItem(event_promo)}>
 									<Trash2 class="mr-2 size-4 text-destructive" />
-									<span class="text-destructive">Delete</span>
+									<span class="text-destructive">Remove</span>
 								</DropdownMenu.Item>
 							</DropdownMenu.Content>
 						</DropdownMenu.Root>

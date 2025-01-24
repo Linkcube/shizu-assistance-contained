@@ -28,6 +28,18 @@ export async function addSingle(name: string): Promise<Event | undefined> {
 	return await openapiPostBody('event', { name: name });
 }
 
+export async function updateSingle(event: Event): Promise<Event | undefined> {
+	const body = {
+		djs: event.djs,
+		promos: event.promos,
+		theme: event.theme,
+		public: event.public,
+		date: event.date,
+		start_time: event.start_time
+	};
+	return await openapiPostBody(`event/${event.name}`, body);
+}
+
 export async function updateSingleDateTime(
 	name: string,
 	date: string,
