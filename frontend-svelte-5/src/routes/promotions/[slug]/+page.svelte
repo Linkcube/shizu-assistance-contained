@@ -23,17 +23,23 @@
 	const submitChanges = () => {
 		updateSingle(promo.name, promo.promo_file)
 			.then(() => {
-				toast.success('Promotion Saved', {
-					description: `Changes made to ${promo.name} were successfully saved.`,
-					action: {
-						label: 'OK',
-						onClick: () => console.info('Yay')
-					}
-				});
 				if (previousPage) {
+					toast.success('Promotion Saved', {
+						description: `Changes made to ${promo.name} were successfully saved.`,
+						action: {
+							label: 'OK',
+							onClick: () => console.info('Yay')
+						}
+					});
 					goto(previousPage);
 				} else {
-					goto('/');
+					toast.success('Promotion Saved', {
+						description: `Changes made to ${promo.name} were successfully saved.`,
+						action: {
+							label: 'Back',
+							onClick: () => window.close()
+						}
+					});
 				}
 			})
 			.catch((e) => {
@@ -42,12 +48,27 @@
 	};
 
 	const deletePromotion = () => {
-		deleteSingle(promo.name);
-		if (previousPage) {
-			goto(previousPage);
-		} else {
-			goto('/');
-		}
+		deleteSingle(promo.name).then((success) => {
+			if (!success) return;
+			if (previousPage) {
+				toast.success('Promotion Deleted', {
+					description: `Deleted ${promo.name} successfully.`,
+					action: {
+						label: 'OK',
+						onClick: () => console.info('Yay')
+					}
+				});
+				goto(previousPage);
+			} else {
+				toast.success('Promotion Deleted', {
+					description: `Deleted ${promo.name} successfully.`,
+					action: {
+						label: 'Back',
+						onClick: () => window.close()
+					}
+				});
+			}
+		});
 	};
 
 	const selectFile = () => {

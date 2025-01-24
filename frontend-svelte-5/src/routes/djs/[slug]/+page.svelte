@@ -31,17 +31,23 @@
 			dj.discord_id
 		)
 			.then(() => {
-				toast.success('DJ Saved', {
-					description: `Changes made to ${dj.name} were successfully saved.`,
-					action: {
-						label: 'OK',
-						onClick: () => console.info('Yay')
-					}
-				});
 				if (previousPage) {
+					toast.success('DJ Saved', {
+						description: `Changes made to ${dj.name} were successfully saved.`,
+						action: {
+							label: 'OK',
+							onClick: () => console.info('Yay')
+						}
+					});
 					goto(previousPage);
 				} else {
-					goto('/');
+					toast.success('DJ Saved', {
+						description: `Changes made to ${dj.name} were successfully saved.`,
+						action: {
+							label: 'Back',
+							onClick: () => window.close()
+						}
+					});
 				}
 			})
 			.catch((e) => {
@@ -50,12 +56,27 @@
 	};
 
 	const deleteDj = () => {
-		deleteSingle(dj.name);
-		if (previousPage) {
-			goto(previousPage);
-		} else {
-			goto('/');
-		}
+		deleteSingle(dj.name).then((success) => {
+			if (!success) return;
+			if (previousPage) {
+				toast.success('DJ Deleted', {
+					description: `Deleted ${dj.name} successfully.`,
+					action: {
+						label: 'OK',
+						onClick: () => console.info('Yay')
+					}
+				});
+				goto(previousPage);
+			} else {
+				toast.success('DJ Deleted', {
+					description: `Deleted ${dj.name} successfully.`,
+					action: {
+						label: 'Back',
+						onClick: () => window.close()
+					}
+				});
+			}
+		});
 	};
 
 	const selectLogo = () => {

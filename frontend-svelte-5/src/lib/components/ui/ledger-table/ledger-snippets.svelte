@@ -2,7 +2,7 @@
 	import CircleCheckBig from 'lucide-svelte/icons/circle-check-big';
 	import Ban from 'lucide-svelte/icons/ban';
 
-	export { CheckValue, CrossOrValue, NameLink };
+	export { CheckValue, CrossOrValue, NameLink, RawData };
 </script>
 
 {#snippet CheckValue(value: {})}
@@ -23,4 +23,8 @@
 
 {#snippet NameLink(value: { path: string; name: string })}
 	<a class="hover:underline" href="/{value.path}/{value.name}">{value.name}</a>
+{/snippet}
+
+{#snippet RawData(value: {})}
+	{value}
 {/snippet}

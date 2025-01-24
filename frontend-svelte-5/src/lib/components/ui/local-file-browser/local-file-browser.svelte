@@ -2,6 +2,7 @@
 	import {
 		getLogoPermissions,
 		getRecordingPermissions,
+		getThemePermissions,
 		type LocalFile,
 		type Permissions
 	} from '$lib/fileController';
@@ -68,10 +69,13 @@
 		}
 
 		let permissions: Permissions;
+
 		if (file_type === 'logos') {
 			permissions = await getLogoPermissions(initial_path);
-		} else {
+		} else if (file_type == 'recordings') {
 			permissions = await getRecordingPermissions(initial_path);
+		} else {
+			permissions = await getThemePermissions(initial_path);
 		}
 
 		file_browser_files = permissions.files;
@@ -94,8 +98,10 @@
 		let permissions: Permissions;
 		if (file_type === 'logos') {
 			permissions = await getLogoPermissions(path);
-		} else {
+		} else if (file_type === 'recordings') {
 			permissions = await getRecordingPermissions(path);
+		} else {
+			permissions = await getThemePermissions(path);
 		}
 		file_browser_files = permissions.files;
 		file_browser_path = permissions.path;
