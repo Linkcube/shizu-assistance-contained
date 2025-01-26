@@ -4,6 +4,7 @@
 	import Film from 'lucide-svelte/icons/film';
 	import FileX from 'lucide-svelte/icons/file-x';
 	import type { Promotion } from '$lib/promotionsController';
+	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
 
 	type Props = {
 		promo: Promotion;
@@ -19,6 +20,12 @@
 		selectFile,
 		unsetFile
 	}: Props = $props();
+
+	let delete_instance: DeleteConfirmation;
+
+	const openDeleteConfirmation = () => {
+		delete_instance.open();
+	};
 </script>
 
 <div class="mx-auto flex min-w-80 max-w-screen-lg flex-col px-10 py-4 md:px-40">
@@ -40,6 +47,13 @@
 	</div>
 	<div class="flex w-full flex-row justify-between gap-1.5 py-4">
 		<Button class="w-full" onclick={submitChanges}>Save</Button>
-		<Button variant="destructive" class="w-full" onclick={deletePromotion}>Delete</Button>
+		<Button variant="destructive" class="w-full" onclick={openDeleteConfirmation}>Delete</Button>
 	</div>
 </div>
+
+<DeleteConfirmation
+	type="promotion"
+	item_name={promo.name}
+	callbackFunc={deletePromotion}
+	bind:this={delete_instance}
+/>

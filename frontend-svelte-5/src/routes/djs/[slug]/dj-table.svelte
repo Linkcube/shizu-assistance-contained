@@ -8,6 +8,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { RTMP_SERVERS } from '$lib/utils';
 	import type { DJ } from '$lib/djController';
+	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
 
 	type Props = {
 		dj: DJ;
@@ -32,6 +33,12 @@
 	const rtmpTriggerContent = $derived(
 		RTMP_SERVERS.find((r) => r.id === dj.rtmp_server && r.id !== '')?.name ?? 'RTMP Server'
 	);
+
+	let delete_instance: DeleteConfirmation;
+
+	const openDeleteConfirmation = () => {
+		delete_instance.open();
+	};
 </script>
 
 <div class="mx-auto flex min-w-80 max-w-screen-lg flex-col px-10 py-4 md:px-40">
@@ -112,6 +119,13 @@
 	</div>
 	<div class="flex w-full flex-row justify-between gap-1.5 py-4">
 		<Button class="w-full" onclick={submitChanges}>Save</Button>
-		<Button variant="destructive" class="w-full" onclick={deleteDj}>Delete</Button>
+		<Button variant="destructive" class="w-full" onclick={openDeleteConfirmation}>Delete</Button>
 	</div>
 </div>
+
+<DeleteConfirmation
+	type="dj"
+	item_name={dj.name}
+	callbackFunc={deleteDj}
+	bind:this={delete_instance}
+/>

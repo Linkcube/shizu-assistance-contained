@@ -9,12 +9,16 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { goto } from '$app/navigation';
+	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
 
 	let { data }: PageProps = $props();
 
 	let base_djs: DJ[] = $state([]);
 	let create_dj_open = $state(false);
 	let create_dj_name = $state('');
+
+	let delete_instance: DeleteConfirmation;
+	let delete_dj_name = $state('');
 
 	const updateDjs = async () => {
 		const djs = await getAllDjs();
@@ -23,11 +27,11 @@
 		}
 	};
 
-	export const deleteDjAction = async (dj_name: string) => {
-		deleteSingle(dj_name).then((success) => {
+	export const deleteDjAction = () => {
+		deleteSingle(delete_dj_name).then((success) => {
 			if (success) {
 				toast.success('Success', {
-					description: `Deleted ${dj_name}.`,
+					description: `Deleted ${delete_dj_name}.`,
 					action: {
 						label: 'OK',
 						onClick: () => console.info('OK')
@@ -58,6 +62,11 @@
 		updateDjs();
 	};
 
+	const openDeleteConfirmation = (dj_name: string) => {
+		delete_dj_name = dj_name;
+		delete_instance.open();
+	};
+
 	if (data.djs !== undefined) {
 		base_djs = data.djs;
 	}
@@ -71,7 +80,7 @@
 	</Button>
 </div>
 
-<LedgerTable data={base_djs} columns={createCols('djs', deleteDjAction)} />
+<LedgerTable data={base_djs} columns={createCols('djs', openDeleteConfirmation)} />
 
 <Dialog.Root bind:open={create_dj_open}>
 	<Dialog.Content>
@@ -89,3 +98,10 @@
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
+
+<DeleteConfirmation
+	type="dj"
+	item_name={delete_dj_name}
+	callbackFunc={deleteDjAction}
+	bind:this={delete_instance}
+/>

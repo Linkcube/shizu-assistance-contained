@@ -9,12 +9,16 @@
 	import Plus from 'lucide-svelte/icons/plus';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { goto } from '$app/navigation';
+	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
 
 	let { data }: PageProps = $props();
 
 	let base_events: Event[] = $state([]);
 	let create_event_name = $state('');
 	let create_event_open = $state(false);
+
+	let delete_instance: DeleteConfirmation;
+	let delete_event_name = $state('');
 
 	const updateEvents = async () => {
 		const events = await getAll();
@@ -23,11 +27,11 @@
 		}
 	};
 
-	export const deleteEventAction = async (event_name: string) => {
-		deleteSingle(event_name).then((success) => {
+	export const deleteEventAction = () => {
+		deleteSingle(delete_event_name).then((success) => {
 			if (success) {
 				toast.success('Success', {
-					description: `Deleted ${event_name}.`,
+					description: `Deleted ${delete_event_name}.`,
 					action: {
 						label: 'OK',
 						onClick: () => console.info('OK')
@@ -58,6 +62,11 @@
 		updateEvents();
 	};
 
+	const openDeleteConfirmation = (event_name: string) => {
+		delete_event_name = event_name;
+		delete_instance.open();
+	};
+
 	if (data.events !== undefined) {
 		base_events = data.events;
 	}
@@ -71,7 +80,7 @@
 	</Button>
 </div>
 
-<LedgerTable data={base_events} columns={createCols('events', deleteEventAction)} />
+<LedgerTable data={base_events} columns={createCols('events', openDeleteConfirmation)} />
 
 <Dialog.Root bind:open={create_event_open}>
 	<Dialog.Content>
@@ -89,3 +98,10 @@
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
+
+<DeleteConfirmation
+	type="event"
+	item_name={delete_event_name}
+	callbackFunc={deleteEventAction}
+	bind:this={delete_instance}
+/>

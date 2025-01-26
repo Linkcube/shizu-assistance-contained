@@ -26,6 +26,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import type { Promotion } from '$lib/promotionsController';
 	import type { Theme } from '$lib/themeController';
+	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
 
 	type Props = {
 		dj?: DJ;
@@ -57,6 +58,7 @@
 	let create_file_name = $state('');
 
 	let localFileBrowserInstance: LocalFileBrowser;
+	let delete_instance: DeleteConfirmation;
 
 	let select_file_msg = $derived.by(() => {
 		if (file_type === 'logos') {
@@ -189,6 +191,7 @@
 			if (file_type === 'theme-ed' && theme?.ending_file === selected_file.name)
 				theme.ending_file = '';
 		}
+		selected_file = {} as File;
 		reloadData();
 	};
 
@@ -249,6 +252,10 @@
 		reloadData();
 		create_file_open = false;
 	};
+
+	const openDeleteConfirmation = () => {
+		delete_instance.open();
+	};
 </script>
 
 <Sheet.Root open={file_sheet_open}>
@@ -276,9 +283,9 @@
 							<Table.Body>
 								{#each filtered_files as file, i}
 									<Table.Row
-										class={selected_file.name === file.name ? 'bg-muted/50' : ''}
+										class={selected_file?.name === file.name ? 'bg-muted/50' : ''}
 										onclick={() => selectFile(file)}
-										aria-selected={selected_file.name === file.name}
+										aria-selected={selected_file?.name === file.name}
 									>
 										<Table.Cell class="font-medium">{file.name}</Table.Cell>
 										<Table.Cell>
@@ -307,7 +314,9 @@
 						{#if selected_file?.name}
 							<Button class="w-full" onclick={submitFileObject}>Select</Button>
 							<Button class="w-full" variant="secondary" onclick={editFile}>Edit</Button>
-							<Button class="w-full" variant="destructive" onclick={deleteFile}>Delete</Button>
+							<Button class="w-full" variant="destructive" onclick={openDeleteConfirmation}
+								>Delete</Button
+							>
 						{:else}
 							<Button class="w-full" disabled>Select</Button>
 							<Button class="w-full" variant="secondary" disabled>Edit</Button>
@@ -372,3 +381,10 @@
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
+
+<DeleteConfirmation
+	type="file"
+	item_name={selected_file?.name}
+	callbackFunc={deleteFile}
+	bind:this={delete_instance}
+/>

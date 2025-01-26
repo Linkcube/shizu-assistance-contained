@@ -16,7 +16,7 @@
 
 	let { data }: PageProps = $props();
 	let promo = $state(data.promo);
-	let file_type = $state('recordings');
+	const file_type = 'recordings';
 
 	let fileObjectSheetInstance: FileObjectsSheet;
 

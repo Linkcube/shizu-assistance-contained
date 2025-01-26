@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { updateSingle as updateSingleEvent, type Event } from '$lib/eventController';
+	import { type Event } from '$lib/eventController';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import EventDjTable from './event-dj-table.svelte';
 	import EventPromoTable from './event-promo-table.svelte';
@@ -24,7 +24,7 @@
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { toast } from 'svelte-sonner';
+	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
 
 	type Props = {
 		event: Event;
@@ -146,6 +146,12 @@
 		selected_theme = theme;
 		fileObjectSheetInstance.openFileSheet();
 	};
+
+	let delete_instance: DeleteConfirmation;
+
+	const openDeleteConfirmation = () => {
+		delete_instance.open();
+	};
 </script>
 
 <div class="mx-auto flex min-w-80 flex-col px-10 py-4 md:px-40">
@@ -219,7 +225,7 @@
 	</div>
 	<div class="my-1.5 flex w-full flex-row justify-between gap-1.5">
 		<Button class="w-full" onclick={submit}>Save Changes</Button>
-		<Button class="w-full" variant="destructive" onclick={deleteEvent}>Delete</Button>
+		<Button class="w-full" variant="destructive" onclick={openDeleteConfirmation}>Delete</Button>
 	</div>
 </div>
 
@@ -228,4 +234,11 @@
 	{file_type}
 	{submitFile}
 	bind:this={fileObjectSheetInstance}
+/>
+
+<DeleteConfirmation
+	type="event"
+	item_name={event.name}
+	callbackFunc={deleteEvent}
+	bind:this={delete_instance}
 />
