@@ -1,3 +1,7 @@
+import type { DJ } from './djController';
+import type { File } from './fileController';
+import type { Promotion } from './promotionsController';
+import type { Theme } from './themeController';
 import { openapiGet, openapiPostBody, openapiDelete, openapiPost } from './utils';
 
 export interface EventDj {
@@ -14,6 +18,14 @@ export interface Event {
 	public: boolean;
 	date: string;
 	start_time: string;
+}
+
+export interface ExportSummary {
+	event: Event;
+	djs: DJ[];
+	promos: Promotion[];
+	theme: Theme | undefined;
+	files: File[];
 }
 
 export async function getAll(): Promise<Event[]> {
@@ -120,4 +132,8 @@ export async function deleteSingle(name: string) {
 export async function exportSingle(name: string): Promise<boolean> {
 	const response = await openapiPost(`event/${name}/export`);
 	return response;
+}
+
+export async function getExportSummary(name: string): Promise<ExportSummary | undefined> {
+	return await openapiGet('event/' + name + '/export-summary');
 }

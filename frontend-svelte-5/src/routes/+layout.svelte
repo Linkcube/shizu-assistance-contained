@@ -27,7 +27,7 @@
 <header
 	class="sticky top-0 z-50 w-full border-b border-border/40 ring-primary/95 backdrop-blur supports-[backdrop-filter]:bg-primary/60"
 >
-	<div class="container flex h-14 max-w-screen-2xl items-center">
+	<div class="container flex h-14 max-w-screen-2xl items-center p-0 sm:p-2">
 		<a class="mr-6 flex items-center space-x-2" href="/"> Tasukete Shizu! </a>
 		<nav class="flex items-center gap-6 text-sm">
 			<!-- Needs an implicit #if block for just the first one, tailwind is weird. -->
@@ -65,7 +65,7 @@
 				Help
 			</a>
 		</nav>
-		<nav class="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+		<nav class="flex flex-1 items-center justify-end space-x-2">
 			<a aria-label="source code" href="https://github.com/Linkcube/shizu-assistance-contained">
 				<Github class="mr-2 size-4" />
 			</a>

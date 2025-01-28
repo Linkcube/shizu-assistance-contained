@@ -30,9 +30,10 @@
 		event: Event;
 		saveChanges: () => void;
 		deleteEvent: () => void;
+		saveAndExport: () => void;
 	};
 
-	let { event = $bindable(), saveChanges, deleteEvent }: Props = $props();
+	let { event = $bindable(), saveChanges, deleteEvent, saveAndExport }: Props = $props();
 	let event_theme: EventTheme;
 
 	let lineup_type: 'djs' | 'promos' = $state('djs');
@@ -86,6 +87,21 @@
 		}
 
 		saveChanges();
+	}
+
+	function submitAndExport() {
+		event.start_time = `${start_hour}:${start_minute}`;
+		console.log($state.snapshot(event));
+		let theme = event_theme?.getSelectedTheme();
+		if (date_value) {
+			event.date = date_value.toString();
+			console.log(event.date);
+		}
+		if (theme) {
+			updateSingleTheme(theme);
+		}
+
+		saveAndExport();
 	}
 
 	const openDjLineup = async () => {
@@ -226,6 +242,9 @@
 	<div class="my-1.5 flex w-full flex-row justify-between gap-1.5">
 		<Button class="w-full" onclick={submit}>Save Changes</Button>
 		<Button class="w-full" variant="destructive" onclick={openDeleteConfirmation}>Delete</Button>
+	</div>
+	<div class="my-1.5 flex w-full flex-row justify-between gap-1.5">
+		<Button class="w-full" onclick={submitAndExport}>Save and Export</Button>
 	</div>
 </div>
 

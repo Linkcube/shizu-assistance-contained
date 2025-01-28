@@ -72,10 +72,29 @@
 				console.log(e);
 			});
 	};
+
+	const saveAndExport = () => {
+		updateSingle(event)
+			.then((success) => {
+				if (success) {
+					toast.success('Event Saved', {
+						description: `Changes made to ${event.name} were successfully saved.`,
+						action: {
+							label: 'OK',
+							onClick: () => console.info('Yay')
+						}
+					});
+					goto(`/events/${event.name}/export`);
+				}
+			})
+			.catch((e) => {
+				console.log(e);
+			});
+	};
 </script>
 
 <h1 class="scroll-m-20 py-2 text-center text-4xl font-bold tracking-tight lg:text-5xl">
 	{event.name}
 </h1>
 
-<EventTable bind:event {saveChanges} {deleteEvent} />
+<EventTable bind:event {saveChanges} {deleteEvent} {saveAndExport} />
