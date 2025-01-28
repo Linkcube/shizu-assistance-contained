@@ -68,12 +68,30 @@ export async function openapiPostBody(url: string, body: {}) {
 		try {
 			return await response.json();
 		} catch (e) {
-			return true;
+			return false;
 		}
 	}
 	parseOpenapiError(response);
 
-	return undefined;
+	return false;
+}
+
+export async function openapiPost(url: string) {
+	const request = fetch(`${openapiUrl}/${url}`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({})
+	});
+
+	const response = await request;
+	if (response.ok) {
+		return true;
+	}
+	parseOpenapiError(response);
+
+	return false;
 }
 
 export async function openapiDelete(url: string) {

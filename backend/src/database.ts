@@ -575,7 +575,8 @@ const find_event_objects = async (event_name: string) => {
       } else {
         djs.push(dj);
         if (dj.logo) files_to_check.push(dj.logo);
-        if (dj.recording) files_to_check.push(dj.recording);
+        if (!lineup_dj.is_live && dj.recording)
+          files_to_check.push(dj.recording);
       }
     }
   }

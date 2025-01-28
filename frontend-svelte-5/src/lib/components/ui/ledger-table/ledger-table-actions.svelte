@@ -4,13 +4,16 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import Pencil from 'lucide-svelte/icons/pencil';
 	import Trash2 from 'lucide-svelte/icons/trash';
+	import Download from 'lucide-svelte/icons/download';
 	import { goto } from '$app/navigation';
 
-	let {
-		name,
-		path,
-		delete_item
-	}: { name: string; path: string; delete_item: (name: string) => void } = $props();
+	interface Props {
+		name: string;
+		path: string;
+		delete_item: (name: string) => void;
+	}
+
+	let { name, path, delete_item }: Props = $props();
 </script>
 
 <DropdownMenu.Root>
@@ -29,6 +32,12 @@
 				<Pencil class="mr-2 size-4" />
 				Edit
 			</DropdownMenu.Item>
+			{#if path === 'events'}
+				<DropdownMenu.Item onclick={() => goto(`/${path}/${name}/export`)}>
+					<Download class="mr-2 size-4" />
+					Export
+				</DropdownMenu.Item>
+			{/if}
 		</DropdownMenu.Group>
 		<DropdownMenu.Separator />
 		<DropdownMenu.Item onclick={() => delete_item(name)}>

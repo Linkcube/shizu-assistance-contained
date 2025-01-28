@@ -1,4 +1,4 @@
-import { openapiGet, openapiPostBody, openapiDelete } from './utils';
+import { openapiGet, openapiPostBody, openapiDelete, openapiPost } from './utils';
 
 export interface EventDj {
 	name: string;
@@ -118,6 +118,6 @@ export async function deleteSingle(name: string) {
 }
 
 export async function exportSingle(name: string): Promise<boolean> {
-	const response = await openapiPostBody(`event/${name}/export`, {});
-	return response.ok;
+	const response = await openapiPost(`event/${name}/export`);
+	return response;
 }
