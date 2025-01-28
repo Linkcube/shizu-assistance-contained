@@ -32,6 +32,10 @@ export async function getAll(): Promise<Event[]> {
 	return await openapiGet('event');
 }
 
+export async function getMin(): Promise<Event[]> {
+	return await openapiGet('event/min');
+}
+
 export async function getSingle(name: string): Promise<Event | undefined> {
 	return await openapiGet('event/' + name);
 }

@@ -9,11 +9,11 @@ export interface PromotionMin {
 	name: string;
 }
 
-export async function getAll(): Promise<Promotion[] | undefined> {
+export async function getAll(): Promise<Promotion[]> {
 	return await openapiGet('promo/');
 }
 
-export async function getMin(): Promise<PromotionMin[] | undefined> {
+export async function getMin(): Promise<PromotionMin[]> {
 	return await openapiGet('promo/min');
 }
 

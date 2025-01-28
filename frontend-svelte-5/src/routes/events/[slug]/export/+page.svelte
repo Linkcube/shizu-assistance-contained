@@ -31,7 +31,6 @@
 		new Map(data.promotions.map((promo) => [promo.name, promo])) || new Map();
 	const files_map: Map<string, File> =
 		new Map(data.files.map((file) => [file.name, file])) || new Map();
-	console.log(data.files.map((file) => file.name));
 
 	let exporting = $state(false);
 	let export_promise = $state(Promise.resolve(false));
@@ -450,8 +449,6 @@
 								<h4 class="font-medium leading-none">{data.theme.starting_file}</h4>
 								<p class="text-sm text-muted-foreground">Media to play before the event starts.</p>
 							</div>
-							{console.log(data.theme.starting_file)}
-							{console.log(files_map.get(data.theme.starting_file)?.file_path)}
 							{#if files_map.get(data.theme.starting_file)?.file_path}
 								{#if isImageSource(files_map.get(data.theme.starting_file)?.file_path || '')}
 									<img
@@ -494,8 +491,6 @@
 									Media to play after the event's last DJ.
 								</p>
 							</div>
-							{console.log(data.theme.ending_file)}
-							{console.log(files_map.get(data.theme.ending_file)?.file_path)}
 							{#if files_map.get(data.theme.ending_file)?.file_path}
 								{#if isImageSource(files_map.get(data.theme.ending_file)?.file_path || '')}
 									<img
@@ -538,8 +533,6 @@
 									Media to overlay DJ sets, typically a layout.
 								</p>
 							</div>
-							{console.log(data.theme.overlay_file)}
-							{console.log(files_map.get(data.theme.overlay_file)?.file_path)}
 							{#if files_map.get(data.theme.overlay_file)?.file_path}
 								{#if isImageSource(files_map.get(data.theme.overlay_file)?.file_path || '')}
 									<img

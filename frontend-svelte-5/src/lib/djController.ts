@@ -17,11 +17,11 @@ export interface DjMin {
 	rtmp_server: string;
 }
 
-export async function getAll(): Promise<DJ[] | undefined> {
+export async function getAll(): Promise<DJ[]> {
 	return await openapiGet('dj/');
 }
 
-export async function getMin(): Promise<DjMin[] | undefined> {
+export async function getMin(): Promise<DjMin[]> {
 	return await openapiGet('dj/min');
 }
 
