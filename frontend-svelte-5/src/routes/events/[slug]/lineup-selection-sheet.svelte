@@ -42,7 +42,6 @@
 
 	export const openLineupSheet = async () => {
 		table_items = makeLineupTableItems();
-		console.log(table_items);
 		lineup_sheet_open = false;
 		lineup_sheet_open = true;
 	};

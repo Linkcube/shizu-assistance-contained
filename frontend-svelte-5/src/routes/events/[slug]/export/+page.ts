@@ -4,14 +4,13 @@ import { getExportSummary } from '$lib/eventController';
 import { type DJ } from '$lib/djController';
 import { type Promotion } from '$lib/promotionsController';
 import { type File } from '$lib/fileController';
-import { getSingle as getSingleTheme, type Theme } from '$lib/themeController';
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ fetch, params }) => {
 	const real_name = decodeURI(params.slug);
 
 	let export_summary;
 	try {
-		export_summary = await getExportSummary(real_name);
+		export_summary = await getExportSummary(real_name, fetch);
 	} catch (e) {
 		error(404, `Event ${real_name} not found.`);
 	}

@@ -9,15 +9,21 @@ export interface PromotionMin {
 	name: string;
 }
 
-export async function getAll(): Promise<Promotion[]> {
+export async function getAll(fetch_fn?: typeof fetch): Promise<Promotion[]> {
+	if (fetch_fn) return await openapiGet('promo/', undefined, fetch_fn);
 	return await openapiGet('promo/');
 }
 
-export async function getMin(): Promise<PromotionMin[]> {
+export async function getMin(fetch_fn?: typeof fetch): Promise<PromotionMin[]> {
+	if (fetch_fn) return await openapiGet('promo/min', undefined, fetch_fn);
 	return await openapiGet('promo/min');
 }
 
-export async function getSingle(promo_name: string): Promise<Promotion | undefined> {
+export async function getSingle(
+	promo_name: string,
+	fetch_fn?: typeof fetch
+): Promise<Promotion | undefined> {
+	if (fetch_fn) return await openapiGet('promo/' + promo_name, undefined, fetch_fn);
 	return await openapiGet('promo/' + promo_name);
 }
 

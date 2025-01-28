@@ -28,15 +28,18 @@ export interface ExportSummary {
 	files: File[];
 }
 
-export async function getAll(): Promise<Event[]> {
+export async function getAll(fetch_fn?: typeof fetch): Promise<Event[]> {
+	if (fetch_fn) return await openapiGet('event', undefined, fetch_fn);
 	return await openapiGet('event');
 }
 
-export async function getMin(): Promise<Event[]> {
+export async function getMin(fetch_fn?: typeof fetch): Promise<Event[]> {
+	if (fetch_fn) return await openapiGet('event/min', undefined, fetch_fn);
 	return await openapiGet('event/min');
 }
 
-export async function getSingle(name: string): Promise<Event | undefined> {
+export async function getSingle(name: string, fetch_fn?: typeof fetch): Promise<Event | undefined> {
+	if (fetch_fn) return await openapiGet('event/' + name, undefined, fetch_fn);
 	return await openapiGet('event/' + name);
 }
 
@@ -138,6 +141,10 @@ export async function exportSingle(name: string): Promise<boolean> {
 	return response;
 }
 
-export async function getExportSummary(name: string): Promise<ExportSummary | undefined> {
+export async function getExportSummary(
+	name: string,
+	fetch_fn?: typeof fetch
+): Promise<ExportSummary | undefined> {
+	if (fetch_fn) return await openapiGet('event/' + name + '/export-summary', undefined, fetch_fn);
 	return await openapiGet('event/' + name + '/export-summary');
 }

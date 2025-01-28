@@ -17,15 +17,18 @@ export interface DjMin {
 	rtmp_server: string;
 }
 
-export async function getAll(): Promise<DJ[]> {
+export async function getAll(fetch_fn?: typeof fetch): Promise<DJ[]> {
+	if (fetch_fn) return await openapiGet('dj/', undefined, fetch_fn);
 	return await openapiGet('dj/');
 }
 
-export async function getMin(): Promise<DjMin[]> {
+export async function getMin(fetch_fn?: typeof fetch): Promise<DjMin[]> {
+	if (fetch_fn) return await openapiGet('dj/min', undefined, fetch_fn);
 	return await openapiGet('dj/min');
 }
 
-export async function getSingle(dj_name: string): Promise<DJ | undefined> {
+export async function getSingle(dj_name: string, fetch_fn?: typeof fetch): Promise<DJ | undefined> {
+	if (fetch_fn) return await openapiGet('dj/' + dj_name, undefined, fetch_fn);
 	return await openapiGet('dj/' + dj_name);
 }
 

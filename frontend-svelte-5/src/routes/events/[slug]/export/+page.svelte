@@ -63,7 +63,7 @@
 
 <div class="items-center px-0 align-middle sm:px-20 lg:px-40">
 	<h1 class="scroll-m-20 py-2 text-center text-5xl font-bold tracking-tight lg:text-3xl">
-		Event Export Summary
+		{data.event.name} Export Summary
 	</h1>
 	<div class="flex flex-col justify-between gap-4 xl:flex-row">
 		<div class="xl:flex-1">

@@ -76,11 +76,9 @@
 
 	function submit() {
 		event.start_time = `${start_hour}:${start_minute}`;
-		console.log($state.snapshot(event));
 		let theme = event_theme?.getSelectedTheme();
 		if (date_value) {
 			event.date = date_value.toString();
-			console.log(event.date);
 		}
 		if (theme) {
 			updateSingleTheme(theme);
@@ -91,11 +89,9 @@
 
 	function submitAndExport() {
 		event.start_time = `${start_hour}:${start_minute}`;
-		console.log($state.snapshot(event));
 		let theme = event_theme?.getSelectedTheme();
 		if (date_value) {
 			event.date = date_value.toString();
-			console.log(event.date);
 		}
 		if (theme) {
 			updateSingleTheme(theme);
@@ -127,7 +123,6 @@
 	};
 
 	const submitLineupSelection = (new_items: string[]) => {
-		console.log(new_items);
 		if (lineup_type === 'djs') {
 			new_items.forEach((name) => event.djs.push({ name: name, is_live: false, vj: '' }));
 		} else {

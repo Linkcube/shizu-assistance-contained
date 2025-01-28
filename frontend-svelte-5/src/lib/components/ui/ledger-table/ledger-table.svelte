@@ -25,6 +25,7 @@
 	let { data, columns, sidebar = false }: DataTableProps<TData, TValue> = $props();
 	let pageSize = $state('15');
 
+	// svelte-ignore state_referenced_locally
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: $state.snapshot(+pageSize) });
 	let sorting = $state<SortingState>([]);
 	let columnFilters = $state<ColumnFiltersState>([]);

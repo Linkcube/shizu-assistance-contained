@@ -1,7 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { writable, get } from 'svelte/store';
-import { page } from '$app/state';
+import { writable } from 'svelte/store';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -42,8 +41,8 @@ export function isImageSource(source_path: string) {
 	return source_path.match(/\.(jpeg|jpg|gif|png)$/) != null;
 }
 
-export async function openapiGet(url: string, bubble_error = true) {
-	const request = fetch(`${openapiUrl}/${url}`, {
+export async function openapiGet(url: string, bubble_error = true, fetch_fn = fetch) {
+	const request = fetch_fn(`${openapiUrl}/${url}`, {
 		method: 'GET'
 	});
 
