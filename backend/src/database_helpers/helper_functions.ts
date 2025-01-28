@@ -145,7 +145,8 @@ export const internal_update_table_entry = async (
   const update_pairs: string[][] = [];
   table.definitions.forEach((definition) => {
     if (
-      !obj_data[definition.name] ||
+      obj_data[definition.name] === null ||
+      obj_data[definition.name] === undefined ||
       (obj_data[definition.name] instanceof Array &&
         obj_data[definition.name].length === 0)
     ) {
