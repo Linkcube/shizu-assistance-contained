@@ -19,7 +19,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 	import type { File } from '$lib/fileController';
-	import { isImageSource, staticAssetsBase } from '$lib/utils';
+	import { isImageSource, pushToLog, staticAssetsBase } from '$lib/utils';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import Film from 'lucide-svelte/icons/film';
@@ -44,6 +44,11 @@
 		export_promise
 			.then((success) => {
 				if (success) {
+					pushToLog({
+						statusCode: 200,
+						errorType: 'Event Exported',
+						message: `${data.event.name} was successfully exported to ${data.event.name}.json.`
+					});
 					export_progress = 100;
 					toast.success('Success', {
 						description: `Exported ${data.event.name}.`,

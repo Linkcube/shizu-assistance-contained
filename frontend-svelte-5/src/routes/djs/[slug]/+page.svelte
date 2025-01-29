@@ -7,6 +7,7 @@
 	import FileObjectsSheet from '$lib/components/ui/file-objects-sheet/file-objects-sheet.svelte';
 	import { toast } from 'svelte-sonner';
 	import { deleteSingle, updateSingle } from '$lib/djController';
+	import { pushToLog } from '$lib/utils';
 
 	let previousPage: string = base;
 
@@ -31,6 +32,11 @@
 			dj.discord_id
 		)
 			.then(() => {
+				pushToLog({
+					statusCode: 200,
+					errorType: 'DJ Saved',
+					message: `Changes made to ${dj.name} were successfully saved.`
+				});
 				if (previousPage) {
 					toast.success('DJ Saved', {
 						description: `Changes made to ${dj.name} were successfully saved.`,
@@ -58,6 +64,11 @@
 	const deleteDj = () => {
 		deleteSingle(dj.name).then((success) => {
 			if (!success) return;
+			pushToLog({
+				statusCode: 200,
+				errorType: 'DJ Deleted',
+				message: `Deleted ${dj.name} successfully.`
+			});
 			if (previousPage) {
 				toast.success('DJ Deleted', {
 					description: `Deleted ${dj.name} successfully.`,

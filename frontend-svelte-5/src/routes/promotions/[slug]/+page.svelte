@@ -7,6 +7,7 @@
 	import { toast } from 'svelte-sonner';
 	import { deleteSingle, updateSingle } from '$lib/promotionsController';
 	import PromotionTable from './promotion-table.svelte';
+	import { pushToLog } from '$lib/utils';
 
 	let previousPage: string = base;
 
@@ -23,6 +24,11 @@
 	const submitChanges = () => {
 		updateSingle(promo.name, promo.promo_file)
 			.then(() => {
+				pushToLog({
+					statusCode: 200,
+					errorType: 'Promotion Saved',
+					message: `Changes made to ${promo.name} were successfully saved.`
+				});
 				if (previousPage) {
 					toast.success('Promotion Saved', {
 						description: `Changes made to ${promo.name} were successfully saved.`,
@@ -50,6 +56,11 @@
 	const deletePromotion = () => {
 		deleteSingle(promo.name).then((success) => {
 			if (!success) return;
+			pushToLog({
+				statusCode: 200,
+				errorType: 'Promotion Deleted',
+				message: `Deleted ${promo.name} successfully.`
+			});
 			if (previousPage) {
 				toast.success('Promotion Deleted', {
 					description: `Deleted ${promo.name} successfully.`,

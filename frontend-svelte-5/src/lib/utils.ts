@@ -24,9 +24,21 @@ export interface LineupItem {
 }
 
 export const error_stack = writable({} as ErrorMessage);
+export const log = writable([] as ErrorMessage[]);
 
 const errorStackPushHelper = (error: ErrorMessage) => {
 	error_stack.set(error);
+	log.update((log_val) => {
+		log_val.push(error);
+		return log_val;
+	});
+};
+
+export const pushToLog = (message: ErrorMessage) => {
+	log.update((log_val) => {
+		log_val.push(message);
+		return log_val;
+	});
 };
 
 export const RTMP_SERVERS = [
@@ -105,11 +117,13 @@ export async function openapiDelete(url: string) {
 }
 
 async function parseOpenapiError(response: Response) {
+	console.log(response);
 	const jsonbody = await response.json();
+	console.log(jsonbody);
 	errorStackPushHelper({
 		statusCode: response.status,
 		message: jsonbody.message,
-		errorType: jsonbody.errorType
+		errorType: response.statusText
 	});
 
 	return Promise.reject();

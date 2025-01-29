@@ -7,6 +7,7 @@
 	let { children } = $props();
 	import { error_stack } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
+	import Footer from './footer.svelte';
 
 	let path = $derived($page.url.pathname);
 
@@ -75,4 +76,6 @@
 
 {@render children()}
 
-<footer></footer>
+<div class="h-80"></div>
+
+<Footer />

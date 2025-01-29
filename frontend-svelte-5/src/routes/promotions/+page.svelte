@@ -10,6 +10,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { goto } from '$app/navigation';
 	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
+	import { pushToLog } from '$lib/utils';
 
 	let { data }: PageProps = $props();
 
@@ -28,6 +29,11 @@
 	export const deletePromoAction = () => {
 		deleteSingle(delete_promo_name).then((success) => {
 			if (success) {
+				pushToLog({
+					statusCode: 200,
+					errorType: 'Promotion Deleted',
+					message: `Deleted ${delete_promo_name} successfully.`
+				});
 				toast.success('Success', {
 					description: `Deleted ${delete_promo_name}.`,
 					action: {
@@ -48,6 +54,11 @@
 	const createPromo = async () => {
 		let response = await addSingle(create_promo_name);
 		if (response) {
+			pushToLog({
+				statusCode: 200,
+				errorType: 'Promotion Created',
+				message: `Created ${create_promo_name} successfully.`
+			});
 			toast.success('Success', {
 				description: `Created ${create_promo_name}.`,
 				action: {

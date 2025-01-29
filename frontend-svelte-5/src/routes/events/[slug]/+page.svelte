@@ -5,6 +5,7 @@
 	import EventTable from './event-table.svelte';
 	import { deleteSingle, updateSingle } from '$lib/eventController';
 	import { toast } from 'svelte-sonner';
+	import { pushToLog } from '$lib/utils';
 
 	let previousPage: string = base;
 
@@ -19,6 +20,11 @@
 		updateSingle(event)
 			.then((success) => {
 				if (success) {
+					pushToLog({
+						statusCode: 200,
+						errorType: 'Event Saved',
+						message: `Changes made to ${event.name} were successfully saved.`
+					});
 					if (previousPage) {
 						toast.success('Event Saved', {
 							description: `Changes made to ${event.name} were successfully saved.`,
@@ -48,6 +54,11 @@
 		deleteSingle(event.name)
 			.then((success) => {
 				if (success) {
+					pushToLog({
+						statusCode: 200,
+						errorType: 'Event Deleted',
+						message: `Deleted ${event.name} successfully.`
+					});
 					if (previousPage) {
 						toast.success('Event Deleted', {
 							description: `Deleted ${event.name} successfully.`,
@@ -77,6 +88,11 @@
 		updateSingle(event)
 			.then((success) => {
 				if (success) {
+					pushToLog({
+						statusCode: 200,
+						errorType: 'Event Saved',
+						message: `Changes made to ${event.name} were successfully saved.`
+					});
 					toast.success('Event Saved', {
 						description: `Changes made to ${event.name} were successfully saved.`,
 						action: {

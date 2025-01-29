@@ -10,6 +10,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { goto } from '$app/navigation';
 	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
+	import { pushToLog } from '$lib/utils';
 
 	let { data }: PageProps = $props();
 
@@ -30,6 +31,11 @@
 	export const deleteDjAction = () => {
 		deleteSingle(delete_dj_name).then((success) => {
 			if (success) {
+				pushToLog({
+					statusCode: 200,
+					errorType: 'DJ Deleted',
+					message: `Deleted ${delete_dj_name} successfully.`
+				});
 				toast.success('Success', {
 					description: `Deleted ${delete_dj_name}.`,
 					action: {
@@ -50,6 +56,11 @@
 	const createDj = async () => {
 		let response = await addSingle(create_dj_name);
 		if (response) {
+			pushToLog({
+				statusCode: 200,
+				errorType: 'DJ Created',
+				message: `Created ${create_dj_name} successfully.`
+			});
 			toast.success('Success', {
 				description: `Created ${create_dj_name}.`,
 				action: {
