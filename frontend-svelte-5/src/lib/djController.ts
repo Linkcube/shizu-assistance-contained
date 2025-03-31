@@ -2,8 +2,8 @@ import { openapiGet, openapiPostBody, openapiDelete } from './utils';
 
 export interface DJ {
 	name: string;
-	logo: string;
-	recording: string;
+	logo: string | null;
+	recording: string | null;
 	rtmp_server: string;
 	rtmp_key: string;
 	public_name: string;
@@ -42,8 +42,8 @@ export async function addSingle(name: string): Promise<DJ | undefined> {
 
 export async function updateSingle(
 	name: string,
-	logo: string,
-	recording: string,
+	logo: string | null,
+	recording: string | null,
 	rtmp_server: string,
 	rtmp_key: string,
 	public_name: string,

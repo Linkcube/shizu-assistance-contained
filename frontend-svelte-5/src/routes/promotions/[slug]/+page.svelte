@@ -91,7 +91,7 @@
 	};
 
 	const unsetFile = () => {
-		promo.promo_file = '';
+		promo.promo_file = null;
 	};
 </script>
 

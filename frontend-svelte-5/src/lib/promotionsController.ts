@@ -2,7 +2,7 @@ import { openapiGet, openapiPostBody, openapiDelete } from './utils';
 
 export interface Promotion {
 	name: string;
-	promo_file: string;
+	promo_file: string | null;
 }
 
 export interface PromotionMin {
@@ -34,7 +34,7 @@ export async function addSingle(name: string): Promise<Promotion | undefined> {
 
 export async function updateSingle(
 	name: string,
-	promo_file: string
+	promo_file: string | null
 ): Promise<Promotion | undefined> {
 	const body = { name, promo_file };
 	return await openapiPostBody('promo/' + name, body);

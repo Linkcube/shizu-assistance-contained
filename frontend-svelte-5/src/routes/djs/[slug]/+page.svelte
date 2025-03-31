@@ -109,11 +109,11 @@
 	};
 
 	const unsetLogoFile = () => {
-		dj.logo = '';
+		dj.logo = null;
 	};
 
 	const unsetRecordingFile = () => {
-		dj.recording = '';
+		dj.recording = null;
 	};
 </script>
 
