@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { ModeWatcher } from 'mode-watcher';
 	import Github from 'lucide-svelte/icons/github';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
@@ -9,7 +9,7 @@
 	import { toast } from 'svelte-sonner';
 	import Footer from './footer.svelte';
 
-	let path = $derived($page.url.pathname);
+	let path = $derived(page.url.pathname);
 
 	error_stack.subscribe((new_error) => {
 		toast.error(`${new_error.statusCode}: ${new_error.errorType}.`, {
