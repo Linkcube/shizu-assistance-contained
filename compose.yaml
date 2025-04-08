@@ -74,7 +74,7 @@ services:
 
   frontend:
     build:
-      context: frontend
+      context: frontend-svelte-5
     depends_on:
       - backend
     ports:

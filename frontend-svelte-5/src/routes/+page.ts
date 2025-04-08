@@ -3,6 +3,8 @@ import { getMin as getDjMin } from '$lib/djController';
 import { getMin as getPromoMin } from '$lib/promotionsController';
 import { getMin as getEventMin } from '$lib/eventController';
 
+export const ssr = false;
+
 export const load: PageLoad = async ({ fetch }) => {
 	const djs_min = await getDjMin(fetch);
 	const promos_min = await getPromoMin(fetch);
