@@ -1,18 +1,7 @@
-# sv
+# Svelte-5 Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
+Rebuild of the UI in `/frontend` using sveltekit along with svelte 5, and the shadcn UI library.
+Unlike the SPA nature of the original UI, this version aims to offer a more traditional per page get/save, allowing the user to choose to save multiple changes at once or back out of the page even. An additional feature, besides the less claustorphobic layout, is that event exports will have error checking before and after the api call.
 
 ## Developing
 
@@ -33,6 +22,10 @@ To create a production version of your app:
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Followed by
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+node build
+```
+
+To run it.
