@@ -1,11 +1,17 @@
-import { getAll, getMin, getSingle, addSingle, updateSingle, deleteSingle } from '../../src/lib/djController';
+import {
+	getAll,
+	getMin,
+	getSingle,
+	addSingle,
+	updateSingle,
+	deleteSingle
+} from '../../src/lib/djController';
 // import * as utils from '../../src/lib/utils';
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-
-var openapiGetMock = vi.fn()
-var openapiPostBodyMock = vi.fn()
-var openapiDeleteMock = vi.fn()
+var openapiGetMock = vi.fn();
+var openapiPostBodyMock = vi.fn();
+var openapiDeleteMock = vi.fn();
 
 // Mock the utility functions
 vi.mock('../../src/lib/utils', () => ({
@@ -65,10 +71,23 @@ describe('DJ Controller', () => {
 	describe('updateSingle', () => {
 		it('should update a DJ and return the result', async () => {
 			openapiPostBodyMock.mockResolvedValueOnce({ name: 'UpdatedDJ' });
-			const dj = await updateSingle('ExistingDJ', null, null, 'newServer', 'newKey', 'publicName', 'discordId');
+			const dj = await updateSingle(
+				'ExistingDJ',
+				null,
+				null,
+				'newServer',
+				'newKey',
+				'publicName',
+				'discordId'
+			);
 			expect(dj).toEqual({ name: 'UpdatedDJ' });
 			expect(openapiPostBodyMock).toHaveBeenCalledWith('dj/ExistingDJ', {
-				logo: null, recording: null, rtmp_server: 'newServer', rtmp_key: 'newKey', public_name: 'publicName', discord_id: 'discordId'
+				logo: null,
+				recording: null,
+				rtmp_server: 'newServer',
+				rtmp_key: 'newKey',
+				public_name: 'publicName',
+				discord_id: 'discordId'
 			});
 		});
 	});
