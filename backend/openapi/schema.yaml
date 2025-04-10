@@ -358,6 +358,30 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/EventMin'
+    EventExportSummary:
+      type: object
+      properties:
+        event:
+          description: Event object.
+          $ref: '#/components/schemas/Event'
+        djs:
+          description: Array of full DJ objects for an event.
+          type: array
+          items:
+            $ref: '#/components/schemas/DJ'
+        promos:
+          description: Array of promotional video objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Promo'
+        theme:
+          description: Theme object for an event.
+          $ref: '#/components/schemas/Theme'
+        files:
+          description: Array of file objects for DJ and Promotion media.
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
     Promo:
       type: object
       properties:
@@ -1399,8 +1423,31 @@ paths:
       responses:
         '200':
           description: Exported event.
+        '404':
+          description: Event not found.
         '409':
           description: Event export failed.
+  /event/{eventName}/export-summary:
+    get:
+      tags:
+        - events
+      summary: Prepares a summary of an event's export.
+      parameters:
+        - name: eventName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: All objects related to exporting the event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventExportSummary'
+        '404':
+          description: Event not found.
   /promo:
     get:
       tags:

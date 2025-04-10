@@ -1,4 +1,4 @@
-import { Client, Pool, PoolClient } from "pg";
+import { Client, Pool, PoolClient, QueryResult } from "pg";
 import { base_db_config, pool_config } from "./config";
 import {
   DJS_TABLE,
@@ -64,7 +64,12 @@ import {
   internal_insert_into_djs,
   internal_update_dj,
 } from "./database_helpers/dj_db_helpers";
-import { importError, invalidFileError } from "./errors";
+import {
+  eventNotFoundError,
+  importError,
+  invalidEventError,
+  invalidFileError,
+} from "./errors";
 import {
   fetchFile,
   getResolution,
@@ -94,56 +99,74 @@ export const database_pool = new Pool(pool_config);
 
 export const read_files_table = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_entire_table(FILES_TABLE, pool);
+  const retval: QueryResult<IFileObject> = await internal_read_entire_table(
+    FILES_TABLE,
+    pool,
+  );
   await pool.release();
   return retval.rows;
 };
 
 export const read_files_logos = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_all_logo_files(pool);
+  const retval: QueryResult<IFileObject> =
+    await internal_read_all_logo_files(pool);
   await pool.release();
   return retval.rows;
 };
 
 export const read_files_recordings = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_all_recording_files(pool);
+  const retval: QueryResult<IFileObject> =
+    await internal_read_all_recording_files(pool);
   await pool.release();
   return retval.rows;
 };
 
 export const read_files_themes = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_all_theme_files(pool);
+  const retval: QueryResult<IFileObject> =
+    await internal_read_all_theme_files(pool);
   await pool.release();
   return retval.rows;
 };
 
 export const read_themes_table = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_entire_table(THEMES_TABLE, pool);
+  const retval: QueryResult<IThemeObject> = await internal_read_entire_table(
+    THEMES_TABLE,
+    pool,
+  );
   await pool.release();
   return retval.rows;
 };
 
 export const read_events_table = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_entire_table(EVENTS_TABLE, pool);
+  const retval: QueryResult<IEventObject> = await internal_read_entire_table(
+    EVENTS_TABLE,
+    pool,
+  );
   await pool.release();
   return retval.rows;
 };
 
 export const read_promos_table = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_entire_table(PROMOS_TABLE, pool);
+  const retval: QueryResult<IPromoObject> = await internal_read_entire_table(
+    PROMOS_TABLE,
+    pool,
+  );
   await pool.release();
   return retval.rows;
 };
 
 export const read_djs_table = async () => {
   const pool = await database_pool.connect();
-  const retval = await internal_read_entire_table(DJS_TABLE, pool);
+  const retval: QueryResult<IDjObject> = await internal_read_entire_table(
+    DJS_TABLE,
+    pool,
+  );
   await pool.release();
   return retval.rows;
 };
@@ -157,35 +180,55 @@ export const read_app_themes_table = async () => {
 
 export const get_file = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await internal_get_row_from_table(FILES_TABLE, name, pool);
+  const retval: IFileObject | Error = await internal_get_row_from_table(
+    FILES_TABLE,
+    name,
+    pool,
+  );
   await pool.release();
   return retval;
 };
 
 export const get_theme = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await internal_get_row_from_table(THEMES_TABLE, name, pool);
+  const retval: IThemeObject | Error = await internal_get_row_from_table(
+    THEMES_TABLE,
+    name,
+    pool,
+  );
   await pool.release();
   return retval;
 };
 
 export const get_event = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await internal_get_row_from_table(EVENTS_TABLE, name, pool);
+  const retval: IEventObject | Error = await internal_get_row_from_table(
+    EVENTS_TABLE,
+    name,
+    pool,
+  );
   await pool.release();
   return retval;
 };
 
 export const get_promo = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await internal_get_row_from_table(PROMOS_TABLE, name, pool);
+  const retval: IPromoObject | Error = await internal_get_row_from_table(
+    PROMOS_TABLE,
+    name,
+    pool,
+  );
   await pool.release();
   return retval;
 };
 
 export const get_dj = async (name: string) => {
   const pool = await database_pool.connect();
-  const retval = await internal_get_row_from_table(DJS_TABLE, name, pool);
+  const retval: IDjObject | Error = await internal_get_row_from_table(
+    DJS_TABLE,
+    name,
+    pool,
+  );
   await pool.release();
   return retval;
 };
@@ -575,7 +618,8 @@ const find_event_objects = async (event_name: string) => {
       } else {
         djs.push(dj);
         if (dj.logo) files_to_check.push(dj.logo);
-        if (dj.recording) files_to_check.push(dj.recording);
+        if (!lineup_dj.is_live && dj.recording)
+          files_to_check.push(dj.recording);
       }
     }
   }
@@ -653,6 +697,58 @@ const gather_files_for_export = async (files_to_check: string[]) => {
   return {
     file_objects,
     errors: validations.filter((val) => val instanceof Error),
+  };
+};
+
+export const event_export_summary = async (event_name: string) => {
+  const event = await get_event(event_name);
+  if (event instanceof Error) return eventNotFoundError(event_name);
+
+  const event_dj_names = new Set<string>(event.djs?.map((dj) => dj.name));
+  const event_promo_names = new Set<string>(event.promos);
+
+  const djs = (await read_djs_table()).filter((dj) =>
+    event_dj_names.has(dj.name),
+  );
+  const promos = (await read_promos_table()).filter((promo) =>
+    event_promo_names.has(promo.name),
+  );
+
+  let theme: IThemeObject | undefined = undefined;
+
+  const file_names = new Set<string>();
+
+  for (const dj of djs) {
+    if (dj.logo) file_names.add(dj.logo);
+    if (dj.recording) file_names.add(dj.recording);
+  }
+
+  for (const promo of promos) {
+    if (promo.promo_file) file_names.add(promo.promo_file);
+  }
+
+  if (event.theme) {
+    const theme_response = await get_theme(event.theme);
+    if (theme_response instanceof Error) {
+      console.log(`Could not find theme ${event.theme} for ${event.name}`);
+    } else {
+      theme = theme_response;
+      if (theme.starting_file) file_names.add(theme.starting_file);
+      if (theme.ending_file) file_names.add(theme.ending_file);
+      if (theme.overlay_file) file_names.add(theme.overlay_file);
+    }
+  }
+
+  const files = (await read_files_table()).filter((file) =>
+    file_names.has(file.name),
+  );
+
+  return {
+    event,
+    djs,
+    promos,
+    theme,
+    files,
   };
 };
 

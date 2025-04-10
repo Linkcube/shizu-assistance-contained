@@ -1,26 +1,11 @@
 import { Client } from "pg";
-import {
-  DJS_TABLE_0,
-  PROMOS_TABLE_0,
-  EVENTS_TABLE_0,
-  THEMES_TABLE_0,
-  FILES_TABLE_0,
-  APP_THEMES_TABLE_0,
-} from "./initial_tables";
+import { ALL_TABLES } from "./initial_tables";
 import { FILES_TABLE_NAME, THEMES_TABLE_NAME } from "../tables";
 
 // Create base version of all tables, if they don't exist.
 const initial_setup = async (client: Client) => {
   console.log("Starting initial table setup.");
-  const initial_tables = [
-    DJS_TABLE_0,
-    PROMOS_TABLE_0,
-    EVENTS_TABLE_0,
-    THEMES_TABLE_0,
-    FILES_TABLE_0,
-    APP_THEMES_TABLE_0,
-  ];
-  for (const table of initial_tables) {
+  for (const table of ALL_TABLES) {
     await client.query(table.create_table());
   }
   console.log("Completed initial table setup.");

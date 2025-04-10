@@ -20,6 +20,7 @@ import {
   update_event,
   update_event_date_time,
   update_event_dj,
+  event_export_summary,
 } from "../database";
 import { IEventObject, ILineupDjObject } from "../types";
 
@@ -377,4 +378,19 @@ eventRouter.post("/:eventName/export", async (req, res) => {
 
   res.status(200);
   res.send();
+});
+
+eventRouter.get("/:eventName/export-summary", async (req, res) => {
+  const event_summary = await event_export_summary(req.params.eventName);
+
+  if (event_summary instanceof Error) {
+    res.status(404);
+    return res.send({
+      errorType: event_summary.name,
+      message: event_summary.message,
+    });
+  }
+
+  res.status(200);
+  res.send(event_summary);
 });

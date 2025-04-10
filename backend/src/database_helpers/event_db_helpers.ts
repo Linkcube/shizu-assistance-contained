@@ -3,6 +3,7 @@ import {
   internal_insert_into_table,
   internal_get_row_from_table,
   internal_update_table_entry,
+  is_non_empty,
 } from "./helper_functions";
 import {
   invalidDjError,
@@ -33,7 +34,7 @@ const validate_event = async (
       return invalidEventError(`Event ${event_data.name} already exists!`);
     }
   }
-  if (event_data.djs !== undefined) {
+  if (event_data.djs !== undefined && event_data.djs.length > 0) {
     const djs_condition = event_data.djs
       .map((dj) => `name = '${dj.name}'`)
       .join(" OR ");
@@ -50,7 +51,7 @@ const validate_event = async (
       );
     }
   }
-  if (event_data.promos !== undefined) {
+  if (event_data.promos !== undefined && event_data.promos.length > 0) {
     const promos_condition = event_data.promos
       .map((promo) => `name = '${promo}'`)
       .join(" OR ");
@@ -67,9 +68,9 @@ const validate_event = async (
       );
     }
   }
-  if (event_data.theme !== undefined) {
+  if (is_non_empty(event_data.theme)) {
     exists = await pool.query(
-      `SELECT 1 FROM ${THEMES_TABLE.name} WHERE name = '${event_data.theme}'`,
+      `SELECT 1 FROM ${THEMES_TABLE.name} WHERE name = '${event_data.theme}';`,
     );
     if (!exists.rows || exists.rows.length === 0) {
       return themeNotFoundError(
