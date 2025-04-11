@@ -48,7 +48,12 @@ export const internal_update_file = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await internal_update_table_entry(FILES_TABLE, file_data, pool);
+  await internal_update_table_entry(
+    FILES_TABLE,
+    file_data.name,
+    file_data,
+    pool,
+  );
 };
 
 export const internal_delete_file = async (

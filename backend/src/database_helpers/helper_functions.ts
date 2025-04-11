@@ -93,38 +93,46 @@ export const internal_insert_into_table = async (
   obj_data: any,
   pool: PoolClient,
 ) => {
-  let columns_string = "name";
-  let values_string = `'${obj_data.name}'`;
+  const columns_string = "name";
+  const values_string = `'${obj_data.name}'`;
   const json_values: { name: string; json: any }[] = [];
-  table.definitions.forEach((definition) => {
-    if (!obj_data[definition.name]) return;
-    if (
-      definition.type === "TEXT" ||
-      definition.type === "TIMESTAMP WITH TIME ZONE"
-    ) {
-      columns_string += `, ${definition.name}`;
-      values_string += `, '${obj_data[definition.name]}'`;
-    } else if (definition.type === "TEXT[]") {
-      const array_string = obj_data[definition.name]
-        .map((val: any) => `'${val}'`)
-        .join(", ");
-      columns_string += `, ${definition.name}`;
-      values_string += `, ARRAY[${array_string}]`;
-    } else if (definition.type === "BOOLEAN") {
-      columns_string += `, ${definition.name}`;
-      values_string += `, ${obj_data[definition.name]}`;
-    } else if (definition.type === "JSONB") {
-      json_values.push({
-        name: definition.name,
-        json: obj_data[definition.name],
-      });
-    } else if (definition.type === "SMALLINT") {
-      columns_string += `, ${definition.name}`;
-      values_string += `, ${obj_data[definition.name]}`;
-    }
-  });
 
-  const insert_query = `INSERT INTO ${table.name} (${columns_string}) VALUES (${values_string});`;
+  const columns = [];
+  const values = [];
+  for (const definition of table.definitions) {
+    switch (definition.type) {
+      case "TEXT":
+      case "TEXT PRIMARY KEY":
+      case "TIMESTAMP WITH TIME ZONE":
+        columns.push(definition.name);
+        values.push(`'${obj_data[definition.name]}'`);
+        break;
+      case "TEXT[]":
+        const array_string = obj_data[definition.name]
+          .map((val: any) => `'${val}'`)
+          .join(", ");
+        columns.push(definition.name);
+        values.push(`ARRAY[${array_string}]`);
+        break;
+      case "BOOLEAN":
+      case "SMALLINT":
+        columns.push(definition.name);
+        values.push(obj_data[definition.name]);
+        break;
+      case "JSONB":
+        json_values.push({
+          name: definition.name,
+          json: obj_data[definition.name],
+        });
+        break;
+    }
+  }
+  const insert_query = `
+    INSERT INTO ${table.name}
+      (${columns.join(", ")})
+      VALUES (${values.join(", ")});
+  `;
+
   console.log(insert_query);
   await pool.query(insert_query);
 
@@ -139,11 +147,15 @@ export const internal_insert_into_table = async (
 
 export const internal_update_table_entry = async (
   table: Table,
+  primary_key: string,
   obj_data: any,
   pool: PoolClient,
 ) => {
   const update_pairs: string[][] = [];
   table.definitions.forEach((definition) => {
+    if (definition.no_updates) {
+      return;
+    }
     if (
       obj_data[definition.name] === null ||
       obj_data[definition.name] === undefined ||
@@ -176,7 +188,13 @@ export const internal_update_table_entry = async (
   const set_pairs_string = update_pairs
     .map((pair) => `${pair[0]} = ${pair[1]}`)
     .join(", ");
-  const update_query = `UPDATE ${table.name} SET ${set_pairs_string} WHERE name = '${obj_data.name}';`;
+  let update_query;
+  if (table.primary_key === table.columns[0]) {
+    update_query = `UPDATE ${table.name} SET ${set_pairs_string} WHERE ${table.primary_key} = '${primary_key}';`;
+  } else {
+    update_query = `UPDATE ${table.name} SET ${set_pairs_string} WHERE ${table.primary_key} = ${primary_key};`;
+  }
+
   console.log(update_query);
 
   await pool.query(update_query);

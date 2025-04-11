@@ -307,22 +307,23 @@ export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
         new_dj.logo = new_file.name;
       }
     }
-    if (dj.recording_path) {
-      const parsed_file = parse(dj.recording_path);
-      const file = recordings_file_map.get(parsed_file.base);
-      if (file) {
-        const trimmed_parent_path = file.parentPath.slice(
-          RECORDINGS_ROOT.length + 1,
-        );
-        const new_file: IFileObject = {
-          name: parsed_file.name,
-          root: "RECORDINGS",
-          file_path: join(trimmed_parent_path, file.name),
-        };
-        new_files.push(new_file);
-        new_dj.recording = new_file.name;
-      }
-    }
+    // TODO: Either toss this into event DJs or ignore entirely
+    // if (dj.recording_path) {
+    //   const parsed_file = parse(dj.recording_path);
+    //   const file = recordings_file_map.get(parsed_file.base);
+    //   if (file) {
+    //     const trimmed_parent_path = file.parentPath.slice(
+    //       RECORDINGS_ROOT.length + 1,
+    //     );
+    //     const new_file: IFileObject = {
+    //       name: parsed_file.name,
+    //       root: "RECORDINGS",
+    //       file_path: join(trimmed_parent_path, file.name),
+    //     };
+    //     new_files.push(new_file);
+    //     new_dj.recording = new_file.name;
+    //   }
+    // }
     new_djs.push(new_dj);
   });
   ledger.promos.forEach((promo) => {

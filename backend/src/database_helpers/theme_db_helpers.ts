@@ -93,7 +93,12 @@ export const internal_update_theme = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await internal_update_table_entry(THEMES_TABLE, theme_data, pool);
+  await internal_update_table_entry(
+    THEMES_TABLE,
+    theme_data.name,
+    theme_data,
+    pool,
+  );
 };
 
 export const internal_delete_theme = async (

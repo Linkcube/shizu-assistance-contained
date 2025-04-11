@@ -8,6 +8,7 @@ import {
   ALL_TABLES,
   PROMOS_TABLE,
   APP_THEMES_TABLE,
+  EVENT_DJS_TABLE,
 } from "./tables";
 import {
   IDjObject,
@@ -21,6 +22,7 @@ import {
   IExportThemeData,
   ILegacyLedger,
   ILegacyLineup,
+  IEventDjObject,
 } from "./types";
 import {
   internal_create_table_helper,
@@ -41,26 +43,25 @@ import {
   internal_update_theme,
 } from "./database_helpers/theme_db_helpers";
 import {
-  internal_add_event_dj,
-  internal_add_event_promo,
+  internal_event_add_promo,
   internal_delete_event,
   internal_insert_into_events,
-  internal_move_event_dj,
   internal_move_event_promo,
-  internal_remove_event_dj,
   internal_remove_event_promo,
   internal_set_event_date_time,
   internal_set_event_theme,
   internal_update_event,
-  internal_update_event_dj,
 } from "./database_helpers/event_db_helpers";
 import {
   internal_delete_promo,
+  internal_get_promos,
   internal_insert_into_promos,
   internal_update_promo,
 } from "./database_helpers/promo_db_helpers";
 import {
+  dj_exists,
   internal_delete_dj,
+  internal_get_djs,
   internal_insert_into_djs,
   internal_update_dj,
 } from "./database_helpers/dj_db_helpers";
@@ -89,6 +90,15 @@ import {
   internal_update_app_themes,
 } from "./database_helpers/app_themes_db_helpers";
 import { run_migrations } from "./db_migrations/migrations";
+import {
+  internal_delete_event_dj,
+  internal_get_event_dj,
+  internal_get_event_djs_by_event,
+  internal_insert_into_event_djs,
+  internal_move_event_dj,
+  internal_static_change_event_djs,
+  internal_update_event_dj,
+} from "./database_helpers/event_dj_db_helpers";
 
 // File for accessing SQL, handles client/pool lifecycles.
 
@@ -161,11 +171,32 @@ export const read_promos_table = async () => {
   return retval.rows;
 };
 
+export const get_promos_by_names = async (names: string[], event?: string) => {
+  const pool = await database_pool.connect();
+  const retval: QueryResult<IPromoObject> = await internal_get_promos(
+    names,
+    pool,
+  );
+  await pool.release();
+  return retval.rows;
+};
+
 export const read_djs_table = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IDjObject> = await internal_read_entire_table(
     DJS_TABLE,
     pool,
+  );
+  await pool.release();
+  return retval.rows;
+};
+
+export const get_djs_by_names = async (names: string[], event?: string) => {
+  const pool = await database_pool.connect();
+  const retval: QueryResult<IDjObject> = await internal_get_djs(
+    names,
+    pool,
+    event,
   );
   await pool.release();
   return retval.rows;
@@ -207,6 +238,24 @@ export const get_event = async (name: string) => {
     name,
     pool,
   );
+  await pool.release();
+  return retval;
+};
+
+export const get_event_dj = async (event: string, dj: string) => {
+  const pool = await database_pool.connect();
+  const retval: IEventDjObject | Error = await internal_get_row_from_table(
+    EVENT_DJS_TABLE,
+    `('${event}', '${dj}')`,
+    pool,
+  );
+  await pool.release();
+  return retval;
+};
+
+export const get_event_djs_by_event = async (event: string) => {
+  const pool = await database_pool.connect();
+  const retval = await internal_get_event_djs_by_event(event, pool);
   await pool.release();
   return retval;
 };
@@ -367,38 +416,77 @@ export const delete_theme = async (theme_name: string) => {
   return error;
 };
 
-export const insert_into_events = async (event_data: IEventObject) => {
-  const pool = await database_pool.connect();
-  const error = await internal_insert_into_events(event_data, pool);
-  await pool.release();
-  return error;
-};
-
-export const add_event_dj = async (
-  event_name: string,
-  dj_data: ILineupDjObject,
+export const insert_into_events = async (
+  event_data: IEventObject,
+  event_djs: IEventDjObject[],
 ) => {
   const pool = await database_pool.connect();
-  const error = await internal_add_event_dj(event_name, dj_data, pool);
+  const error = await internal_insert_into_events(event_data, pool);
+  if (error instanceof Error) {
+    await pool.release();
+    return error;
+  }
+  if (event_djs.length > 0) {
+    const error2 = await internal_static_change_event_djs(
+      event_data.name,
+      event_djs,
+      pool,
+    );
+    await pool.release();
+    return error2;
+  }
   await pool.release();
-  return error;
 };
 
-export const add_event_promo = async (
+export const add_event_dj = async (dj_data: IEventDjObject) => {
+  const pool = await database_pool.connect();
+  const error = await dj_exists(dj_data.dj, pool);
+  if (error instanceof Error) {
+    await pool.release();
+    return error;
+  }
+  const event_dj_data: IEventDjObject = {
+    event: dj_data.event,
+    dj: dj_data.dj,
+    position: -1,
+    is_live: dj_data.is_live,
+    vj: dj_data.vj,
+  };
+  const error2 = await internal_insert_into_event_djs(event_dj_data, pool);
+  await pool.release();
+  return error2;
+};
+
+export const event_add_promo = async (
   event_name: string,
   promo_name: string,
 ) => {
   const pool = await database_pool.connect();
-  const error = await internal_add_event_promo(event_name, promo_name, pool);
+  const error = await internal_event_add_promo(event_name, promo_name, pool);
   await pool.release();
   return error;
 };
 
-export const update_event = async (event_data: IEventObject) => {
+export const update_event = async (
+  event_data: IEventObject,
+  event_djs: IEventDjObject[],
+) => {
   const pool = await database_pool.connect();
   const error = await internal_update_event(event_data, pool);
+  if (error instanceof Error) {
+    await pool.release();
+    return error;
+  }
+  if (event_djs.length > 0) {
+    const error2 = await internal_static_change_event_djs(
+      event_data.name,
+      event_djs,
+      pool,
+    );
+    await pool.release();
+    return error2;
+  }
   await pool.release();
-  return error;
 };
 
 export const update_event_dj = async (
@@ -406,22 +494,29 @@ export const update_event_dj = async (
   dj_name: string,
   is_live?: boolean,
   vj?: string,
+  recording?: string,
 ) => {
   const pool = await database_pool.connect();
-  const error = await internal_update_event_dj(
-    event_name,
-    dj_name,
-    pool,
+  const event_dj_data: IEventDjObject = {
+    event: event_name,
+    dj: dj_name,
+    position: -1,
     is_live,
     vj,
-  );
+    recording,
+  };
+  const error = await internal_update_event_dj(event_dj_data, pool);
+  if (error instanceof Error) {
+    await pool.release();
+    return error;
+  }
   await pool.release();
   return error;
 };
 
 export const remove_event_dj = async (event_name: string, dj_name: string) => {
   const pool = await database_pool.connect();
-  const error = await internal_remove_event_dj(event_name, dj_name, pool);
+  const error = await internal_delete_event_dj(event_name, dj_name, pool);
   await pool.release();
   return error;
 };
@@ -570,6 +665,7 @@ const find_event_objects = async (event_name: string) => {
   let theme: IThemeObject | Error | undefined;
   const promos: IPromoObject[] = [];
   const djs: IDjObject[] = [];
+  const event_djs: IEventDjObject[] = [];
 
   const pool = await database_pool.connect();
   const event: IEventObject | Error = await internal_get_row_from_table(
@@ -611,20 +707,33 @@ const find_event_objects = async (event_name: string) => {
     }
   }
 
-  if (event.djs) {
-    for (const lineup_dj of event.djs) {
+  // Seperated to keep djs and event_djs synced
+  const event_dj_objectss = await internal_get_event_djs_by_event(
+    event.name,
+    pool,
+  );
+  if (event_dj_objectss.length > 0) {
+    for (const event_dj of event_dj_objectss) {
       const dj: IDjObject | Error = await internal_get_row_from_table(
         DJS_TABLE,
-        lineup_dj.name,
+        event_dj.dj,
         pool,
       );
+      // const event_dj: IEventDjObject | Error = await internal_get_event_dj(
+      //   event.name,
+      //   dj_name,
+      //   pool
+      // )
       if (dj instanceof Error) {
         errors.push(dj);
+      } else if (event_dj instanceof Error) {
+        errors.push(event_dj);
       } else {
         djs.push(dj);
+        event_djs.push(event_dj);
         if (dj.logo) files_to_check.push(dj.logo);
-        if (!lineup_dj.is_live && dj.recording)
-          files_to_check.push(dj.recording);
+        if (!event_dj.is_live && event_dj.recording)
+          files_to_check.push(event_dj.recording);
       }
     }
   }
@@ -636,6 +745,7 @@ const find_event_objects = async (event_name: string) => {
     theme,
     promos,
     djs,
+    event_djs,
     file_names: files_to_check,
     errors,
   };
@@ -705,27 +815,29 @@ const gather_files_for_export = async (files_to_check: string[]) => {
   };
 };
 
+//  TODO: Include event_dj data either in new composite object or in addition
 export const event_export_summary = async (event_name: string) => {
   const event = await get_event(event_name);
   if (event instanceof Error) return eventNotFoundError(event_name);
 
-  const event_dj_names = new Set<string>(event.djs?.map((dj) => dj.name));
-  const event_promo_names = new Set<string>(event.promos);
-
-  const djs = (await read_djs_table()).filter((dj) =>
-    event_dj_names.has(dj.name),
-  );
-  const promos = (await read_promos_table()).filter((promo) =>
-    event_promo_names.has(promo.name),
-  );
+  const event_djs = await get_event_djs_by_event(event.name);
+  const djs: IDjObject[] = [];
+  const promos = await get_promos_by_names(event.promos!, event.name);
 
   let theme: IThemeObject | undefined = undefined;
 
   const file_names = new Set<string>();
 
-  for (const dj of djs) {
-    if (dj.logo) file_names.add(dj.logo);
-    if (dj.recording) file_names.add(dj.recording);
+  for (const event_dj of event_djs) {
+    const dj = await get_dj(event_dj.dj);
+    if (!(dj instanceof Error)) {
+      if (dj.logo) file_names.add(dj.logo);
+      djs.push(dj);
+    }
+
+    if (event_dj.recording) {
+      file_names.add(event_dj.recording);
+    }
   }
 
   for (const promo of promos) {
@@ -776,8 +888,7 @@ export const export_event = async (event_name: string) => {
     gathered_files.file_objects.map((file) => [file.name, file.file_path!]),
   );
 
-  if (!event_objects.event!.djs) event_objects.event!.djs = [];
-  const dj_promises = event_objects.event!.djs.map((lineup_dj, index) => {
+  const dj_promises = event_objects.event_djs!.map((event_dj, index) => {
     const dj = event_objects.djs![index];
 
     const dj_export_data: IExportDjineupData = {
@@ -786,21 +897,21 @@ export const export_event = async (event_name: string) => {
       recording_path: "",
       resolution: Promise.resolve([]),
       url: "",
-      vj: lineup_dj.vj ? lineup_dj.vj : "",
+      vj: event_dj.vj ? event_dj.vj : "",
     };
     if (dj.logo)
       dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
-    if (lineup_dj.is_live) {
+    if (event_dj.is_live) {
       dj_export_data.url = util.format(
         process.env.RTMP_SERVER,
         dj.rtmp_server,
         dj.rtmp_key,
       );
     } else {
-      if (dj.recording) {
+      if (event_dj.recording) {
         dj_export_data.recording_path = join(
           RECORDINGS_ROOT,
-          files_map.get(dj.recording)!,
+          files_map.get(event_dj.recording)!,
         );
         dj_export_data.resolution = getResolution(
           dj_export_data.recording_path,
@@ -977,8 +1088,8 @@ export const import_legacy_events = async (lineups_path: string) => {
         });
       }
     }
-    if (event_djs.length > 0) new_event.djs = event_djs;
-
+    // TODO: Create actual event_dj objects
+    // if (event_djs.length > 0) new_event.event_djs = event_djs.map(dj => dj.name);
     const event_promos: string[] = [];
     for (const lineup_promo of legacy_lineup_data.promos) {
       const promo = await get_promo(lineup_promo);
@@ -995,7 +1106,7 @@ export const import_legacy_events = async (lineups_path: string) => {
 
   for (const event of new_events) {
     console.log(`Importing event ${event.name}`);
-    const error = await insert_into_events(event);
+    const error = await insert_into_events(event, []);
     if (error instanceof Error)
       errors.push(`Failed to import event ${event.name}: ${error.message}`);
   }

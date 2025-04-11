@@ -1,8 +1,8 @@
 import { Client } from "pg";
-import { ALL_TABLES, EVENT_DJ_TABLE_0 } from "./initial_tables";
+import { ALL_TABLES, EVENT_DJS_TABLE_0 } from "./initial_tables";
 import {
   DJS_TABLE_NAME,
-  EVENT_DJ_TABLE_NAME,
+  EVENT_DJS_TABLE_NAME,
   EVENTS_TABLE_NAME,
   FILES_TABLE_NAME,
   THEMES_TABLE_NAME,
@@ -26,29 +26,24 @@ const migration_1 = async (client: Client) => {
   console.log("Completed migration 1.");
 };
 
-// Add Event_DJ table and populate entries. Drops Event.djs and DJ.recording.
+// Add Event_DJ relation table and populate entries. Drops Event.djs and DJ.recording.
 const migration_2 = async (client: Client) => {
   console.log("Staring migration 2.");
   // Check if table exists, skip migration if so
-  const table_exists = await client.query(`
-    SELECT * FROM information_schema.tables WHERE table_name = '${EVENT_DJ_TABLE_NAME}';
-  `);
-  if (table_exists.rows && table_exists.rows.length > 0) {
+  const retval = await client.query(EVENT_DJS_TABLE_0.exists());
+  if (retval.rowCount && retval.rowCount > 0) {
     console.log("Skipping migration 2.");
     return Promise.resolve();
   }
   // Create table
-  await client.query(EVENT_DJ_TABLE_0.create_table());
-  // Add a new event_djs column to Events
-  await client.query(
-    `ALTER TABLE ${EVENTS_TABLE_NAME} ADD COLUMN IF NOT EXISTS event_djs TEXT[]`,
-  );
+  await client.query(EVENT_DJS_TABLE_0.create_table());
   // Populate with each entry in every event's dj field
   await client.query(`
     DO $$
     DECLARE
         event_record RECORD;
         dj_record ${EVENTS_TABLE_NAME}.djs%TYPE;
+        counter INTEGER := 0;
     BEGIN
         -- Loop through each event in the Event table
         FOR event_record IN (SELECT * FROM ${EVENTS_TABLE_NAME}) LOOP
@@ -57,36 +52,20 @@ const migration_2 = async (client: Client) => {
               dj_record IN SELECT jsonb_array_elements(djs::jsonb)
                 FROM ${EVENTS_TABLE_NAME} where name = event_record.name
             LOOP
-              INSERT INTO ${EVENT_DJ_TABLE_NAME} (event, dj, is_live, vj)
+              INSERT INTO ${EVENT_DJS_TABLE_NAME} (event, dj, position, is_live, vj)
                 VALUES (
                     event_record.name,
                     dj_record->>'name',
+                    counter,
                     (dj_record->>'is_live')::boolean,
                     dj_record->>'vj'
                 );
+              counter := counter + 1;
             END LOOP;
+        counter := 0;
         END LOOP;
     END $$;
   `);
-  // Update the new column in the event
-  await client.query(`
-    DO $$
-    DECLARE
-        event_record RECORD;
-        dj_record RECORD;
-    BEGIN
-        FOR event_record IN (SELECT * FROM ${EVENTS_TABLE_NAME}) LOOP
-        -- Update new event_djs column
-        UPDATE ${EVENTS_TABLE_NAME}
-          SET event_djs = ARRAY(
-            SELECT jsonb_array_elements(djs::jsonb)->>'name'
-              FROM ${EVENTS_TABLE_NAME} where name = event_record.name
-          )
-          WHERE name = event_record.name;
-        END LOOP;
-    END $$
-  `);
-  // Iterate through each DJ and grab their current recording file
   await client.query(`
     DO $$
     DECLARE
@@ -95,7 +74,7 @@ const migration_2 = async (client: Client) => {
         -- Loop through each DJ in the DJ table
         FOR dj_record IN (SELECT * FROM ${DJS_TABLE_NAME}) LOOP
             -- Update recording value with the one from DJ table
-            UPDATE ${EVENT_DJ_TABLE_NAME}
+            UPDATE ${EVENT_DJS_TABLE_NAME}
               SET recording = dj_record.recording
               WHERE dj = dj_record.name;
         END LOOP;

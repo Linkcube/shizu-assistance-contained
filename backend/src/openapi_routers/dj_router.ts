@@ -26,7 +26,7 @@ djRouter.get("/min", async (req, res) => {
       return {
         name: dj.name,
         logo: dj.logo,
-        recording: dj.recording,
+        // recording: dj.recording,
         rtmp_server: dj.rtmp_server,
       };
     }),
