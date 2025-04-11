@@ -4,6 +4,7 @@ export interface IColumnDefinition {
   name: string;
   type: string;
   fkey?: string;
+  multi_col?: boolean;
 }
 
 export interface IFileObject {

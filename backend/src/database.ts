@@ -246,13 +246,18 @@ export const get_app_theme = async (name: string) => {
 
 export const create_tables = async () => {
   const client = database_client();
-  await run_migrations(client);
+  client.connect();
 
-  // Initial theme values for GUI
-  const themes = await client.query(`SELECT * FROM ${APP_THEMES_TABLE.name};`);
-  if (themes.rows.length === 0) await initial_data();
-
-  await client.end();
+  try {
+    await run_migrations(client);
+    // Initial theme values for GUI
+    const themes = await client.query(
+      `SELECT * FROM ${APP_THEMES_TABLE.name};`,
+    );
+    if (themes.rows.length === 0) await initial_data();
+  } finally {
+    await client.end();
+  }
 };
 
 const initial_data = async () => {

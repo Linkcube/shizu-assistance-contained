@@ -18,6 +18,8 @@ export class Table {
     const def_strings = this.definitions.map((def) => {
       if (def.fkey) {
         return `${def.name} ${def.type} references ${def.fkey}`;
+      } else if (def.multi_col) {
+        return `${def.type} (${def.name})`;
       }
       return `${def.name} ${def.type}`;
     });
@@ -51,6 +53,7 @@ export const EVENTS_TABLE_NAME = "events";
 export const THEMES_TABLE_NAME = "themes";
 export const FILES_TABLE_NAME = "files";
 export const APP_THEMES_TABLE_NAME = "app_themes";
+export const EVENT_DJ_TABLE_NAME = "event_djs";
 export const DJS_TABLE: Table = new Table(DJS_TABLE_NAME, [
   {
     name: "name",
@@ -220,6 +223,36 @@ export const APP_THEMES_TABLE: Table = new Table(APP_THEMES_TABLE_NAME, [
     type: `JSONB`,
   },
 ]);
+export const EVENT_DJ_TABLE: Table = new Table(EVENT_DJ_TABLE_NAME, [
+  {
+    name: "event",
+    type: "TEXT",
+    fkey: `${EVENTS_TABLE_NAME}(name)`,
+  },
+  {
+    name: "dj",
+    type: "TEXT",
+    fkey: `${DJS_TABLE_NAME}(name)`,
+  },
+  {
+    name: "event, dj",
+    type: "PRIMARY KEY",
+    multi_col: true,
+  },
+  {
+    name: "is_live",
+    type: "BOOLEAN",
+  },
+  {
+    name: "recording",
+    type: "TEXT",
+    fkey: `${FILES_TABLE_NAME}(name)`,
+  },
+  {
+    name: "vj",
+    type: "TEXT",
+  },
+]);
 export const ALL_TABLES = [
   FILES_TABLE,
   THEMES_TABLE,
@@ -227,4 +260,5 @@ export const ALL_TABLES = [
   DJS_TABLE,
   EVENTS_TABLE,
   APP_THEMES_TABLE,
+  EVENT_DJ_TABLE,
 ];

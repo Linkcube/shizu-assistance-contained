@@ -6,6 +6,7 @@ import {
   THEMES_TABLE_NAME,
   FILES_TABLE_NAME,
   APP_THEMES_TABLE_NAME,
+  EVENT_DJ_TABLE_NAME,
 } from "../tables";
 
 // Initial table definitions before any migrations
@@ -182,3 +183,35 @@ export const ALL_TABLES = [
   EVENTS_TABLE_0,
   APP_THEMES_TABLE_0,
 ];
+
+// Initial definition of new tables for their first migration integration
+export const EVENT_DJ_TABLE_0: Table = new Table(EVENT_DJ_TABLE_NAME, [
+  {
+    name: "event",
+    type: "TEXT",
+    fkey: `${EVENTS_TABLE_NAME}(name)`,
+  },
+  {
+    name: "dj",
+    type: "TEXT",
+    fkey: `${DJS_TABLE_NAME}(name)`,
+  },
+  {
+    name: "event, dj",
+    type: "PRIMARY KEY",
+    multi_col: true,
+  },
+  {
+    name: "is_live",
+    type: "BOOLEAN",
+  },
+  {
+    name: "recording",
+    type: "TEXT",
+    fkey: `${FILES_TABLE_NAME}(name)`,
+  },
+  {
+    name: "vj",
+    type: "TEXT",
+  },
+]);
