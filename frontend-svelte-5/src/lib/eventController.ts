@@ -10,11 +10,13 @@ import { openapiGet, openapiPostBody, openapiDelete, openapiPost } from './utils
  * @property {string} name - The name of the DJ.
  * @property {boolean} is_live - Indicates if the DJ is currently live.
  * @property {string} vj - The VJ associated with the DJ.
+ * @property {string|null} recording - The recording file associated with the DJ for this event.
  */
 export interface EventDj {
 	name: string;
 	is_live: boolean;
 	vj: string;
+	recording: string | null;
 }
 
 /**

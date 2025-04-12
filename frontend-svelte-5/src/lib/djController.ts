@@ -5,7 +5,6 @@ import { openapiGet, openapiPostBody, openapiDelete } from './utils';
  * @typedef {Object} DJ
  * @property {string} name - The name of the DJ.
  * @property {string|null} logo - URL for the DJ's logo, can be null.
- * @property {string|null} recording - URL for a recording by this DJ, can be null.
  * @property {string} rtmp_server - The RTMP server URL for the DJ.
  * @property {string} rtmp_key - The key used on the RTMP server.
  * @property {string} public_name - A public name or alias of the DJ.
@@ -14,7 +13,6 @@ import { openapiGet, openapiPostBody, openapiDelete } from './utils';
 export interface DJ {
 	name: string;
 	logo: string | null;
-	recording: string | null;
 	rtmp_server: string;
 	rtmp_key: string;
 	public_name: string;
@@ -26,13 +24,11 @@ export interface DJ {
  * @typedef {Object} DjMin
  * @property {string} name - The name of the DJ.
  * @property {string} logo - URL for the DJ's logo.
- * @property {string} recording - URL for a recording by this DJ.
  * @property {string} rtmp_server - The RTMP server URL for the DJ.
  */
 export interface DjMin {
 	name: string;
 	logo: string;
-	recording: string;
 	rtmp_server: string;
 }
 
@@ -94,7 +90,6 @@ export async function addSingle(name: string): Promise<DJ | undefined> {
 export async function updateSingle(
 	name: string,
 	logo: string | null,
-	recording: string | null,
 	rtmp_server: string,
 	rtmp_key: string,
 	public_name: string,
@@ -102,7 +97,6 @@ export async function updateSingle(
 ): Promise<DJ | undefined> {
 	const body = {
 		logo: logo,
-		recording: recording,
 		rtmp_server: rtmp_server,
 		rtmp_key: rtmp_key,
 		public_name: public_name,

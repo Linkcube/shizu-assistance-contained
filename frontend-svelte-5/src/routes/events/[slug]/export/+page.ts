@@ -37,8 +37,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
 					if (!dj.rtmp_key) return `${dj.name}: Live DJ missing RTMP Key`;
 					if (!dj.rtmp_server) return `${dj.name}: Live DJ missing RTMP Server`;
 				} else {
-					if (!dj.recording) return `${dj.name}: Pre-recorded DJ no recording set.`;
-					const dj_rec_file = files_map.get(dj.recording);
+					if (!event_dj.recording) return `${dj.name}: Pre-recorded DJ no recording set.`;
+					const dj_rec_file = files_map.get(event_dj.recording);
 					if (!dj_rec_file) return `${dj.name}: Pre-recorded DJ Invalid file name for recording.`;
 					if (!dj_rec_file.file_path && !dj_rec_file.url_path)
 						return `${dj.name}: Pre-recorded DJ recording does not have a designated file.`;

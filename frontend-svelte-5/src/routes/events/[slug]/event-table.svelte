@@ -124,7 +124,9 @@
 
 	const submitLineupSelection = (new_items: string[]) => {
 		if (lineup_type === 'djs') {
-			new_items.forEach((name) => event.djs.push({ name: name, is_live: false, vj: '' }));
+			new_items.forEach((name) =>
+				event.djs.push({ name: name, is_live: false, vj: '', recording: null })
+			);
 		} else {
 			new_items.forEach((name) => event.promos.push(name));
 		}

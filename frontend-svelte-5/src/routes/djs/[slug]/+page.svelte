@@ -22,15 +22,7 @@
 	let fileObjectSheetInstance: FileObjectsSheet;
 
 	const submitChanges = () => {
-		updateSingle(
-			dj.name,
-			dj.logo,
-			dj.recording,
-			dj.rtmp_server,
-			dj.rtmp_key,
-			dj.public_name,
-			dj.discord_id
-		)
+		updateSingle(dj.name, dj.logo, dj.rtmp_server, dj.rtmp_key, dj.public_name, dj.discord_id)
 			.then(() => {
 				pushToLog({
 					statusCode: 200,
@@ -95,25 +87,12 @@
 		fileObjectSheetInstance.openFileSheet();
 	};
 
-	const selectRecording = () => {
-		file_type = 'recordings';
-		fileObjectSheetInstance.openFileSheet();
-	};
-
 	const submitFile = (selected_file: File) => {
-		if (file_type === 'logos') {
-			dj.logo = selected_file.name;
-		} else {
-			dj.recording = selected_file.name;
-		}
+		dj.logo = selected_file.name;
 	};
 
 	const unsetLogoFile = () => {
 		dj.logo = null;
-	};
-
-	const unsetRecordingFile = () => {
-		dj.recording = null;
 	};
 </script>
 
@@ -121,14 +100,6 @@
 	{dj.name}
 </h1>
 
-<DjTable
-	bind:dj
-	{submitChanges}
-	{deleteDj}
-	{selectLogo}
-	{selectRecording}
-	{unsetLogoFile}
-	{unsetRecordingFile}
-/>
+<DjTable bind:dj {submitChanges} {deleteDj} {selectLogo} {unsetLogoFile} />
 
 <FileObjectsSheet bind:dj {file_type} {submitFile} bind:this={fileObjectSheetInstance} />

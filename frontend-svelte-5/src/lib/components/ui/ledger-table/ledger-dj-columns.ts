@@ -55,24 +55,6 @@ export const createCols = (ledger_path: string, delete_function: (name: string) 
 			}
 		},
 		{
-			accessorKey: 'recording',
-			header: ({ column }) =>
-				renderComponent(DataTableNameButton, {
-					name: 'Recording',
-					onclick: () => column.toggleSorting(column.getIsSorted() === 'asc')
-				}),
-			cell: ({ row }) => {
-				return renderSnippet(CheckValue, row.original.recording);
-			},
-			sortingFn: (rowA, rowB) => {
-				return rowA.original.recording && rowB.original.recording
-					? 0
-					: rowA.original.recording
-						? -1
-						: 1;
-			}
-		},
-		{
 			id: 'actions',
 			cell: ({ row }) => {
 				return renderComponent(DataTableActions, {

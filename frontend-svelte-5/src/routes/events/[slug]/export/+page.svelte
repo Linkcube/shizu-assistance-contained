@@ -85,96 +85,97 @@
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each data.event.djs as dj}
+						{#each data.event.djs as event_dj}
 							<Table.Row>
 								<Table.Cell>
 									<Button
 										variant="link"
 										class="text-foreground"
-										onclick={() => goto(`/djs/${dj.name}`)}
+										onclick={() => goto(`/djs/${event_dj.name}`)}
 									>
-										{dj.name}
+										{event_dj.name}
 									</Button>
 								</Table.Cell>
 								<Table.Cell class="font-medium">
 									<div class="flex flex-row items-center text-center">
-										{#if dj_map.get(dj.name)?.logo}
+										{#if dj_map.get(event_dj.name)?.logo}
 											<HoverCard.Root>
 												<HoverCard.Trigger>
 													<div class="flex flex-row items-center text-center">
 														<FileImage class="mr-2 size-4 text-primary" />
-														<span>{dj_map.get(dj.name)?.logo}</span>
+														<span>{dj_map.get(event_dj.name)?.logo}</span>
 													</div>
 												</HoverCard.Trigger>
 												<HoverCard.Content>
-													{#if files_map.get(dj_map.get(dj.name)?.logo || '')?.file_path}
+													{#if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}
 														<img
 															class="w-full"
 															src={`${staticAssetsBase}/logos/
-															${files_map.get(dj_map.get(dj.name)?.logo || '')?.file_path}`}
+															${files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}`}
 															alt="Preview"
 														/>
-													{:else if files_map.get(dj_map.get(dj.name)?.logo || '')?.url_path}
+													{:else if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
 														<a
 															class="hover:underline"
-															href={files_map.get(dj_map.get(dj.name)?.logo || '')?.url_path}
+															href={files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
 														>
-															{files_map.get(dj_map.get(dj.name)?.logo || '')?.url_path}
+															{files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
 														</a>
 													{:else}
 														<span>
-															No file/url set for {dj_map.get(dj.name)?.logo}
+															No file/url set for {dj_map.get(event_dj.name)?.logo}
 														</span>
 													{/if}
 												</HoverCard.Content>
 											</HoverCard.Root>
-										{:else if dj_map.get(dj.name)?.public_name}
+										{:else if dj_map.get(event_dj.name)?.public_name}
 											<Type class="mr-2 size-4 text-primary" />
-											<span>{dj_map.get(dj.name)?.public_name}</span>
+											<span>{dj_map.get(event_dj.name)?.public_name}</span>
 										{:else}
 											<Type class="mr-2 size-4 text-primary" />
-											<span>{dj.name}</span>
+											<span>{event_dj.name}</span>
 										{/if}
 									</div>
 								</Table.Cell>
 								<Table.Cell class="font-medium">
 									<div class="flex flex-row items-center text-center">
-										{#if dj.is_live}
-											{#if dj_map.get(dj.name)?.rtmp_server && dj_map.get(dj.name)?.rtmp_key}
+										{#if event_dj.is_live}
+											{#if dj_map.get(event_dj.name)?.rtmp_server && dj_map.get(event_dj.name)?.rtmp_key}
 												<Wifi class="mr-2 size-4 text-primary" />
 												<span
-													>{dj_map.get(dj.name)?.rtmp_server}:{dj_map.get(dj.name)?.rtmp_key}</span
+													>{dj_map.get(event_dj.name)?.rtmp_server}:{dj_map.get(event_dj.name)
+														?.rtmp_key}</span
 												>
 											{:else}
 												<Ban class="mr-2 size-4 text-primary" />
 											{/if}
-										{:else if dj_map.get(dj.name)?.recording}
+										{:else if event_dj?.recording}
 											<HoverCard.Root>
 												<HoverCard.Trigger>
 													<div class="flex flex-row items-center text-center">
 														<FileVideo class="mr-2 size-4 text-primary" />
-														<span>{dj_map.get(dj.name)?.recording}</span>
+														<span>{event_dj?.recording}</span>
 													</div>
 												</HoverCard.Trigger>
 												<HoverCard.Content>
-													{#if files_map.get(dj_map.get(dj.name)?.recording || '')?.file_path}
+													{#if files_map.get(event_dj?.recording || '')?.file_path}
 														<video
 															controls
 															src={`${staticAssetsBase}/recordings/
-																${files_map.get(dj_map.get(dj.name)?.recording || '')?.file_path}`}
+																${files_map.get(event_dj?.recording || '')?.file_path}`}
 														>
 															<track kind="captions" />
 														</video>
-													{:else if files_map.get(dj_map.get(dj.name)?.recording || '')?.url_path}
+													{:else if files_map.get(event_dj?.recording || '')?.url_path}
 														<a
 															class="hover:underline"
-															href={files_map.get(dj_map.get(dj.name)?.recording || '')?.url_path}
+															href={files_map.get(event_dj?.recording || '')?.url_path}
 														>
-															{files_map.get(dj_map.get(dj.name)?.recording || '')?.url_path}
+															{files_map.get(event_dj?.recording || '')?.url_path}
 														</a>
 													{:else}
 														<span>
-															No file/url set for {dj_map.get(dj.name)?.recording}
+															No file/url set for {event_dj?.recording}
 														</span>
 													{/if}
 												</HoverCard.Content>
