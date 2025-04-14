@@ -30,10 +30,6 @@
 		{
 			key: 'Stream Key',
 			description: "DJ's unique stream key used when connecting for a live stream."
-		},
-		{
-			key: 'Recording File',
-			description: "File pointing to the local file/url for the DJ's recording."
 		}
 	];
 
@@ -56,6 +52,11 @@
 		{
 			key: 'VJ Name',
 			description: "VJ the DJ's visuals should be credited with."
+		},
+		{
+			key: 'Recording File',
+			description:
+				"File pointing to the local file/url for the DJ's recording. This is set per-event."
 		}
 	];
 
@@ -130,8 +131,8 @@
 			Name` is set.
 		</span>
 		<span class="my-2 flex flex-row">
-			Both the `Logo File` and `Recording File` point to a `File` object, which can be accessed/set
-			by clicking on their buttons.
+			The `Logo File` points to a `File` object, which can be accessed/set by clicking on their
+			buttons.
 		</span>
 		<span class="my-2 flex flex-row">
 			`File` objects can either point to a local file set in the directories specified in the README
@@ -214,9 +215,10 @@
 	</Table.Root>
 	<div class="flex flex-col">
 		<span class="my-2 flex flex-row">
-			Clicking on the ellipses for a DJ's row will give the option to toggle being live, or edit the
-			VJ. There is an edit option, which will open the DJ's page in a new tab. The remove button
-			will remove the DJ from the event, but not delete the DJ.
+			Clicking on the ellipses for a DJ's row will give the option to toggle being live, edit the
+			VJ, or set their recording. When a DJ is set to not live, the recording sidebar will be
+			automatically openened. There is an edit option, which will open the DJ's page in a new tab.
+			The remove button will remove the DJ from the event, but not delete the DJ.
 		</span>
 	</div>
 	<h1 class="scroll-m-20 py-2 text-center text-3xl font-bold tracking-tight lg:text-2xl">

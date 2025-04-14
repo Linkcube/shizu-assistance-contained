@@ -51,6 +51,7 @@ import {
   internal_set_event_date_time,
   internal_set_event_theme,
   internal_update_event,
+  internal_get_events_ordered,
 } from "./database_helpers/event_db_helpers";
 import {
   internal_delete_promo,
@@ -153,10 +154,8 @@ export const read_themes_table = async () => {
 
 export const read_events_table = async () => {
   const pool = await database_pool.connect();
-  const retval: QueryResult<IEventObject> = await internal_read_entire_table(
-    EVENTS_TABLE,
-    pool,
-  );
+  const retval: QueryResult<IEventObject> =
+    await internal_get_events_ordered(pool);
   await pool.release();
   return retval.rows;
 };
@@ -172,6 +171,9 @@ export const read_promos_table = async () => {
 };
 
 export const get_promos_by_names = async (names: string[], event?: string) => {
+  if (names === null || names === undefined || names.length === 0) {
+    return [];
+  }
   const pool = await database_pool.connect();
   const retval: QueryResult<IPromoObject> = await internal_get_promos(
     names,
@@ -300,10 +302,10 @@ export const create_tables = async () => {
   try {
     await run_migrations(client);
     // Initial theme values for GUI
-    const themes = await client.query(
-      `SELECT * FROM ${APP_THEMES_TABLE.name};`,
-    );
-    if (themes.rows.length === 0) await initial_data();
+    // const themes = await client.query(
+    //   `SELECT * FROM ${APP_THEMES_TABLE.name};`,
+    // );
+    // if (themes.rows.length === 0) await initial_data();
   } finally {
     await client.end();
   }

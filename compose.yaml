@@ -15,7 +15,7 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - postgres:/data/postgres
+      - postgres:/var/lib/postgresql/data
     networks:
       - private
 

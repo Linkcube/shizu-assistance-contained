@@ -89,11 +89,6 @@ export const DJS_TABLE: Table = new Table(DJS_TABLE_NAME, [
     fkey: `${FILES_TABLE_NAME}(name)`,
   },
   {
-    name: "recording",
-    type: "TEXT",
-    fkey: `${FILES_TABLE_NAME}(name)`,
-  },
-  {
     name: "rtmp_server",
     type: "TEXT",
   },

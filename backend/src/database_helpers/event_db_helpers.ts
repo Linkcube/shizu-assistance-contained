@@ -63,6 +63,12 @@ const validate_event = async (
   }
 };
 
+export const internal_get_events_ordered = (pool: PoolClient) => {
+  const query = `SELECT * FROM ${EVENTS_TABLE.name} ORDER BY date DESC NULLS LAST, start_time DESC, name ASC;`;
+  console.log(query);
+  return pool.query(query);
+};
+
 export const internal_insert_into_events = async (
   event_data: IEventObject,
   pool: PoolClient,

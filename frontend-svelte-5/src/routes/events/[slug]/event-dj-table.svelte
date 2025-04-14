@@ -44,6 +44,7 @@
 
 	const changeEventDjLive = async (dj: EventDj) => {
 		dj.is_live = !dj.is_live;
+		if (!dj.is_live) changeEventDjRecording(dj);
 	};
 
 	const changeEventDjVj = async (dj: EventDj) => {
@@ -128,7 +129,7 @@
 			<Table.Row>
 				<Table.Head class="w-[100px]">#</Table.Head>
 				<Table.Head>Name</Table.Head>
-				<Table.Head>Live</Table.Head>
+				<Table.Head>Source</Table.Head>
 				<Table.Head>VJ</Table.Head>
 				<Table.Head></Table.Head>
 			</Table.Row>
@@ -151,9 +152,19 @@
 					<Table.Cell>{event_dj.name}</Table.Cell>
 					<Table.Cell>
 						{#if event_dj.is_live}
-							<CircleCheckBig class="mr-2 size-4 text-primary" />
+							<div class="flex flex-row items-center text-center">
+								<Wifi class="mr-2 size-4 text-primary" />
+								<span>Live</span>
+							</div>
+						{:else if event_dj.recording}
+							<div class="flex flex-row items-center text-center">
+								<Film class="mr-2 size-4 text-primary" />
+								<span>{event_dj.recording}</span>
+							</div>
 						{:else}
-							<Ban class="mr-2 size-4 text-muted" />
+							<div class="flex flex-row items-center text-center">
+								<Ban class="mr-2 size-4 text-muted" />
+							</div>
 						{/if}
 					</Table.Cell>
 					<Table.Cell>{event_dj.vj}</Table.Cell>

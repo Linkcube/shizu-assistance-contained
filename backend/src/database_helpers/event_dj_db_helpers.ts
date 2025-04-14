@@ -172,9 +172,9 @@ export const internal_static_change_event_djs = async (
     (event_dj) => !new_event_dj_names.includes(event_dj.dj),
   );
   const old_dj_names = current_event_djs.map((dj) => dj.dj);
-  const new_djs = new_event_djs.filter(
-    (event_dj) => !old_dj_names.includes(event_dj.dj),
-  );
+  const new_djs = new_event_djs
+    .map((dj) => dj.dj)
+    .filter((event_dj) => !old_dj_names.includes(event_dj));
 
   // Delete old entries
   for (const delete_dj of deleted_djs) {
@@ -187,13 +187,8 @@ export const internal_static_change_event_djs = async (
     const event_dj = new_event_djs[i];
     const composite_key = `('${event_dj.event}', '${event_dj.dj}')`;
     event_dj.position = i;
-    if (new_djs.includes(event_dj)) {
-      await internal_update_table_entry(
-        EVENT_DJS_TABLE,
-        composite_key,
-        event_dj,
-        pool,
-      );
+    if (new_djs.includes(event_dj.dj)) {
+      await internal_insert_into_event_djs(event_dj, pool);
     } else {
       await internal_update_table_entry(
         EVENT_DJS_TABLE,

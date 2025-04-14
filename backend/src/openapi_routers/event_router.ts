@@ -82,7 +82,12 @@ eventRouter.get("/:eventName", async (req, res) => {
 
 eventRouter.get("/", async (req, res) => {
   res.status(200);
-  return res.send(await read_events_table());
+  const event_objects = await read_events_table();
+  const event_interfaces = [];
+  for (const event_object of event_objects) {
+    event_interfaces.push(await make_ui_event_object(event_object));
+  }
+  return res.send(event_interfaces);
 });
 
 eventRouter.post("/", async (req, res) => {

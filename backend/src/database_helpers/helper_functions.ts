@@ -100,6 +100,14 @@ export const internal_insert_into_table = async (
   const columns = [];
   const values = [];
   for (const definition of table.definitions) {
+    if (
+      obj_data[definition.name] === null ||
+      obj_data[definition.name] === undefined ||
+      (obj_data[definition.name] instanceof Array &&
+        obj_data[definition.name].length === 0)
+    ) {
+      continue;
+    }
     switch (definition.type) {
       case "TEXT":
       case "TEXT PRIMARY KEY":
