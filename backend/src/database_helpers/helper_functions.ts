@@ -135,11 +135,7 @@ export const internal_insert_into_table = async (
         break;
     }
   }
-  const insert_query = `
-    INSERT INTO ${table.name}
-      (${columns.join(", ")})
-      VALUES (${values.join(", ")});
-  `;
+  const insert_query = `INSERT INTO ${table.name} (${columns.join(", ")}) VALUES (${values.join(", ")});`;
 
   console.log(insert_query);
   await pool.query(insert_query);

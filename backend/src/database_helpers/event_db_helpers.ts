@@ -14,7 +14,13 @@ import {
   themeNotFoundError,
   invalidActionError,
 } from "../errors";
-import { EVENTS_TABLE, DJS_TABLE, PROMOS_TABLE, THEMES_TABLE } from "../tables";
+import {
+  EVENTS_TABLE,
+  DJS_TABLE,
+  PROMOS_TABLE,
+  THEMES_TABLE,
+  EVENT_DJS_TABLE,
+} from "../tables";
 import { IDjObject, IEventObject, ILineupDjObject } from "../types";
 
 const validate_event = async (
@@ -234,6 +240,11 @@ export const internal_delete_event = async (
     pool,
   )) as IEventObject | Error;
   if (event instanceof Error) return event;
+
+  const event_dj_query = `DELETE FROM ${EVENT_DJS_TABLE.name} WHERE event = '${event_name}'`;
+  console.log(event_dj_query);
+
+  await pool.query(event_dj_query);
 
   const query = `DELETE FROM ${EVENTS_TABLE.name} WHERE name = '${event_name}'`;
   console.log(query);

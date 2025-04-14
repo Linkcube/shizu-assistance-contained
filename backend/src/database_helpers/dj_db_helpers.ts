@@ -5,9 +5,14 @@ import {
   is_non_empty,
 } from "./helper_functions";
 import { djNotFoundError, invalidDjError, invalidFileError } from "../errors";
-import { DJS_TABLE, FILES_TABLE, EVENTS_TABLE } from "../tables";
-import { IDjObject, IEventObject } from "../types";
-import { PoolClient } from "pg";
+import {
+  DJS_TABLE,
+  FILES_TABLE,
+  EVENTS_TABLE,
+  EVENT_DJS_TABLE,
+} from "../tables";
+import { IDjObject, IEventDjObject, IEventObject } from "../types";
+import { PoolClient, QueryResult } from "pg";
 import { internal_delete_event_dj } from "./event_dj_db_helpers";
 
 const validate_dj = async (
@@ -92,23 +97,22 @@ export const internal_update_dj = async (
 };
 
 export const internal_delete_dj = async (dj_name: string, pool: PoolClient) => {
-  const promo = (await internal_get_row_from_table(
-    DJS_TABLE,
-    dj_name,
-    pool,
-  )) as IEventObject | Error;
-  if (promo instanceof Error) return promo;
+  const dj_does_exist = await dj_exists(dj_name, pool);
+  if (dj_does_exist instanceof Error) return dj_does_exist;
 
-  const events = await pool.query(`SELECT * FROM ${EVENTS_TABLE.name};`);
+  const event_djs_query = `SELECT * FROM ${EVENT_DJS_TABLE.name} WHERE dj = '${dj_name}';`;
+  console.log(event_djs_query);
+  const event_djs: QueryResult<IEventDjObject> =
+    await pool.query(event_djs_query);
 
-  if (events.rows && events.rows.length > 0) {
+  if (event_djs.rows && event_djs.rows.length > 0) {
     // TODO: Shift later djs to lower position
-    await events.rows.forEach(async (row: IEventObject) => {
-      await internal_delete_event_dj(row.name, dj_name, pool);
-    });
+    for (const event_dj of event_djs.rows) {
+      await internal_delete_event_dj(event_dj.event, dj_name, pool);
+    }
   }
 
-  const delete_query = `DELETE FROM ${DJS_TABLE.name} WHERE name = '${dj_name}'`;
+  const delete_query = `DELETE FROM ${DJS_TABLE.name} WHERE name = '${dj_name}';`;
   console.log(delete_query);
 
   await pool.query(delete_query);
