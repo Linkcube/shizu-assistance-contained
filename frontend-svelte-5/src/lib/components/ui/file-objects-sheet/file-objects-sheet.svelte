@@ -17,7 +17,6 @@
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import CircleCheckBig from 'lucide-svelte/icons/circle-check-big';
 	import Ban from 'lucide-svelte/icons/ban';
-	import { staticAssetsBase } from '$lib/utils';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import type { DJ } from '$lib/djController';
@@ -72,6 +71,8 @@
 			return 'Select Theme File';
 		}
 	});
+
+	const staticAssetsBase = `http://${location.hostname}:4004`;
 
 	const selectFile = (file: File) => {
 		selected_file = file;

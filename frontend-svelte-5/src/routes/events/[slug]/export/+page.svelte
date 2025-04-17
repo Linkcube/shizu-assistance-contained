@@ -19,7 +19,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 	import type { File } from '$lib/fileController';
-	import { isImageSource, pushToLog, staticAssetsBase } from '$lib/utils';
+	import { isImageSource, pushToLog } from '$lib/utils';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import Film from 'lucide-svelte/icons/film';
@@ -36,6 +36,8 @@
 	let export_promise = $state(Promise.resolve(false));
 	let export_progress = $state(0);
 	let exporting_state = $state('');
+
+	const staticAssetsBase = `http://${location.hostname}:4004`;
 
 	const exportEvent = () => {
 		exporting = true;
@@ -110,8 +112,7 @@
 													{#if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}
 														<img
 															class="w-full"
-															src={`${staticAssetsBase}/logos/
-															${files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}`}
+															src={`${staticAssetsBase}/logos/${files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}`}
 															alt="Preview"
 														/>
 														<span>
@@ -170,8 +171,7 @@
 													{#if files_map.get(event_dj?.recording || '')?.file_path}
 														<video
 															controls
-															src={`${staticAssetsBase}/recordings/
-																${files_map.get(event_dj?.recording || '')?.file_path}`}
+															src={`${staticAssetsBase}/recordings/${files_map.get(event_dj?.recording || '')?.file_path}`}
 														>
 															<track kind="captions" />
 														</video>

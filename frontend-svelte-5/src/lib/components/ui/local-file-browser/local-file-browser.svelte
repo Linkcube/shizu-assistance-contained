@@ -16,7 +16,6 @@
 	import Folder from 'lucide-svelte/icons/folder';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { staticAssetsBase } from '$lib/utils';
 
 	const isImageSource = (source_path: string) => {
 		return source_path.match(/\.(jpeg|jpg|gif|png)$/) != null;
@@ -36,6 +35,8 @@
 	let file_browser_selected_file: LocalFile = $state({} as LocalFile);
 	let file_browser_files: LocalFile[] = $state([]);
 	let file_browser_preview_path: string = $state('');
+
+	const staticAssetsBase = `http://${location.hostname}:4004`;
 
 	function localfileCompare(a: LocalFile, b: LocalFile) {
 		return a.is_dir && b.is_dir ? 0 : a.is_dir ? -1 : 1;
@@ -191,8 +192,8 @@
 				</div>
 			</Dialog.Title>
 			<Dialog.Description>
-				<div class="flex flex-col items-center justify-between sm:flex-row">
-					<div class="table-container h-96 basis-1/2 overflow-y-auto">
+				<div class="flex flex-col items-center justify-between md:flex-row">
+					<div class="table-container h-96 overflow-y-auto">
 						<Table.Root>
 							<Table.Header>
 								<Table.Row>
@@ -222,7 +223,7 @@
 							</Table.Body>
 						</Table.Root>
 					</div>
-					<Separator orientation="vertical" class="my-4"></Separator>
+					<!-- <Separator orientation="vertical" class="my-4"></Separator> -->
 					{#if file_browser_selected_file?.name && !file_browser_selected_file.is_dir}
 						{#if isImageSource(file_browser_preview_path)}
 							<img
