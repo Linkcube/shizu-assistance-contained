@@ -25,6 +25,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 
 	let dj_errors_promise: string[] = [];
 	let promo_errors_promise: string[] = [];
+	let theme_errors: string[] = [];
 
 	if (export_summary.djs.length > 0) {
 		dj_errors_promise = export_summary.event.djs
@@ -64,6 +65,33 @@ export const load: PageLoad = async ({ fetch, params }) => {
 			.filter((error) => error !== undefined);
 	}
 
+	if (export_summary.theme) {
+		if (export_summary.theme.starting_file) {
+			let starting_file = files_map.get(export_summary.theme.starting_file);
+			if (starting_file === undefined) {
+				theme_errors.push(`${export_summary.theme.name}: Invalid file name for Opening.`);
+			} else if (!starting_file.file_path && !starting_file.url_path) {
+				theme_errors.push(`${export_summary.theme.name}: Opening does not have a designated file.`);
+			}
+		}
+		if (export_summary.theme.ending_file) {
+			let ending_file = files_map.get(export_summary.theme.ending_file);
+			if (ending_file === undefined) {
+				theme_errors.push(`${export_summary.theme.name}: Invalid file name for Ending.`);
+			} else if (!ending_file.file_path && !ending_file.url_path) {
+				theme_errors.push(`${export_summary.theme.name}: Ending does not have a designated file.`);
+			}
+		}
+		if (export_summary.theme.overlay_file) {
+			let overlay_file = files_map.get(export_summary.theme.overlay_file);
+			if (overlay_file === undefined) {
+				theme_errors.push(`${export_summary.theme.name}: Invalid file name for Overlay.`);
+			} else if (!overlay_file.file_path && !overlay_file.url_path) {
+				theme_errors.push(`${export_summary.theme.name}: Overlay does not have a designated file.`);
+			}
+		}
+	}
+
 	return {
 		event: export_summary.event,
 		djs: export_summary.djs,
@@ -71,6 +99,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 		files: export_summary.files,
 		dj_errors_promise,
 		promo_errors_promise,
-		theme: export_summary.theme
+		theme: export_summary.theme,
+		theme_errors
 	};
 };

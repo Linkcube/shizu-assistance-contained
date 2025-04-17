@@ -114,6 +114,15 @@
 															${files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}`}
 															alt="Preview"
 														/>
+														<span>
+															{files_map
+																.get(dj_map.get(event_dj.name)?.logo || '')
+																?.file_path.split('/')[
+																files_map
+																	.get(dj_map.get(event_dj.name)!.logo || '')!
+																	.file_path.split('/').length - 1
+															]}
+														</span>
 													{:else if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
 														<a
 															class="hover:underline"
@@ -166,6 +175,12 @@
 														>
 															<track kind="captions" />
 														</video>
+														<span>
+															{files_map.get(event_dj?.recording || '')?.file_path.split('/')[
+																files_map.get(event_dj!.recording || '')!.file_path.split('/')
+																	.length - 1
+															]}
+														</span>
 													{:else if files_map.get(event_dj?.recording || '')?.url_path}
 														<a
 															class="hover:underline"
@@ -253,6 +268,15 @@
 														>
 															<track kind="captions" />
 														</video>
+														<span>
+															{files_map
+																.get(promo_map.get(promo)?.promo_file || '')
+																?.file_path.split('/')[
+																files_map
+																	.get(promo_map.get(promo)!.promo_file || '')!
+																	.file_path.split('/').length - 1
+															]}
+														</span>
 													{:else if files_map.get(promo_map.get(promo)?.promo_file || '')?.url_path}
 														<a
 															class="hover:underline"
@@ -300,7 +324,7 @@
 
 	<Separator class="my-4"></Separator>
 
-	<div class="flex flex-col items-center justify-between md:flex-row">
+	<div class="flex flex-col items-center justify-between py-6 md:flex-row">
 		{#if data.event.theme}
 			<span>
 				Theme: {data.event.theme}
@@ -472,6 +496,11 @@
 										<track kind="captions" />
 									</video>
 								{/if}
+								<span>
+									{files_map.get(data.theme.starting_file)?.file_path.split('/')[
+										files_map.get(data.theme.starting_file)!.file_path.split('/').length - 1
+									]}
+								</span>
 							{:else}
 								<span> No file set. </span>
 							{/if}
@@ -514,6 +543,11 @@
 										<track kind="captions" />
 									</video>
 								{/if}
+								<span>
+									{files_map.get(data.theme.ending_file)?.file_path.split('/')[
+										files_map.get(data.theme.ending_file)!.file_path.split('/').length - 1
+									]}
+								</span>
 							{:else}
 								<span> No file set. </span>
 							{/if}
@@ -556,6 +590,11 @@
 										<track kind="captions" />
 									</video>
 								{/if}
+								<span>
+									{files_map.get(data.theme.overlay_file)?.file_path.split('/')[
+										files_map.get(data.theme.overlay_file)!.file_path.split('/').length - 1
+									]}
+								</span>
 							{:else}
 								<span> No file set. </span>
 							{/if}
@@ -571,6 +610,20 @@
 			No theme Set.
 		{/if}
 	</div>
+
+	{#if data.event.theme}
+		<div class="flex flex-row items-center justify-between">
+			{#each data.theme_errors as theme_error}
+				{#if theme_error !== undefined}
+					<Alert.Root variant="destructive">
+						<CircleAlert class="size-4" />
+						<Alert.Title>Error</Alert.Title>
+						<Alert.Description>{theme_error}</Alert.Description>
+					</Alert.Root>
+				{/if}
+			{/each}
+		</div>
+	{/if}
 
 	<Separator class="my-4"></Separator>
 
