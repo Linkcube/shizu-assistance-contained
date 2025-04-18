@@ -6,22 +6,19 @@ import {
   is_non_empty,
 } from "./helper_functions";
 import {
-  invalidDjError,
   invalidEventError,
   invalidPromoError,
-  djNotFoundError,
   promoNotFoundError,
   themeNotFoundError,
   invalidActionError,
 } from "../errors";
 import {
   EVENTS_TABLE,
-  DJS_TABLE,
   PROMOS_TABLE,
   THEMES_TABLE,
   EVENT_DJS_TABLE,
 } from "../tables";
-import { IDjObject, IEventObject, ILineupDjObject } from "../types";
+import { IEventObject } from "../types";
 
 const validate_event = async (
   event_data: IEventObject,

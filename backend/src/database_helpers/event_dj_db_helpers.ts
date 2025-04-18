@@ -11,13 +11,8 @@ import {
   invalidEventError,
   invalidFileError,
 } from "../errors";
-import {
-  DJS_TABLE,
-  FILES_TABLE,
-  EVENTS_TABLE,
-  EVENT_DJS_TABLE,
-} from "../tables";
-import { IDjObject, IEventDjObject, IEventObject } from "../types";
+import { FILES_TABLE, EVENT_DJS_TABLE, EVENTS_TABLE } from "../tables";
+import { IEventDjObject } from "../types";
 import { PoolClient, QueryResult } from "pg";
 
 const validate_event_dj = async (
@@ -75,6 +70,16 @@ export const internal_get_event_djs_by_event = async (
 ) => {
   const retval: QueryResult<IEventDjObject> = await pool.query(
     `SELECT * FROM ${EVENT_DJS_TABLE.name} WHERE event = '${event_name}' ORDER BY position;`,
+  );
+  return retval.rows;
+};
+
+export const internal_get_event_djs_by_dj = async (
+  dj_name: string,
+  pool: PoolClient,
+) => {
+  const retval: QueryResult<any> = await pool.query(
+    `SELECT event, is_live, vj, date FROM ${EVENT_DJS_TABLE.name} INNER JOIN ${EVENTS_TABLE.name} ON name = event WHERE dj = '${dj_name}' ORDER BY date asc, event asc;`,
   );
   return retval.rows;
 };

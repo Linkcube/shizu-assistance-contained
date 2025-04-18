@@ -6,7 +6,6 @@ import {
 } from "./helper_functions";
 import {
   promoNotFoundError,
-  invalidFileError,
   invalidPromoError,
   fileNotFoundError,
 } from "../errors";

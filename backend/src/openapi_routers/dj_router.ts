@@ -3,10 +3,11 @@
 */
 
 import { Router } from "express";
-import { paths, components } from "../../openapi/schema";
+import { components } from "../../openapi/schema";
 import {
   delete_dj,
   get_dj,
+  get_event_djs_by_dj,
   insert_into_djs,
   read_djs_table,
   update_dj,
@@ -44,6 +45,12 @@ djRouter.get("/:djName", async (req, res) => {
   }
   res.status(200);
   return res.send(dj);
+});
+
+djRouter.get("/:djName/events", async (req, res) => {
+  const event_djs = await get_event_djs_by_dj(req.params.djName);
+  res.status(200);
+  return res.send(event_djs);
 });
 
 djRouter.get("/", async (req, res) => {

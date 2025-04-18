@@ -19,6 +19,13 @@ export interface DJ {
 	discord_id: string;
 }
 
+export interface DjEvent {
+	event: string;
+	is_live: boolean;
+	vj: string;
+	date: string;
+}
+
 /**
  * Represents a minimal DJ object containing some properties.
  * @typedef {Object} DjMin
@@ -61,6 +68,20 @@ export async function getMin(fetch_fn?: typeof fetch): Promise<DjMin[]> {
 export async function getSingle(dj_name: string, fetch_fn?: typeof fetch): Promise<DJ | undefined> {
 	if (fetch_fn) return await openapiGet('dj/' + dj_name, undefined, fetch_fn);
 	return await openapiGet('dj/' + dj_name);
+}
+
+/**
+ * Fetches events for a DJ by its name from the API.
+ * @param {string} dj_name - The name of the DJ to fetch.
+ * @param {typeof fetch} [fetch_fn] - Optional custom fetch function for testing purposes.
+ * @returns {Promise<DjEvent[]>} A list of DjEvent objects.
+ */
+export async function getSingleEvents(
+	dj_name: string,
+	fetch_fn?: typeof fetch
+): Promise<DjEvent[]> {
+	if (fetch_fn) return await openapiGet('dj/' + dj_name + '/events', undefined, fetch_fn);
+	return await openapiGet('dj/' + dj_name + '/events');
 }
 
 /**

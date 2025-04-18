@@ -6,18 +6,31 @@
 	import FileX from 'lucide-svelte/icons/file-x';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { RTMP_SERVERS } from '$lib/utils';
-	import type { DJ } from '$lib/djController';
+	import type { DJ, DjEvent } from '$lib/djController';
 	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
+	import * as Table from '$lib/components/ui/table/index.js';
+	import Wifi from 'lucide-svelte/icons/wifi';
+	import Film from 'lucide-svelte/icons/film';
 
 	type Props = {
 		dj: DJ;
+		events: DjEvent[];
 		submitChanges: () => void;
 		deleteDj: () => void;
 		selectLogo: () => void;
 		unsetLogoFile: () => void;
 	};
 
-	let { dj = $bindable(), submitChanges, deleteDj, selectLogo, unsetLogoFile }: Props = $props();
+	let {
+		dj = $bindable(),
+		events,
+		submitChanges,
+		deleteDj,
+		selectLogo,
+		unsetLogoFile
+	}: Props = $props();
+
+	console.log(events);
 
 	const rtmpTriggerContent = $derived(
 		RTMP_SERVERS.find((r) => r.id === dj.rtmp_server && r.id !== '')?.name ?? 'RTMP Server'
@@ -94,6 +107,38 @@
 		<Button class="w-full" onclick={submitChanges}>Save</Button>
 		<Button variant="destructive" class="w-full" onclick={openDeleteConfirmation}>Delete</Button>
 	</div>
+
+	<Table.Root>
+		<Table.Caption>Events this DJ is part of.</Table.Caption>
+		<Table.Header>
+			<Table.Row>
+				<Table.Head class="w-[100px]">#</Table.Head>
+				<Table.Head>Event</Table.Head>
+				<Table.Head>Source</Table.Head>
+				<Table.Head>VJ</Table.Head>
+				<Table.Head>Date</Table.Head>
+			</Table.Row>
+		</Table.Header>
+		<Table.Body>
+			{#each events as event, index}
+				<Table.Row>
+					<Table.Cell class="font-medium">{events.length - index}</Table.Cell>
+					<Table.Cell>
+						<a class="hover:underline" href="/events/{event.event}">{event.event}</a>
+					</Table.Cell>
+					<Table.Cell>
+						{#if event.is_live}
+							<Wifi class="mr-2 size-4 text-primary" />
+						{:else}
+							<Film class="mr-2 size-4 text-primary" />
+						{/if}
+					</Table.Cell>
+					<Table.Cell>{event.vj}</Table.Cell>
+					<Table.Cell>{event.date}</Table.Cell>
+				</Table.Row>
+			{/each}
+		</Table.Body>
+	</Table.Root>
 </div>
 
 <DeleteConfirmation

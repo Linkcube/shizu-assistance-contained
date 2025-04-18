@@ -5,7 +5,6 @@ import {
   EVENTS_TABLE,
   FILES_TABLE,
   THEMES_TABLE,
-  ALL_TABLES,
   PROMOS_TABLE,
   APP_THEMES_TABLE,
   EVENT_DJS_TABLE,
@@ -16,7 +15,6 @@ import {
   IFileObject,
   IPromoObject,
   IThemeObject,
-  ILineupDjObject,
   IExportDjineupData,
   IExportPromoLineupData,
   IExportThemeData,
@@ -25,7 +23,6 @@ import {
   IEventDjObject,
 } from "./types";
 import {
-  internal_create_table_helper,
   internal_get_row_from_table,
   internal_read_entire_table,
 } from "./database_helpers/helper_functions";
@@ -66,12 +63,7 @@ import {
   internal_insert_into_djs,
   internal_update_dj,
 } from "./database_helpers/dj_db_helpers";
-import {
-  eventNotFoundError,
-  importError,
-  invalidEventError,
-  invalidFileError,
-} from "./errors";
+import { eventNotFoundError, importError, invalidFileError } from "./errors";
 import {
   fetchFile,
   getResolution,
@@ -93,7 +85,7 @@ import {
 import { run_migrations } from "./db_migrations/migrations";
 import {
   internal_delete_event_dj,
-  internal_get_event_dj,
+  internal_get_event_djs_by_dj,
   internal_get_event_djs_by_event,
   internal_insert_into_event_djs,
   internal_move_event_dj,
@@ -258,6 +250,13 @@ export const get_event_dj = async (event: string, dj: string) => {
 export const get_event_djs_by_event = async (event: string) => {
   const pool = await database_pool.connect();
   const retval = await internal_get_event_djs_by_event(event, pool);
+  await pool.release();
+  return retval;
+};
+
+export const get_event_djs_by_dj = async (dj: string) => {
+  const pool = await database_pool.connect();
+  const retval = await internal_get_event_djs_by_dj(dj, pool);
   await pool.release();
   return retval;
 };
@@ -817,7 +816,6 @@ const gather_files_for_export = async (files_to_check: string[]) => {
   };
 };
 
-//  TODO: Include event_dj data either in new composite object or in addition
 export const event_export_summary = async (event_name: string) => {
   const event = await get_event(event_name);
   if (event instanceof Error) return eventNotFoundError(event_name);
@@ -1067,6 +1065,7 @@ export const import_legacy_ledger = async (ledger_path: string) => {
 export const import_legacy_events = async (lineups_path: string) => {
   const errors = [];
   const new_events: IEventObject[] = [];
+  const all_events_djs: Map<String, IEventDjObject[]> = new Map();
 
   // Expect a folder containing multiple lineups
   const lineup_files = readdirSync(lineups_path, { withFileTypes: true });
@@ -1077,20 +1076,24 @@ export const import_legacy_events = async (lineups_path: string) => {
       readFileSync(join(lineups_path, lineup_path.name), "utf-8"),
     );
     // Check for existing objects before adding them to the event
-    const event_djs: ILineupDjObject[] = [];
+    let index = 0;
+    const event_djs: IEventDjObject[] = [];
     for (const lineup_dj of legacy_lineup_data.djs) {
       const dj = await get_dj(lineup_dj.name);
       if (dj instanceof Error) {
         errors.push(`Failed to find DJ ${lineup_dj.name}`);
       } else {
         event_djs.push({
-          name: dj.name,
+          dj: dj.name,
+          event: new_event.name,
           is_live: lineup_dj.is_live,
           vj: lineup_dj.vj,
+          position: index,
         });
       }
+      index += 1;
     }
-    // TODO: Create actual event_dj objects
+    all_events_djs.set(new_event.name, event_djs);
     // if (event_djs.length > 0) new_event.event_djs = event_djs.map(dj => dj.name);
     const event_promos: string[] = [];
     for (const lineup_promo of legacy_lineup_data.promos) {
@@ -1108,9 +1111,20 @@ export const import_legacy_events = async (lineups_path: string) => {
 
   for (const event of new_events) {
     console.log(`Importing event ${event.name}`);
+    const event_djs = all_events_djs.get(event.name);
     const error = await insert_into_events(event, []);
-    if (error instanceof Error)
+    if (error instanceof Error) {
       errors.push(`Failed to import event ${event.name}: ${error.message}`);
+    } else if (event_djs) {
+      for (const event_dj of event_djs) {
+        const result = await add_event_dj(event_dj);
+        if (result instanceof Error) {
+          errors.push(
+            `Failed to import event dj ${event_dj.event}:${event_dj.dj}`,
+          );
+        }
+      }
+    }
   }
 
   if (errors.length > 0) return importError(errors.toString());

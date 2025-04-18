@@ -4,7 +4,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { type EventDj } from '$lib/eventController';
-	import CircleCheckBig from 'lucide-svelte/icons/circle-check-big';
 	import Ban from 'lucide-svelte/icons/ban';
 	import Plus from 'lucide-svelte/icons/plus';
 	import Ellipsis from 'lucide-svelte/icons/ellipsis';

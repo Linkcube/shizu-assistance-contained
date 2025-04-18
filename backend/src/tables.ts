@@ -45,7 +45,7 @@ export class Table {
   }
 
   public select() {
-    return `SELECT * FROM ${this.name};`;
+    return `SELECT * FROM ${this.name} ORDER BY ${this.primary_key} asc;`;
   }
 
   public get_single(primary_key: string) {

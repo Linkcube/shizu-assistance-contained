@@ -244,6 +244,25 @@ components:
         recording:
           description: Recording file identifier for pre-recorded DJs.
           type: string
+    EventDJ:
+      type: object
+      properties:
+        event:
+          description: Event the DJ played in
+          type: string
+        is_live:
+          description: If the DJ was using a RTMP config for streaming.
+          type: boolean
+        vj:
+          description: Present if the visuals for a DJ were done by a VJ.
+          type: string
+        date:
+          description: Date of the event.
+          type: string
+    EventDJs:
+      type: array
+      items:
+        $ref: '#/components/schemas/EventDJ'
     UpdateLineupDJ:
       type: object
       properties:
@@ -1043,6 +1062,25 @@ paths:
           description: Deleted DJ.
         '404':
           description: DJ not found.
+  /dj/{djName}/events:
+    get:
+      tags:
+        - djs
+      summary: Returns a list of events a DJ is in.
+      parameters:
+        - name: djName
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDJs'
   /event:
     get:
       tags:

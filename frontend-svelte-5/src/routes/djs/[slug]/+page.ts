@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import { getSingle } from '$lib/djController';
+import { getSingle, getSingleEvents } from '$lib/djController';
 
 export const load: PageLoad = async ({ fetch, params }) => {
 	const real_name = decodeURI(params.slug);
@@ -12,7 +12,10 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	}
 	if (dj_data === undefined) error(404, `DJ ${real_name} not found`);
 
+	let dj_event_data = await getSingleEvents(real_name, fetch);
+
 	return {
-		dj: dj_data
+		dj: dj_data,
+		events: dj_event_data
 	};
 };

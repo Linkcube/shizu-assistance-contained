@@ -4,11 +4,7 @@ import {
   internal_get_row_from_table,
   is_non_empty,
 } from "./helper_functions";
-import {
-  fileNotFoundError,
-  invalidFileError,
-  invalidThemeError,
-} from "../errors";
+import { fileNotFoundError, invalidThemeError } from "../errors";
 import { EVENTS_TABLE, FILES_TABLE, THEMES_TABLE } from "../tables";
 import { IEventObject, IThemeObject } from "../types";
 import { PoolClient } from "pg";

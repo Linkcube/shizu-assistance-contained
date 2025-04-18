@@ -17,6 +17,7 @@
 
 	let { data }: PageProps = $props();
 	let dj = $state(data.dj);
+	let events = data.events;
 	let file_type: 'logos' | 'recordings' = $state('logos');
 
 	let fileObjectSheetInstance: FileObjectsSheet;
@@ -100,6 +101,6 @@
 	{dj.name}
 </h1>
 
-<DjTable bind:dj {submitChanges} {deleteDj} {selectLogo} {unsetLogoFile} />
+<DjTable bind:dj {events} {submitChanges} {deleteDj} {selectLogo} {unsetLogoFile} />
 
 <FileObjectsSheet bind:dj {file_type} {submitFile} bind:this={fileObjectSheetInstance} />

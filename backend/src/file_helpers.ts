@@ -204,7 +204,6 @@ export const fetchFile = (url: string, local_path: string) => {
   return new Promise((promise_resolve, reject) => {
     const file_url = new URL(url);
     const options = urlToHttpOptions(file_url);
-    // TODO: move into envs/configs
     options.auth = process.env.FILE_SERVER_AUTHORIZATION;
     // TODO: switch on http/https
     const file = createWriteStream(local_path);

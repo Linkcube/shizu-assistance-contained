@@ -1,17 +1,11 @@
 import {
   internal_insert_into_table,
   internal_update_table_entry,
-  internal_get_row_from_table,
   is_non_empty,
 } from "./helper_functions";
 import { djNotFoundError, invalidDjError, invalidFileError } from "../errors";
-import {
-  DJS_TABLE,
-  FILES_TABLE,
-  EVENTS_TABLE,
-  EVENT_DJS_TABLE,
-} from "../tables";
-import { IDjObject, IEventDjObject, IEventObject } from "../types";
+import { DJS_TABLE, FILES_TABLE, EVENT_DJS_TABLE } from "../tables";
+import { IDjObject, IEventDjObject } from "../types";
 import { PoolClient, QueryResult } from "pg";
 import { internal_delete_event_dj } from "./event_dj_db_helpers";
 
