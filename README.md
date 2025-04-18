@@ -95,13 +95,12 @@ Changing the frontend image in `comopose.yaml` from `frontend-svelte-5` to `fron
 ## Volume Migration
 Due to the DB docker volume being configured improperly, after v0.1.2 the volume mount has been corrected to `/var/lib/postgresql/data`. In order to preserve data across this, before updating you will need to run the following steps:
 - Dump the current DB to the existing volume `/data/postgres`. `pg_dump -F c -d shizu_db -f /data/postgres/db.dump` should work.
-- Verify the `db.dump` file is present in your docker volume, then add another volume to the DB container in docker-compose which will be the temporary dir to keep this `db.dump`. 
-- Destroy and rebuild both image and container for db.
-- Copy your `db.dump` file from the old volume to the new one.
-- Change the original volume mount to `/var/lib/postgresql/data`, which is what it will point to in the future. Make sure the existing volume is empty
-- Destory and rebuild again.
-- You should now have 2 volumes, one being your temp volume with the `db.dump` file, and the other pointing to postgresql's data folder.
-- Run `pg_restore`, i.e `pg_restore -c -F c -d shizu_db /path/to/you/db.dump`
+- Verify the `db.dump` file is present in your docker volume, and save it to your host system.
+- Change the volume mount to `/var/lib/postgresql/data`, which is what it will point to in the future. Make sure the existing volume is empty.
+- Create a bind mount in the `db` image, `/data/postgres` or some other unused path is fine to mount to in the container.
+- Place `db.dump` into your bind mount, so that it is accesible from the rebuilt container.
+- Destory both image and container for db, and rebuild both.
+- Run `pg_restore`, i.e `pg_restore -c -F c -d shizu_db /path/to/your/db.dump`
 - Restart your backend container, and everything should be correctly restored from before the change.
 - Continue updating the software as instructed through `git pull` or copy release data.
 
