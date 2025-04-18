@@ -14,7 +14,6 @@
 	import FileImage from 'lucide-svelte/icons/file-image';
 	import FileVideo from 'lucide-svelte/icons/file-video';
 	import Folder from 'lucide-svelte/icons/folder';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 
 	const isImageSource = (source_path: string) => {
@@ -193,7 +192,7 @@
 			</Dialog.Title>
 			<Dialog.Description>
 				<div class="flex flex-col items-center justify-between md:flex-row">
-					<div class="table-container h-96 overflow-y-auto">
+					<div class="table-container h-96 overflow-y-auto md:h-[40vh]">
 						<Table.Root>
 							<Table.Header>
 								<Table.Row>
@@ -223,20 +222,21 @@
 							</Table.Body>
 						</Table.Root>
 					</div>
-					<!-- <Separator orientation="vertical" class="my-4"></Separator> -->
-					{#if file_browser_selected_file?.name && !file_browser_selected_file.is_dir}
-						{#if isImageSource(file_browser_preview_path)}
-							<img
-								class="mx-auto max-h-80 max-w-80"
-								src={file_browser_preview_path}
-								alt="Preview"
-							/>
-						{:else}
-							<video class="mx-auto max-h-80 max-w-80" controls src={file_browser_preview_path}
-								><track kind="captions" /></video
-							>
+					<div class="mx-auto">
+						{#if file_browser_selected_file?.name && !file_browser_selected_file.is_dir}
+							{#if isImageSource(file_browser_preview_path)}
+								<img
+									class="h-80 w-80 object-scale-down"
+									src={file_browser_preview_path}
+									alt="Preview"
+								/>
+							{:else}
+								<video class="h-80 w-80 object-scale-down" controls src={file_browser_preview_path}
+									><track kind="captions" /></video
+								>
+							{/if}
 						{/if}
-					{/if}
+					</div>
 				</div>
 			</Dialog.Description>
 		</Dialog.Header>
