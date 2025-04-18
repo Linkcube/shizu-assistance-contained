@@ -235,6 +235,7 @@ export const APP_THEMES_TABLE: Table = new Table(APP_THEMES_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
+    no_updates: true,
   },
   {
     name: "style",

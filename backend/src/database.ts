@@ -302,10 +302,10 @@ export const create_tables = async () => {
   try {
     await run_migrations(client);
     // Initial theme values for GUI
-    // const themes = await client.query(
-    //   `SELECT * FROM ${APP_THEMES_TABLE.name};`,
-    // );
-    // if (themes.rows.length === 0) await initial_data();
+    const themes = await client.query(
+      `SELECT * FROM ${APP_THEMES_TABLE.name};`,
+    );
+    if (themes.rows.length === 0) await initial_data();
   } finally {
     await client.end();
   }
