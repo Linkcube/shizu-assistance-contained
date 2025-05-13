@@ -275,5 +275,8 @@
 			the export succeded, a message telling you the file has been saved should be shown, you are
 			now set to import this file into OBS and the event should be nearly good to go!
 		</span>
+		<span class="my-2 flex flex-row">
+			After exporting, a JSON file will be created in your `LOCAL_EXPORT_PATH`, to be used with the OBS script.
+		</span>
 	</div>
 </div>
