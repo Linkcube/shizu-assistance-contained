@@ -8,16 +8,28 @@ export class Table {
   name: string;
   definitions: IColumnDefinition[];
   columns: string[];
-  constructor(name: string, definitions: IColumnDefinition[]) {
+  primary_key: string;
+  constructor(
+    name: string,
+    definitions: IColumnDefinition[],
+    pkey_definition?: string,
+  ) {
     this.name = name;
     this.definitions = definitions;
     this.columns = definitions.map((col) => col.name);
+    if (pkey_definition) {
+      this.primary_key = pkey_definition;
+    } else {
+      this.primary_key = this.columns[0];
+    }
   }
 
   private definitions_to_string = () => {
     const def_strings = this.definitions.map((def) => {
       if (def.fkey) {
         return `${def.name} ${def.type} references ${def.fkey}`;
+      } else if (def.multi_col) {
+        return `${def.type} (${def.name})`;
       }
       return `${def.name} ${def.type}`;
     });
@@ -33,15 +45,28 @@ export class Table {
   }
 
   public select() {
-    return `SELECT * FROM ${this.name};`;
+    return `SELECT * FROM ${this.name} ORDER BY ${this.primary_key} asc;`;
   }
 
   public get_single(primary_key: string) {
-    return `SELECT * FROM ${this.name} WHERE ${this.columns[0]} = '${primary_key}';`;
+    // In lieu of actually keeping track, remove later
+    if (this.primary_key === this.columns[0]) {
+      return `SELECT * FROM ${this.name} WHERE ${this.primary_key} = '${primary_key}';`;
+    } else {
+      return `SELECT * FROM ${this.name} WHERE ${this.primary_key} = ${primary_key};`;
+    }
   }
 
   public insert_into(values: string) {
     return `INSERT INTO ${this.name} VALUES ${values};`;
+  }
+
+  public delete_entry(primary_key: string) {
+    if (this.primary_key === this.columns[0]) {
+      return `DELETE FROM ${this.name} WHERE ${this.primary_key} = '${primary_key}'`;
+    } else {
+      return `DELETE FROM ${this.name} WHERE ${this.primary_key} = ${primary_key}`;
+    }
   }
 }
 
@@ -51,18 +76,15 @@ export const EVENTS_TABLE_NAME = "events";
 export const THEMES_TABLE_NAME = "themes";
 export const FILES_TABLE_NAME = "files";
 export const APP_THEMES_TABLE_NAME = "app_themes";
+export const EVENT_DJS_TABLE_NAME = "event_djs";
 export const DJS_TABLE: Table = new Table(DJS_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
+    no_updates: true,
   },
   {
     name: "logo",
-    type: "TEXT",
-    fkey: `${FILES_TABLE_NAME}(name)`,
-  },
-  {
-    name: "recording",
     type: "TEXT",
     fkey: `${FILES_TABLE_NAME}(name)`,
   },
@@ -102,10 +124,7 @@ export const EVENTS_TABLE: Table = new Table(EVENTS_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
-  },
-  {
-    name: "djs",
-    type: `JSONB`,
+    no_updates: true,
   },
   {
     name: "promos",
@@ -133,6 +152,7 @@ export const THEMES_TABLE: Table = new Table(THEMES_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
+    no_updates: true,
   },
   {
     name: "overlay_file",
@@ -196,6 +216,7 @@ export const FILES_TABLE: Table = new Table(FILES_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
+    no_updates: true,
   },
   {
     name: "root",
@@ -214,12 +235,55 @@ export const APP_THEMES_TABLE: Table = new Table(APP_THEMES_TABLE_NAME, [
   {
     name: "name",
     type: "TEXT PRIMARY KEY",
+    no_updates: true,
   },
   {
     name: "style",
     type: `JSONB`,
   },
 ]);
+// TODO: add pkey to col, remove PRIMARY KEY from type and handle logic/formatting in the object
+export const EVENT_DJS_TABLE: Table = new Table(
+  EVENT_DJS_TABLE_NAME,
+  [
+    {
+      name: "event",
+      type: "TEXT",
+      fkey: `${EVENTS_TABLE_NAME}(name)`,
+      no_updates: true,
+    },
+    {
+      name: "dj",
+      type: "TEXT",
+      fkey: `${DJS_TABLE_NAME}(name)`,
+      no_updates: true,
+    },
+    {
+      name: "event, dj",
+      type: "PRIMARY KEY",
+      multi_col: true,
+      no_updates: true,
+    },
+    {
+      name: "is_live",
+      type: "BOOLEAN",
+    },
+    {
+      name: "recording",
+      type: "TEXT",
+      fkey: `${FILES_TABLE_NAME}(name)`,
+    },
+    {
+      name: "vj",
+      type: "TEXT",
+    },
+    {
+      name: "position",
+      type: "SMALLINT",
+    },
+  ],
+  "(event, dj)",
+);
 export const ALL_TABLES = [
   FILES_TABLE,
   THEMES_TABLE,
@@ -227,4 +291,5 @@ export const ALL_TABLES = [
   DJS_TABLE,
   EVENTS_TABLE,
   APP_THEMES_TABLE,
+  EVENT_DJS_TABLE,
 ];

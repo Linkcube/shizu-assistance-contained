@@ -64,7 +64,7 @@ export const internal_update_app_themes = async (
   const validation = await validate_app_theme(name, true, pool);
   if (validation !== undefined) return validation;
 
-  await internal_update_table_entry(APP_THEMES_TABLE, { name, style }, pool);
+  await internal_update_table_entry(APP_THEMES_TABLE, name, { style }, pool);
 };
 
 export const internal_delete_app_themes = async (

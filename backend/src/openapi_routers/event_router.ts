@@ -6,7 +6,7 @@ import { Router } from "express";
 import { paths, components } from "../../openapi/schema";
 import {
   add_event_dj,
-  add_event_promo,
+  event_add_promo,
   delete_event,
   export_event,
   get_event,
@@ -21,8 +21,9 @@ import {
   update_event_date_time,
   update_event_dj,
   event_export_summary,
+  get_event_djs_by_event,
 } from "../database";
-import { IEventObject, ILineupDjObject } from "../types";
+import { IEventObject, IEventDjObject, ILineupDjObject } from "../types";
 
 export const eventRouter = Router();
 
@@ -33,6 +34,7 @@ type lineupDJInterface = components["schemas"]["LineupDJ"];
 type updateLineupDJInterface = components["schemas"]["UpdateLineupDJ"];
 type lineupPromoInterface = components["schemas"]["LineupPromotion"];
 type moveEventItemInterface = components["schemas"]["MoveEventItem"];
+type eventExportSummaryInterface = components["schemas"]["EventExportSummary"];
 
 eventRouter.get("/min", async (req, res) => {
   const events_data = await read_events_table();
@@ -46,6 +48,24 @@ eventRouter.get("/min", async (req, res) => {
   );
 });
 
+const make_ui_event_object = async (event: IEventObject) => {
+  const event_djs = await get_event_djs_by_event(event.name);
+  const ui_event_obj: eventInterface = Object.assign({}, event);
+  if (event_djs) {
+    ui_event_obj.djs = event_djs.map((event_dj) => {
+      return {
+        name: event_dj.dj,
+        is_live: event_dj.is_live,
+        vj: event_dj.vj,
+        recording: event_dj.recording,
+      };
+    });
+  } else {
+    ui_event_obj.djs = [];
+  }
+  return ui_event_obj;
+};
+
 eventRouter.get("/:eventName", async (req, res) => {
   const event = await get_event(req.params.eventName);
   if (event instanceof Error) {
@@ -55,13 +75,19 @@ eventRouter.get("/:eventName", async (req, res) => {
       message: `Event ${req.params.eventName} does not exist`,
     });
   }
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  return res.send(event);
+  return res.send(ui_event_obj);
 });
 
 eventRouter.get("/", async (req, res) => {
   res.status(200);
-  return res.send(await read_events_table());
+  const event_objects = await read_events_table();
+  const event_interfaces = [];
+  for (const event_object of event_objects) {
+    event_interfaces.push(await make_ui_event_object(event_object));
+  }
+  return res.send(event_interfaces);
 });
 
 eventRouter.post("/", async (req, res) => {
@@ -74,7 +100,22 @@ eventRouter.post("/", async (req, res) => {
     });
   }
 
-  const error = await insert_into_events(new_event as IEventObject);
+  const event_djs = new_event.djs?.map((dj) => {
+    return {
+      event: new_event.name,
+      dj: dj.name,
+      is_live: dj.is_live,
+      vj: dj.vj,
+      recording: dj.recording,
+    } as IEventDjObject;
+  });
+
+  delete new_event.djs;
+
+  const error = await insert_into_events(
+    new_event as IEventObject,
+    event_djs ? event_djs : [],
+  );
   if (error !== undefined) {
     res.status(409);
     return res.send({
@@ -84,20 +125,33 @@ eventRouter.post("/", async (req, res) => {
   }
 
   const event = await get_event(new_event.name);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName", async (req, res) => {
   const event_params: updateEventInterface = req.body;
+
+  const event_djs = event_params.djs?.map((dj) => {
+    return {
+      event: req.params.eventName,
+      dj: dj.name,
+      is_live: dj.is_live,
+      vj: dj.vj,
+      recording: dj.recording,
+    } as IEventDjObject;
+  });
+
+  delete event_params.djs;
+
   const update_params: IEventObject = Object.assign(
     {},
     { name: req.params.eventName },
     event_params,
-    { djs: event_params.djs as ILineupDjObject[] },
   );
 
-  const error = await update_event(update_params);
+  const error = await update_event(update_params, event_djs ? event_djs : []);
   if (error !== undefined) {
     res.status(404);
     return res.send({
@@ -107,8 +161,9 @@ eventRouter.post("/:eventName", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.delete("/:eventName", async (req, res) => {
@@ -156,8 +211,9 @@ eventRouter.post("/:eventName/dateTime", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName/dj", async (req, res) => {
@@ -166,14 +222,20 @@ eventRouter.post("/:eventName/dj", async (req, res) => {
     res.status(400);
     return res.send({
       errorType: "InvalidInputError",
-      message: "The name field is required to add a DJ to an event's lineup.",
+      message: "The dj field is required to add a DJ to an event's lineup.",
     });
   }
 
-  const error = await add_event_dj(
-    req.params.eventName,
-    new_dj as ILineupDjObject,
-  );
+  const event_dj: IEventDjObject = {
+    event: req.params.eventName,
+    dj: req.body.name,
+    is_live: req.body.is_live,
+    vj: req.body.vj,
+    recording: req.body.recording,
+    position: -1,
+  };
+
+  const error = await add_event_dj(event_dj);
   if (error !== undefined) {
     res.status(404);
     return res.send({
@@ -183,8 +245,9 @@ eventRouter.post("/:eventName/dj", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName/dj/:djName", async (req, res) => {
@@ -205,8 +268,9 @@ eventRouter.post("/:eventName/dj/:djName", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.delete("/:eventName/dj/:djName", async (req, res) => {
@@ -220,8 +284,9 @@ eventRouter.delete("/:eventName/dj/:djName", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName/move-dj", async (req, res) => {
@@ -257,8 +322,9 @@ eventRouter.post("/:eventName/move-dj", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName/promo", async (req, res) => {
@@ -272,7 +338,7 @@ eventRouter.post("/:eventName/promo", async (req, res) => {
     });
   }
 
-  const error = await add_event_promo(req.params.eventName, new_promo.name);
+  const error = await event_add_promo(req.params.eventName, new_promo.name);
   if (error !== undefined) {
     res.status(404);
     return res.send({
@@ -282,8 +348,9 @@ eventRouter.post("/:eventName/promo", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.delete("/:eventName/promo/:promoName", async (req, res) => {
@@ -300,8 +367,9 @@ eventRouter.delete("/:eventName/promo/:promoName", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName/move-promo", async (req, res) => {
@@ -338,8 +406,9 @@ eventRouter.post("/:eventName/move-promo", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName/set-theme", async (req, res) => {
@@ -362,8 +431,9 @@ eventRouter.post("/:eventName/set-theme", async (req, res) => {
   }
 
   const event = await get_event(req.params.eventName);
+  const ui_event_obj = await make_ui_event_object(event);
   res.status(200);
-  res.send(event);
+  res.send(ui_event_obj);
 });
 
 eventRouter.post("/:eventName/export", async (req, res) => {
@@ -391,6 +461,15 @@ eventRouter.get("/:eventName/export-summary", async (req, res) => {
     });
   }
 
+  const ui_event_obj = await make_ui_event_object(event_summary.event);
+  const summary: eventExportSummaryInterface = {
+    event: ui_event_obj,
+    djs: event_summary.djs,
+    promos: event_summary.promos,
+    theme: event_summary.theme,
+    files: event_summary.files,
+  };
+
   res.status(200);
-  res.send(event_summary);
+  res.send(summary);
 });

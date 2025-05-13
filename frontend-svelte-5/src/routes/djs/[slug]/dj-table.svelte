@@ -3,32 +3,34 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import FileImage from 'lucide-svelte/icons/file-image';
-	import Film from 'lucide-svelte/icons/film';
 	import FileX from 'lucide-svelte/icons/file-x';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { RTMP_SERVERS } from '$lib/utils';
-	import type { DJ } from '$lib/djController';
+	import type { DJ, DjEvent } from '$lib/djController';
 	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
+	import * as Table from '$lib/components/ui/table/index.js';
+	import Wifi from 'lucide-svelte/icons/wifi';
+	import Film from 'lucide-svelte/icons/film';
 
 	type Props = {
 		dj: DJ;
+		events: DjEvent[];
 		submitChanges: () => void;
 		deleteDj: () => void;
 		selectLogo: () => void;
-		selectRecording: () => void;
 		unsetLogoFile: () => void;
-		unsetRecordingFile: () => void;
 	};
 
 	let {
 		dj = $bindable(),
+		events,
 		submitChanges,
 		deleteDj,
 		selectLogo,
-		selectRecording,
-		unsetLogoFile,
-		unsetRecordingFile
+		unsetLogoFile
 	}: Props = $props();
+
+	console.log(events);
 
 	const rtmpTriggerContent = $derived(
 		RTMP_SERVERS.find((r) => r.id === dj.rtmp_server && r.id !== '')?.name ?? 'RTMP Server'
@@ -69,22 +71,6 @@
 		</div>
 		<p class="text-sm text-muted-foreground">{dj.logo ? `Current: ${dj.logo}` : 'No Logo Set'}</p>
 	</div>
-	<div class="flex w-full flex-col justify-between gap-1.5 py-4">
-		<Label for="discord-id">DJ Recording</Label>
-		<div class="flex flex-row">
-			<Button class="basis-1/2" variant="outline" onclick={selectRecording}>
-				<Film class="mr-2 h-4 w-4" />
-				Select Recording
-			</Button>
-			<Button class="basis-1/2" variant="secondary" onclick={unsetRecordingFile}>
-				<FileX class="mr-2 h-4 w-4" />
-				Unset
-			</Button>
-		</div>
-		<p class="text-sm text-muted-foreground">
-			{dj.recording ? `Current: ${dj.recording}` : 'No Recording Set'}
-		</p>
-	</div>
 
 	<div class="flex w-full flex-row justify-between gap-1.5 py-4">
 		<div class="basis-1/5 flex-col">
@@ -121,6 +107,38 @@
 		<Button class="w-full" onclick={submitChanges}>Save</Button>
 		<Button variant="destructive" class="w-full" onclick={openDeleteConfirmation}>Delete</Button>
 	</div>
+
+	<Table.Root>
+		<Table.Caption>Events this DJ is part of.</Table.Caption>
+		<Table.Header>
+			<Table.Row>
+				<Table.Head class="w-[100px]">#</Table.Head>
+				<Table.Head>Event</Table.Head>
+				<Table.Head>Source</Table.Head>
+				<Table.Head>VJ</Table.Head>
+				<Table.Head>Date</Table.Head>
+			</Table.Row>
+		</Table.Header>
+		<Table.Body>
+			{#each events as event, index}
+				<Table.Row>
+					<Table.Cell class="font-medium">{events.length - index}</Table.Cell>
+					<Table.Cell>
+						<a class="hover:underline" href="/events/{event.event}">{event.event}</a>
+					</Table.Cell>
+					<Table.Cell>
+						{#if event.is_live}
+							<Wifi class="mr-2 size-4 text-primary" />
+						{:else}
+							<Film class="mr-2 size-4 text-primary" />
+						{/if}
+					</Table.Cell>
+					<Table.Cell>{event.vj}</Table.Cell>
+					<Table.Cell>{event.date}</Table.Cell>
+				</Table.Row>
+			{/each}
+		</Table.Body>
+	</Table.Root>
 </div>
 
 <DeleteConfirmation

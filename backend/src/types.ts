@@ -4,6 +4,8 @@ export interface IColumnDefinition {
   name: string;
   type: string;
   fkey?: string;
+  multi_col?: boolean;
+  no_updates?: boolean;
 }
 
 export interface IFileObject {
@@ -31,7 +33,6 @@ export interface IThemeObject {
 
 export interface IEventObject {
   name: string;
-  djs?: ILineupDjObject[];
   promos?: string[];
   theme?: string;
   date?: string;
@@ -42,7 +43,6 @@ export interface IEventObject {
 export interface IDjObject {
   name: string;
   logo?: string;
-  recording?: string;
   rtmp_server?: string;
   rtmp_key?: string;
   public_name?: string;
@@ -55,10 +55,21 @@ export interface IPromoObject {
   promo_file?: string;
 }
 
+// Now only for UI use
 export interface ILineupDjObject {
   name: string;
   is_live?: boolean;
   vj?: string;
+  recording?: string;
+}
+
+export interface IEventDjObject {
+  event: string;
+  dj: string;
+  position: number;
+  is_live?: boolean;
+  vj?: string;
+  recording?: string;
 }
 
 export interface IExportDjineupData {

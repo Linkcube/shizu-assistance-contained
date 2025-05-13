@@ -6,7 +6,6 @@ import {
 } from "./helper_functions";
 import {
   promoNotFoundError,
-  invalidFileError,
   invalidPromoError,
   fileNotFoundError,
 } from "../errors";
@@ -44,6 +43,19 @@ const validate_promo = async (
   }
 };
 
+export const internal_get_promos = async (
+  promo_names: string[],
+  pool: PoolClient,
+) => {
+  const formatted_names = promo_names.map((name) => `'${name}'`).join(", ");
+  const query = `
+    SELECT * FROM ${PROMOS_TABLE.name}
+      where ${PROMOS_TABLE.primary_key} in (${formatted_names});`;
+
+  console.log(query);
+  return pool.query(query);
+};
+
 export const internal_insert_into_promos = async (
   promo_data: IPromoObject,
   pool: PoolClient,
@@ -65,7 +77,12 @@ export const internal_update_promo = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await internal_update_table_entry(PROMOS_TABLE, promo_data, pool);
+  await internal_update_table_entry(
+    PROMOS_TABLE,
+    promo_data.name,
+    promo_data,
+    pool,
+  );
 };
 
 export const internal_delete_promo = async (

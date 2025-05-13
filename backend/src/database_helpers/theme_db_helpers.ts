@@ -4,11 +4,7 @@ import {
   internal_get_row_from_table,
   is_non_empty,
 } from "./helper_functions";
-import {
-  fileNotFoundError,
-  invalidFileError,
-  invalidThemeError,
-} from "../errors";
+import { fileNotFoundError, invalidThemeError } from "../errors";
 import { EVENTS_TABLE, FILES_TABLE, THEMES_TABLE } from "../tables";
 import { IEventObject, IThemeObject } from "../types";
 import { PoolClient } from "pg";
@@ -93,7 +89,12 @@ export const internal_update_theme = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await internal_update_table_entry(THEMES_TABLE, theme_data, pool);
+  await internal_update_table_entry(
+    THEMES_TABLE,
+    theme_data.name,
+    theme_data,
+    pool,
+  );
 };
 
 export const internal_delete_theme = async (

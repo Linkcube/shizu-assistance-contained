@@ -23,7 +23,7 @@ Example walkthrough can be found at [Here](Walkthrough.md)
 
 This program is intended to be interracted with either through the included GUI service, or through a 3rd party bot (TBD), allowing flexibility of use.
 
-GUI: Default access http://localhost:5000/
+GUI: Default access http://localhost:5000/`
 
 Bot API: Under development.
 
@@ -91,3 +91,16 @@ After standing up the docker containers, a redoc .html file will have been built
 ## Using the old UI
 
 Changing the frontend image in `comopose.yaml` from `frontend-svelte-5` to `frontend` will use the older UI image, which currently still has most features supported.
+
+## Volume Migration
+Due to the DB docker volume being configured improperly, after v0.1.2 the volume mount has been corrected to `/var/lib/postgresql/data`. In order to preserve data across this, before updating you will need to run the following steps:
+- Dump the current DB to the existing volume `/data/postgres`. `pg_dump -F c -d shizu_db -f /data/postgres/db.dump` should work.
+- Verify the `db.dump` file is present in your docker volume, and save it to your host system.
+- Change the volume mount to `/var/lib/postgresql/data`, which is what it will point to in the future. Make sure the existing volume is empty.
+- Create a bind mount in the `db` image, `/data/postgres` or some other unused path is fine to mount to in the container.
+- Place `db.dump` into your bind mount, so that it is accesible from the rebuilt container.
+- Destory both image and container for db, and rebuild both.
+- Run `pg_restore`, i.e `pg_restore -c -F c -d shizu_db /path/to/your/db.dump`
+- Restart your backend container, and everything should be correctly restored from before the change.
+- Continue updating the software as instructed through `git pull` or copy release data.
+

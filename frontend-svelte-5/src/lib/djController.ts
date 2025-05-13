@@ -5,7 +5,6 @@ import { openapiGet, openapiPostBody, openapiDelete } from './utils';
  * @typedef {Object} DJ
  * @property {string} name - The name of the DJ.
  * @property {string|null} logo - URL for the DJ's logo, can be null.
- * @property {string|null} recording - URL for a recording by this DJ, can be null.
  * @property {string} rtmp_server - The RTMP server URL for the DJ.
  * @property {string} rtmp_key - The key used on the RTMP server.
  * @property {string} public_name - A public name or alias of the DJ.
@@ -14,11 +13,17 @@ import { openapiGet, openapiPostBody, openapiDelete } from './utils';
 export interface DJ {
 	name: string;
 	logo: string | null;
-	recording: string | null;
 	rtmp_server: string;
 	rtmp_key: string;
 	public_name: string;
 	discord_id: string;
+}
+
+export interface DjEvent {
+	event: string;
+	is_live: boolean;
+	vj: string;
+	date: string;
 }
 
 /**
@@ -26,13 +31,11 @@ export interface DJ {
  * @typedef {Object} DjMin
  * @property {string} name - The name of the DJ.
  * @property {string} logo - URL for the DJ's logo.
- * @property {string} recording - URL for a recording by this DJ.
  * @property {string} rtmp_server - The RTMP server URL for the DJ.
  */
 export interface DjMin {
 	name: string;
 	logo: string;
-	recording: string;
 	rtmp_server: string;
 }
 
@@ -68,6 +71,20 @@ export async function getSingle(dj_name: string, fetch_fn?: typeof fetch): Promi
 }
 
 /**
+ * Fetches events for a DJ by its name from the API.
+ * @param {string} dj_name - The name of the DJ to fetch.
+ * @param {typeof fetch} [fetch_fn] - Optional custom fetch function for testing purposes.
+ * @returns {Promise<DjEvent[]>} A list of DjEvent objects.
+ */
+export async function getSingleEvents(
+	dj_name: string,
+	fetch_fn?: typeof fetch
+): Promise<DjEvent[]> {
+	if (fetch_fn) return await openapiGet('dj/' + dj_name + '/events', undefined, fetch_fn);
+	return await openapiGet('dj/' + dj_name + '/events');
+}
+
+/**
  * Adds a new DJ to the API.
  * @param {string} name - The name of the DJ to add.
  * @returns {Promise<DJ|undefined>} A DJ object if successful, otherwise undefined.
@@ -94,7 +111,6 @@ export async function addSingle(name: string): Promise<DJ | undefined> {
 export async function updateSingle(
 	name: string,
 	logo: string | null,
-	recording: string | null,
 	rtmp_server: string,
 	rtmp_key: string,
 	public_name: string,
@@ -102,7 +118,6 @@ export async function updateSingle(
 ): Promise<DJ | undefined> {
 	const body = {
 		logo: logo,
-		recording: recording,
 		rtmp_server: rtmp_server,
 		rtmp_key: rtmp_key,
 		public_name: public_name,

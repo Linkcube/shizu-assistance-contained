@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { writable } from 'svelte/store';
+import { page } from '$app/state';
+import { building, dev } from '$app/environment';
 
 /**
  * Represents an error message object containing status information.
@@ -26,23 +28,22 @@ export interface LineupItem {
 	selected: boolean;
 }
 
-// const serverUrl = `${page.url.protocol}//${page.url.hostname}:4004`;
-// export const staticAssetsBase = `${page.url.protocol}//${page.url.hostname}:4004`;
+// Commenting these out as their references have been replaced with location.hostname, which needs to be called after a page is loaded.
 /**
  * The base URL of the server.
  * @type {string}
  */
-const serverUrl = 'http://localhost:4004';
+// export let serverUrl = 'http://localhost:4004';
 /**
  * The base URL for static assets, typically the same as the server URL.
  * @type {string}
  */
-export const staticAssetsBase = 'http://localhost:4004';
+// export let staticAssetsBase = 'http://localhost:4004';
 /**
  * The base URL for OpenAPI requests including protocol and hostname.
  * @type {string}
  */
-const openapiUrl = `${serverUrl}/openapi`;
+// const openapiUrl = `${serverUrl}/openapi`;
 
 /**
  * A function to merge class names with Tailwind CSS classes.
@@ -116,7 +117,7 @@ export function isImageSource(source_path: string) {
  * @returns {Promise<any>} - A promise that resolves with the JSON response on success, rejects otherwise.
  */
 export async function openapiGet(url: string, bubble_error = true, fetch_fn = fetch) {
-	const request = fetch_fn(`${openapiUrl}/${url}`, {
+	const request = fetch_fn(`http://${location.hostname}:4004/openapi/${url}`, {
 		method: 'GET'
 	});
 
@@ -134,7 +135,7 @@ export async function openapiGet(url: string, bubble_error = true, fetch_fn = fe
  * @returns {Promise<any>} - A promise that resolves with the JSON response on success, rejects otherwise.
  */
 export async function openapiPostBody(url: string, body: {}) {
-	const request = fetch(`${openapiUrl}/${url}`, {
+	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -161,7 +162,7 @@ export async function openapiPostBody(url: string, body: {}) {
  * @returns {Promise<boolean>} - A promise that resolves with true on success, rejects otherwise.
  */
 export async function openapiPost(url: string) {
-	const request = fetch(`${openapiUrl}/${url}`, {
+	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -184,7 +185,7 @@ export async function openapiPost(url: string) {
  * @returns {Promise<boolean>} - A promise that resolves with true on success, rejects otherwise.
  */
 export async function openapiDelete(url: string) {
-	const request = fetch(`${openapiUrl}/${url}`, {
+	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
 		method: 'DELETE'
 	});
 	const response = await request;

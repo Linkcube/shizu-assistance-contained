@@ -17,7 +17,6 @@
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import CircleCheckBig from 'lucide-svelte/icons/circle-check-big';
 	import Ban from 'lucide-svelte/icons/ban';
-	import { staticAssetsBase } from '$lib/utils';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import type { DJ } from '$lib/djController';
@@ -27,9 +26,11 @@
 	import type { Promotion } from '$lib/promotionsController';
 	import type { Theme } from '$lib/themeController';
 	import DeleteConfirmation from '$lib/components/ui/delete-confirmation/delete-confirmation.svelte';
+	import type { EventDj } from '$lib/eventController';
 
 	type Props = {
 		dj?: DJ;
+		event_dj?: EventDj;
 		promo?: Promotion;
 		theme?: Theme;
 		file_type: 'logos' | 'recordings' | 'theme-overlay' | 'theme-op' | 'theme-ed';
@@ -38,6 +39,7 @@
 
 	let {
 		dj = $bindable(),
+		event_dj = $bindable(),
 		promo = $bindable(),
 		theme = $bindable(),
 		file_type,
@@ -70,6 +72,8 @@
 		}
 	});
 
+	const staticAssetsBase = `http://${location.hostname}:4004`;
+
 	const selectFile = (file: File) => {
 		selected_file = file;
 	};
@@ -87,27 +91,25 @@
 		file_sheet_open = false;
 		file_sheet_open = true;
 		if (dj !== undefined) {
-			if (file_type === 'logos') {
-				files_promise = getAllLogos();
-				files_promise
-					.then((logos) => {
-						files = logos.slice().sort(sortFiles);
-						if (dj.logo) {
-							selected_file = logos.filter((logo) => logo.name === dj.logo)[0];
-						}
-					})
-					.catch((e) => console.log(e));
-			} else {
-				files_promise = getAllRecordings();
-				files_promise
-					.then((recs) => {
-						files = recs.slice().sort(sortFiles);
-						if (dj.recording) {
-							selected_file = recs.filter((rec) => rec.name === dj.recording)[0];
-						}
-					})
-					.catch((e) => console.log(e));
-			}
+			files_promise = getAllLogos();
+			files_promise
+				.then((logos) => {
+					files = logos.slice().sort(sortFiles);
+					if (dj.logo) {
+						selected_file = logos.filter((logo) => logo.name === dj.logo)[0];
+					}
+				})
+				.catch((e) => console.log(e));
+		} else if (event_dj !== undefined) {
+			files_promise = getAllRecordings();
+			files_promise
+				.then((recs) => {
+					files = recs.slice().sort(sortFiles);
+					if (event_dj.recording) {
+						selected_file = recs.filter((rec) => rec.name === event_dj.recording)[0];
+					}
+				})
+				.catch((e) => console.log(e));
 		} else if (promo !== undefined) {
 			files_promise = getAllRecordings();
 			files_promise
@@ -176,11 +178,9 @@
 	const deleteFile = async () => {
 		await deleteSingleFile(selected_file.name);
 		if (dj !== undefined) {
-			if (file_type === 'logos' && dj.logo === selected_file.name) {
-				dj.logo = '';
-			} else if (dj.recording === selected_file.name) {
-				dj.recording = '';
-			}
+			if (dj.logo === selected_file.name) dj.logo = '';
+		} else if (event_dj !== undefined) {
+			if (event_dj.recording === selected_file.name) event_dj.recording = '';
 		} else if (promo !== undefined) {
 			if (promo.promo_file === selected_file.name) promo.promo_file = '';
 		} else if (theme !== undefined) {
@@ -233,13 +233,11 @@
 
 	const createFile = async () => {
 		if (dj !== undefined) {
-			if (file_type === 'logos') {
-				dj.logo = create_file_name;
-				await addLogoFile(create_file_name);
-			} else {
-				dj.recording = create_file_name;
-				await addRecordingFile(create_file_name);
-			}
+			dj.logo = create_file_name;
+			await addLogoFile(create_file_name);
+		} else if (event_dj !== undefined) {
+			event_dj.recording = create_file_name;
+			await addRecordingFile(create_file_name);
 		} else if (promo !== undefined) {
 			promo.promo_file = create_file_name;
 			await addRecordingFile(create_file_name);

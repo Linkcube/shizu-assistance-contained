@@ -19,7 +19,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 	import type { File } from '$lib/fileController';
-	import { isImageSource, pushToLog, staticAssetsBase } from '$lib/utils';
+	import { isImageSource, pushToLog } from '$lib/utils';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import Film from 'lucide-svelte/icons/film';
@@ -36,6 +36,8 @@
 	let export_promise = $state(Promise.resolve(false));
 	let export_progress = $state(0);
 	let exporting_state = $state('');
+
+	const staticAssetsBase = `http://${location.hostname}:4004`;
 
 	const exportEvent = () => {
 		exporting = true;
@@ -85,96 +87,110 @@
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each data.event.djs as dj}
+						{#each data.event.djs as event_dj}
 							<Table.Row>
 								<Table.Cell>
 									<Button
 										variant="link"
 										class="text-foreground"
-										onclick={() => goto(`/djs/${dj.name}`)}
+										onclick={() => goto(`/djs/${event_dj.name}`)}
 									>
-										{dj.name}
+										{event_dj.name}
 									</Button>
 								</Table.Cell>
 								<Table.Cell class="font-medium">
 									<div class="flex flex-row items-center text-center">
-										{#if dj_map.get(dj.name)?.logo}
+										{#if dj_map.get(event_dj.name)?.logo}
 											<HoverCard.Root>
 												<HoverCard.Trigger>
 													<div class="flex flex-row items-center text-center">
 														<FileImage class="mr-2 size-4 text-primary" />
-														<span>{dj_map.get(dj.name)?.logo}</span>
+														<span>{dj_map.get(event_dj.name)?.logo}</span>
 													</div>
 												</HoverCard.Trigger>
 												<HoverCard.Content>
-													{#if files_map.get(dj_map.get(dj.name)?.logo || '')?.file_path}
+													{#if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}
 														<img
 															class="w-full"
-															src={`${staticAssetsBase}/logos/
-															${files_map.get(dj_map.get(dj.name)?.logo || '')?.file_path}`}
+															src={`${staticAssetsBase}/logos/${files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}`}
 															alt="Preview"
 														/>
-													{:else if files_map.get(dj_map.get(dj.name)?.logo || '')?.url_path}
+														<span>
+															{files_map
+																.get(dj_map.get(event_dj.name)?.logo || '')
+																?.file_path.split('/')[
+																files_map
+																	.get(dj_map.get(event_dj.name)!.logo || '')!
+																	.file_path.split('/').length - 1
+															]}
+														</span>
+													{:else if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
 														<a
 															class="hover:underline"
-															href={files_map.get(dj_map.get(dj.name)?.logo || '')?.url_path}
+															href={files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
 														>
-															{files_map.get(dj_map.get(dj.name)?.logo || '')?.url_path}
+															{files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
 														</a>
 													{:else}
 														<span>
-															No file/url set for {dj_map.get(dj.name)?.logo}
+															No file/url set for {dj_map.get(event_dj.name)?.logo}
 														</span>
 													{/if}
 												</HoverCard.Content>
 											</HoverCard.Root>
-										{:else if dj_map.get(dj.name)?.public_name}
+										{:else if dj_map.get(event_dj.name)?.public_name}
 											<Type class="mr-2 size-4 text-primary" />
-											<span>{dj_map.get(dj.name)?.public_name}</span>
+											<span>{dj_map.get(event_dj.name)?.public_name}</span>
 										{:else}
 											<Type class="mr-2 size-4 text-primary" />
-											<span>{dj.name}</span>
+											<span>{event_dj.name}</span>
 										{/if}
 									</div>
 								</Table.Cell>
 								<Table.Cell class="font-medium">
 									<div class="flex flex-row items-center text-center">
-										{#if dj.is_live}
-											{#if dj_map.get(dj.name)?.rtmp_server && dj_map.get(dj.name)?.rtmp_key}
+										{#if event_dj.is_live}
+											{#if dj_map.get(event_dj.name)?.rtmp_server && dj_map.get(event_dj.name)?.rtmp_key}
 												<Wifi class="mr-2 size-4 text-primary" />
 												<span
-													>{dj_map.get(dj.name)?.rtmp_server}:{dj_map.get(dj.name)?.rtmp_key}</span
+													>{dj_map.get(event_dj.name)?.rtmp_server}:{dj_map.get(event_dj.name)
+														?.rtmp_key}</span
 												>
 											{:else}
 												<Ban class="mr-2 size-4 text-primary" />
 											{/if}
-										{:else if dj_map.get(dj.name)?.recording}
+										{:else if event_dj?.recording}
 											<HoverCard.Root>
 												<HoverCard.Trigger>
 													<div class="flex flex-row items-center text-center">
 														<FileVideo class="mr-2 size-4 text-primary" />
-														<span>{dj_map.get(dj.name)?.recording}</span>
+														<span>{event_dj?.recording}</span>
 													</div>
 												</HoverCard.Trigger>
 												<HoverCard.Content>
-													{#if files_map.get(dj_map.get(dj.name)?.recording || '')?.file_path}
+													{#if files_map.get(event_dj?.recording || '')?.file_path}
 														<video
 															controls
-															src={`${staticAssetsBase}/recordings/
-																${files_map.get(dj_map.get(dj.name)?.recording || '')?.file_path}`}
+															src={`${staticAssetsBase}/recordings/${files_map.get(event_dj?.recording || '')?.file_path}`}
 														>
 															<track kind="captions" />
 														</video>
-													{:else if files_map.get(dj_map.get(dj.name)?.recording || '')?.url_path}
+														<span>
+															{files_map.get(event_dj?.recording || '')?.file_path.split('/')[
+																files_map.get(event_dj!.recording || '')!.file_path.split('/')
+																	.length - 1
+															]}
+														</span>
+													{:else if files_map.get(event_dj?.recording || '')?.url_path}
 														<a
 															class="hover:underline"
-															href={files_map.get(dj_map.get(dj.name)?.recording || '')?.url_path}
+															href={files_map.get(event_dj?.recording || '')?.url_path}
 														>
-															{files_map.get(dj_map.get(dj.name)?.recording || '')?.url_path}
+															{files_map.get(event_dj?.recording || '')?.url_path}
 														</a>
 													{:else}
 														<span>
-															No file/url set for {dj_map.get(dj.name)?.recording}
+															No file/url set for {event_dj?.recording}
 														</span>
 													{/if}
 												</HoverCard.Content>
@@ -252,6 +268,15 @@
 														>
 															<track kind="captions" />
 														</video>
+														<span>
+															{files_map
+																.get(promo_map.get(promo)?.promo_file || '')
+																?.file_path.split('/')[
+																files_map
+																	.get(promo_map.get(promo)!.promo_file || '')!
+																	.file_path.split('/').length - 1
+															]}
+														</span>
 													{:else if files_map.get(promo_map.get(promo)?.promo_file || '')?.url_path}
 														<a
 															class="hover:underline"
@@ -299,7 +324,7 @@
 
 	<Separator class="my-4"></Separator>
 
-	<div class="flex flex-col items-center justify-between md:flex-row">
+	<div class="flex flex-col items-center justify-between py-6 md:flex-row">
 		{#if data.event.theme}
 			<span>
 				Theme: {data.event.theme}
@@ -471,6 +496,11 @@
 										<track kind="captions" />
 									</video>
 								{/if}
+								<span>
+									{files_map.get(data.theme.starting_file)?.file_path.split('/')[
+										files_map.get(data.theme.starting_file)!.file_path.split('/').length - 1
+									]}
+								</span>
 							{:else}
 								<span> No file set. </span>
 							{/if}
@@ -513,6 +543,11 @@
 										<track kind="captions" />
 									</video>
 								{/if}
+								<span>
+									{files_map.get(data.theme.ending_file)?.file_path.split('/')[
+										files_map.get(data.theme.ending_file)!.file_path.split('/').length - 1
+									]}
+								</span>
 							{:else}
 								<span> No file set. </span>
 							{/if}
@@ -555,6 +590,11 @@
 										<track kind="captions" />
 									</video>
 								{/if}
+								<span>
+									{files_map.get(data.theme.overlay_file)?.file_path.split('/')[
+										files_map.get(data.theme.overlay_file)!.file_path.split('/').length - 1
+									]}
+								</span>
 							{:else}
 								<span> No file set. </span>
 							{/if}
@@ -570,6 +610,20 @@
 			No theme Set.
 		{/if}
 	</div>
+
+	{#if data.event.theme}
+		<div class="flex flex-row items-center justify-between">
+			{#each data.theme_errors as theme_error}
+				{#if theme_error !== undefined}
+					<Alert.Root variant="destructive">
+						<CircleAlert class="size-4" />
+						<Alert.Title>Error</Alert.Title>
+						<Alert.Description>{theme_error}</Alert.Description>
+					</Alert.Root>
+				{/if}
+			{/each}
+		</div>
+	{/if}
 
 	<Separator class="my-4"></Separator>
 

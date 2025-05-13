@@ -3,7 +3,7 @@
 */
 
 import { Router } from "express";
-import { paths, components } from "../../openapi/schema";
+import { components } from "../../openapi/schema";
 import {
   create_new_app_theme,
   delete_app_theme,
@@ -11,7 +11,6 @@ import {
   read_app_themes_table,
   update_app_theme,
 } from "../database";
-import { internal_insert_into_app_themes } from "../database_helpers/app_themes_db_helpers";
 
 export const appThemeRouter = Router();
 

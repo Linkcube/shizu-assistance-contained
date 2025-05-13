@@ -1,6 +1,12 @@
 import { PoolClient } from "pg";
 import { fileNotFoundError, invalidFileError } from "../errors";
-import { DJS_TABLE, FILES_TABLE, PROMOS_TABLE, THEMES_TABLE } from "../tables";
+import {
+  DJS_TABLE,
+  EVENT_DJS_TABLE,
+  FILES_TABLE,
+  PROMOS_TABLE,
+  THEMES_TABLE,
+} from "../tables";
 import { IEventObject, IFileObject } from "../types";
 import {
   internal_get_row_from_table,
@@ -48,7 +54,12 @@ export const internal_update_file = async (
   if (validation !== undefined) return validation;
 
   // Add to DB
-  await internal_update_table_entry(FILES_TABLE, file_data, pool);
+  await internal_update_table_entry(
+    FILES_TABLE,
+    file_data.name,
+    file_data,
+    pool,
+  );
 };
 
 export const internal_delete_file = async (
@@ -84,7 +95,7 @@ export const internal_delete_file = async (
     `UPDATE ${DJS_TABLE.name} SET logo = DEFAULT WHERE logo = '${file_name}';`,
   );
   await pool.query(
-    `UPDATE ${DJS_TABLE.name} SET recording = DEFAULT WHERE recording = '${file_name}';`,
+    `UPDATE ${EVENT_DJS_TABLE.name} SET recording = DEFAULT WHERE recording = '${file_name}';`,
   );
 
   const delete_query = `DELETE FROM ${FILES_TABLE.name} WHERE name = '${file_name}'`;
