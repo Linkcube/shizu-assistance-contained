@@ -1065,7 +1065,7 @@ export const import_legacy_ledger = async (ledger_path: string) => {
 export const import_legacy_events = async (lineups_path: string) => {
   const errors = [];
   const new_events: IEventObject[] = [];
-  const all_events_djs: Map<String, IEventDjObject[]> = new Map();
+  const all_events_djs: Map<string, IEventDjObject[]> = new Map();
 
   // Expect a folder containing multiple lineups
   const lineup_files = readdirSync(lineups_path, { withFileTypes: true });

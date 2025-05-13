@@ -8,6 +8,7 @@ import { DJS_TABLE, FILES_TABLE, EVENT_DJS_TABLE } from "../tables";
 import { IDjObject, IEventDjObject } from "../types";
 import { PoolClient, QueryResult } from "pg";
 import { internal_delete_event_dj } from "./event_dj_db_helpers";
+import { internal_delete_file } from "./file_db_helpers";
 
 const validate_dj = async (
   dj_data: IDjObject,
@@ -100,9 +101,10 @@ export const internal_delete_dj = async (dj_name: string, pool: PoolClient) => {
     await pool.query(event_djs_query);
 
   if (event_djs.rows && event_djs.rows.length > 0) {
-    // TODO: Shift later djs to lower position
     for (const event_dj of event_djs.rows) {
       await internal_delete_event_dj(event_dj.event, dj_name, pool);
+      if (event_dj.recording)
+        await internal_delete_file(event_dj.recording, pool);
     }
   }
 

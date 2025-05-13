@@ -227,8 +227,6 @@ export const internal_delete_event_dj = async (
     await internal_update_event_dj(shifting_dj, pool);
   }
 
-  // TODO: delete recording
-
   // Delete entry
   console.log(EVENT_DJS_TABLE.delete_entry(composite_key));
   await pool.query(EVENT_DJS_TABLE.delete_entry(composite_key));
