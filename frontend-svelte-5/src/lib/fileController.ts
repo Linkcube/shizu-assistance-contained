@@ -1,4 +1,4 @@
-import { openapiGet, openapiPostBody, openapiDelete } from './utils';
+import { openapiGet, openapiPostBody, openapiDelete, openapiGetReponse } from './utils';
 
 /**
  * Represents a file object with various properties.
@@ -11,8 +11,8 @@ import { openapiGet, openapiPostBody, openapiDelete } from './utils';
 export interface File {
 	name: string;
 	root: 'LOGOS' | 'RECORDINGS' | 'THEMES';
-	file_path: string;
-	url_path: string;
+	file_path: string | null;
+	url_path: string | null;
 }
 
 /**
@@ -76,6 +76,16 @@ export async function getAllThemes(): Promise<File[]> {
  */
 export async function getSingle(file_name: string): Promise<File> {
 	return await openapiGet(`file/${file_name}`);
+}
+
+/**
+ * Checks if getting a file returns an error or not.
+ * @async
+ * @param {string} file_name - The name of the file to retrieve.
+ * @returns {Promise<boolean>} A promise that resolves to a whether the file is found.
+ */
+export async function fileExists(file_name: string): Promise<boolean> {
+	return await openapiGetReponse(`file/${file_name}`);
 }
 
 /**
@@ -156,8 +166,8 @@ export const addLogoFile = async (
  */
 export const addRecordingFile = async (
 	name: string,
-	file_path?: string,
-	url_path?: string
+	file_path?: string | null,
+	url_path?: string | null
 ): Promise<File> => {
 	const body = {
 		name: name,
@@ -202,8 +212,8 @@ export const addThemeFile = async (
 export const updateSingleFile = async (
 	name: string,
 	root: string,
-	file_path: string,
-	url_path: string
+	file_path: string | null,
+	url_path: string | null
 ): Promise<File> => {
 	const body = {
 		root: root,

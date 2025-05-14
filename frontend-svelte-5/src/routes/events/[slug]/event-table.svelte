@@ -128,7 +128,14 @@
 	const submitLineupSelection = (new_items: string[]) => {
 		if (lineup_type === 'djs') {
 			new_items.forEach((name) =>
-				event.djs.push({ name: name, is_live: false, vj: '', recording: null })
+				event.djs.push({
+					name: name,
+					is_live: false,
+					vj: '',
+					recording: null,
+					visuals: null,
+					use_generic_visuals: false
+				})
 			);
 		} else {
 			new_items.forEach((name) => event.promos.push(name));
@@ -185,7 +192,7 @@
 
 <div class="mx-auto flex min-w-80 flex-col px-10 py-4 md:px-40">
 	<div class="flex flex-col justify-around lg:flex-row">
-		<EventDjTable bind:event_djs={event.djs} {openDjLineup} />
+		<EventDjTable bind:event_djs={event.djs} bind:event {openDjLineup} />
 		<Separator class="my-4 lg:hidden"></Separator>
 		<EventPromoTable bind:event_promos={event.promos} {openPromoLineup} />
 	</div>

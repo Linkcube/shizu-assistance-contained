@@ -21,6 +21,7 @@ import {
   ILegacyLedger,
   ILegacyLineup,
   IEventDjObject,
+  IUpdateEventDjObject,
 } from "./types";
 import {
   internal_get_row_from_table,
@@ -837,6 +838,9 @@ export const event_export_summary = async (event_name: string) => {
 
     if (event_dj.recording) {
       file_names.add(event_dj.recording);
+    }
+    if (event_dj.visuals) {
+      file_names.add(event_dj.visuals);
     }
   }
 
