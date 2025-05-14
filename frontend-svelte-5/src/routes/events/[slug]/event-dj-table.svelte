@@ -14,18 +14,20 @@
 	import WifiOff from 'lucide-svelte/icons/wifi-off';
 	import UserPen from 'lucide-svelte/icons/user-pen';
 	import Film from 'lucide-svelte/icons/film';
+	import FileAudio from 'lucide-svelte/icons/file-audio';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { flip } from 'svelte/animate';
 	import { cn } from '$lib/utils.js';
-	import { type File } from '$lib/fileController';
-	import FileObjectsSheet from '$lib/components/ui/file-objects-sheet/file-objects-sheet.svelte';
+	import EventDjFileObjectsSheet from '$lib/components/ui/event-dj-file-objects-sheet/event-dj-file-objects-sheet.svelte';
+	import { type Event } from '$lib/eventController';
 
 	type Props = {
 		event_djs: EventDj[];
+		event: Event;
 		openDjLineup: () => void;
 	};
 
-	let { event_djs = $bindable(), openDjLineup }: Props = $props();
+	let { event_djs = $bindable(), event = $bindable(), openDjLineup }: Props = $props();
 
 	if (!event_djs) event_djs = [];
 
@@ -39,7 +41,7 @@
 	let last_dragover_index = 0;
 	let is_dragging = false;
 
-	let fileObjectSheetInstance: FileObjectsSheet;
+	let eventDjFileObjectSheetInstance: EventDjFileObjectsSheet;
 
 	const changeEventDjLive = async (dj: EventDj) => {
 		dj.is_live = !dj.is_live;
@@ -55,11 +57,18 @@
 
 	const changeEventDjRecording = async (dj: EventDj) => {
 		edit_recording_dj = dj;
-		fileObjectSheetInstance.openFileSheet();
+		eventDjFileObjectSheetInstance.openFileSheet();
 	};
 
-	const submitFile = (selected_file: File) => {
-		edit_recording_dj.recording = selected_file.name;
+	const submitEventDjRecordingData = (
+		recording: string | null,
+		visuals: string | null,
+		use_generic_visuals: boolean
+	) => {
+		edit_recording_dj.recording = recording;
+		edit_recording_dj.visuals = visuals;
+		edit_recording_dj.use_generic_visuals = use_generic_visuals;
+		console.log(event_djs);
 	};
 
 	function handleDragStart(index: number, event: DragEvent) {
@@ -157,8 +166,14 @@
 							</div>
 						{:else if event_dj.recording}
 							<div class="flex flex-row items-center text-center">
-								<Film class="mr-2 size-4 text-primary" />
-								<span>{event_dj.recording}</span>
+								{#if event_dj.use_generic_visuals}
+									<FileAudio class="mr-2 size-4 text-primary" />
+								{:else if event_dj.visuals}
+									<FileAudio class="mr-2 size-4 text-primary" />
+									<Film class="mr-2 size-4 text-primary" />
+								{:else}
+									<Film class="mr-2 size-4 text-primary" />
+								{/if}
 							</div>
 						{:else}
 							<div class="flex flex-row items-center text-center">
@@ -236,9 +251,9 @@
 	</Dialog.Root>
 </div>
 
-<FileObjectsSheet
+<EventDjFileObjectsSheet
 	event_dj={edit_recording_dj}
-	file_type={'recordings'}
-	{submitFile}
-	bind:this={fileObjectSheetInstance}
+	event={event.name}
+	{submitEventDjRecordingData}
+	bind:this={eventDjFileObjectSheetInstance}
 />

@@ -109,6 +109,10 @@ export function isImageSource(source_path: string) {
 	return source_path.match(/\.(jpeg|jpg|gif|png)$/) != null;
 }
 
+export function getFileName(file_path: string) {
+	return file_path.split('/')[file_path.split('/').length - 1];
+}
+
 /**
  * Generic function to perform a GET request using OpenAPI.
  * @param {string} url - The endpoint URL within the API.
@@ -126,6 +130,14 @@ export async function openapiGet(url: string, bubble_error = true, fetch_fn = fe
 		return await response.json();
 	}
 	if (bubble_error) return parseOpenapiError(response);
+}
+
+export async function openapiGetReponse(url: string) {
+	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
+		method: 'GET'
+	});
+	const response = await request;
+	return response.ok;
 }
 
 /**

@@ -23,7 +23,12 @@ import {
   event_export_summary,
   get_event_djs_by_event,
 } from "../database";
-import { IEventObject, IEventDjObject, ILineupDjObject } from "../types";
+import {
+  IEventObject,
+  IEventDjObject,
+  ILineupDjObject,
+  IUpdateEventDjObject,
+} from "../types";
 
 export const eventRouter = Router();
 
@@ -58,6 +63,8 @@ const make_ui_event_object = async (event: IEventObject) => {
         is_live: event_dj.is_live,
         vj: event_dj.vj,
         recording: event_dj.recording,
+        visuals: event_dj.visuals,
+        use_generic_visuals: event_dj.use_generic_visuals,
       };
     });
   } else {
@@ -140,6 +147,8 @@ eventRouter.post("/:eventName", async (req, res) => {
       is_live: dj.is_live,
       vj: dj.vj,
       recording: dj.recording,
+      visuals: dj.visuals,
+      use_generic_visuals: dj.use_generic_visuals,
     } as IEventDjObject;
   });
 

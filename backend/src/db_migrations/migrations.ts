@@ -92,8 +92,20 @@ const migration_2 = async (client: Client) => {
   // TODO: optionally remove stale recording files
 };
 
+// Add visuals, use_generic_visuals to event_dj
+const migration_3 = async (client: Client) => {
+  console.log("Starting migration 3.");
+  await client.query(
+    `ALTER TABLE "${EVENT_DJS_TABLE_NAME}" ADD COLUMN IF NOT EXISTS visuals text references ${FILES_TABLE_NAME}(name);`,
+  );
+  await client.query(
+    `ALTER TABLE "${EVENT_DJS_TABLE_NAME}" ADD COLUMN IF NOT EXISTS use_generic_visuals boolean;`,
+  );
+  console.log("Completed migration 3.");
+};
+
 export const run_migrations = async (client: Client) => {
-  const migrations = [initial_setup, migration_1, migration_2];
+  const migrations = [initial_setup, migration_1, migration_2, migration_3];
 
   for (let i = 0; i < migrations.length; i++) {
     try {

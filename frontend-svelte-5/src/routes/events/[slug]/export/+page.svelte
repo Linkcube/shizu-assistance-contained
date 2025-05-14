@@ -2,6 +2,7 @@
 	import type { PageProps } from './$types';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import FileImage from 'lucide-svelte/icons/file-image';
+	import FileAudio from 'lucide-svelte/icons/file-audio';
 	import FileVideo from 'lucide-svelte/icons/file-video';
 	import Type from 'lucide-svelte/icons/type';
 	import Wifi from 'lucide-svelte/icons/wifi';
@@ -19,7 +20,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 	import type { File } from '$lib/fileController';
-	import { isImageSource, pushToLog } from '$lib/utils';
+	import { getFileName, isImageSource, pushToLog } from '$lib/utils';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import Film from 'lucide-svelte/icons/film';
@@ -105,32 +106,32 @@
 												<HoverCard.Trigger>
 													<div class="flex flex-row items-center text-center">
 														<FileImage class="mr-2 size-4 text-primary" />
-														<span>{dj_map.get(event_dj.name)?.logo}</span>
+														<span> Logo </span>
 													</div>
 												</HoverCard.Trigger>
 												<HoverCard.Content>
-													{#if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}
+													{#if files_map.get(dj_map.get(event_dj.name)?.logo!)?.file_path}
 														<img
 															class="w-full"
 															src={`${staticAssetsBase}/logos/${files_map.get(dj_map.get(event_dj.name)?.logo || '')?.file_path}`}
 															alt="Preview"
 														/>
 														<span>
-															{files_map
-																.get(dj_map.get(event_dj.name)?.logo || '')
-																?.file_path.split('/')[
-																files_map
-																	.get(dj_map.get(event_dj.name)!.logo || '')!
-																	.file_path.split('/').length - 1
-															]}
+															{getFileName(
+																files_map.get(dj_map.get(event_dj.name)?.logo!)?.file_path!
+															)}
 														</span>
-													{:else if files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
-														<a
-															class="hover:underline"
-															href={files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
-														>
-															{files_map.get(dj_map.get(event_dj.name)?.logo || '')?.url_path}
-														</a>
+													{:else if files_map.get(dj_map.get(event_dj.name)?.logo!)?.url_path}
+														<img
+															class="w-full"
+															src={files_map.get(dj_map.get(event_dj.name)?.logo!)?.url_path}
+															alt="Preview"
+														/>
+														<span>
+															{getFileName(
+																files_map.get(dj_map.get(event_dj.name)?.logo!)?.url_path!
+															)}
+														</span>
 													{:else}
 														<span>
 															No file/url set for {dj_map.get(event_dj.name)?.logo}
@@ -163,12 +164,15 @@
 											<HoverCard.Root>
 												<HoverCard.Trigger>
 													<div class="flex flex-row items-center text-center">
-														<FileVideo class="mr-2 size-4 text-primary" />
-														<span>{event_dj?.recording}</span>
+														{#if event_dj?.use_generic_visuals || event_dj?.visuals}
+															<FileAudio class="mr-2 size-4 text-primary" />
+														{:else}
+															<FileVideo class="mr-2 size-4 text-primary" />
+														{/if}
 													</div>
 												</HoverCard.Trigger>
 												<HoverCard.Content>
-													{#if files_map.get(event_dj?.recording || '')?.file_path}
+													{#if files_map.get(event_dj?.recording)?.file_path}
 														<video
 															controls
 															src={`${staticAssetsBase}/recordings/${files_map.get(event_dj?.recording || '')?.file_path}`}
@@ -176,18 +180,15 @@
 															<track kind="captions" />
 														</video>
 														<span>
-															{files_map.get(event_dj?.recording || '')?.file_path.split('/')[
-																files_map.get(event_dj!.recording || '')!.file_path.split('/')
-																	.length - 1
-															]}
+															{getFileName(files_map.get(event_dj?.recording)?.file_path!)}
 														</span>
-													{:else if files_map.get(event_dj?.recording || '')?.url_path}
-														<a
-															class="hover:underline"
-															href={files_map.get(event_dj?.recording || '')?.url_path}
+													{:else if files_map.get(event_dj?.recording)?.url_path}
+														<video controls src={files_map.get(event_dj?.recording)?.url_path}
+															><track kind="captions" /></video
 														>
-															{files_map.get(event_dj?.recording || '')?.url_path}
-														</a>
+														<span>
+															{getFileName(files_map.get(event_dj?.recording)?.url_path!)}
+														</span>
 													{:else}
 														<span>
 															No file/url set for {event_dj?.recording}
@@ -195,6 +196,46 @@
 													{/if}
 												</HoverCard.Content>
 											</HoverCard.Root>
+											{#if event_dj?.visuals && !event_dj?.use_generic_visuals}
+												<HoverCard.Root>
+													<HoverCard.Trigger>
+														<div class="flex flex-row items-center text-center">
+															<FileVideo class="mr-2 size-4 text-primary" />
+														</div>
+													</HoverCard.Trigger>
+													<HoverCard.Content>
+														{#if files_map.get(event_dj?.visuals)?.file_path}
+															<video
+																controls
+																src={`${staticAssetsBase}/recordings/${files_map.get(event_dj?.visuals)?.file_path}`}
+															>
+																<track kind="captions" />
+															</video>
+															<span>
+																{getFileName(files_map.get(event_dj?.visuals)?.file_path!)}
+															</span>
+														{:else if files_map.get(event_dj?.visuals)?.url_path}
+															<video controls src={files_map.get(event_dj?.visuals)?.url_path}
+																><track kind="captions" /></video
+															>
+															<span>
+																{getFileName(files_map.get(event_dj?.visuals)?.url_path!)}
+															</span>
+														{:else}
+															<span>
+																No file/url set for {event_dj?.visuals}
+															</span>
+														{/if}
+													</HoverCard.Content>
+												</HoverCard.Root>
+											{/if}
+											{#if event_dj?.recording && event_dj?.use_generic_visuals}
+												<span> Audio + Generic Visuals </span>
+											{:else if event_dj?.recording && event_dj?.visuals}
+												<span> Audio + Visuals </span>
+											{:else}
+												<span> Pre Recorded </span>
+											{/if}
 										{:else}
 											<Ban class="mr-2 size-4 text-primary" />
 										{/if}
@@ -269,13 +310,9 @@
 															<track kind="captions" />
 														</video>
 														<span>
-															{files_map
-																.get(promo_map.get(promo)?.promo_file || '')
-																?.file_path.split('/')[
-																files_map
-																	.get(promo_map.get(promo)!.promo_file || '')!
-																	.file_path.split('/').length - 1
-															]}
+															{getFileName(
+																files_map.get(promo_map.get(promo)?.promo_file || '')?.file_path!
+															)}
 														</span>
 													{:else if files_map.get(promo_map.get(promo)?.promo_file || '')?.url_path}
 														<a
@@ -497,9 +534,7 @@
 									</video>
 								{/if}
 								<span>
-									{files_map.get(data.theme.starting_file)?.file_path.split('/')[
-										files_map.get(data.theme.starting_file)!.file_path.split('/').length - 1
-									]}
+									{getFileName(files_map.get(data.theme.starting_file)?.file_path!)}
 								</span>
 							{:else}
 								<span> No file set. </span>
@@ -544,9 +579,7 @@
 									</video>
 								{/if}
 								<span>
-									{files_map.get(data.theme.ending_file)?.file_path.split('/')[
-										files_map.get(data.theme.ending_file)!.file_path.split('/').length - 1
-									]}
+									{getFileName(files_map.get(data.theme.ending_file)?.file_path!)}
 								</span>
 							{:else}
 								<span> No file set. </span>
@@ -591,9 +624,7 @@
 									</video>
 								{/if}
 								<span>
-									{files_map.get(data.theme.overlay_file)?.file_path.split('/')[
-										files_map.get(data.theme.overlay_file)!.file_path.split('/').length - 1
-									]}
+									{getFileName(files_map.get(data.theme.overlay_file)?.file_path!)}
 								</span>
 							{:else}
 								<span> No file set. </span>

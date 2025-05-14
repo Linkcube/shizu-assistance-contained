@@ -274,6 +274,15 @@ export const EVENT_DJS_TABLE: Table = new Table(
       fkey: `${FILES_TABLE_NAME}(name)`,
     },
     {
+      name: "visuals",
+      type: "TEXT",
+      fkey: `${FILES_TABLE_NAME}(name)`,
+    },
+    {
+      name: "use_generic_visuals",
+      type: "BOOLEAN",
+    },
+    {
       name: "vj",
       type: "TEXT",
     },
