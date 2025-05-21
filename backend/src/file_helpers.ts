@@ -21,17 +21,21 @@ if (process.env.DOCKER_EXPORT_PATH === undefined)
   throw new Error("EXPORT_ROOT is not set!");
 if (process.env.DOCKER_IMPORT_PATH === undefined)
   throw new Error("DOCKER_IMPORT_PATH is not set!");
+if (process.env.DOCKER_GENERIC_VISUALS_PATH === undefined)
+  throw new Error("DOCKER_GENERIC_VISUALS_PATH is not set!");
 
 export const LOGOS_ROOT = process.env.DOCKER_LOGOS_PATH;
 export const RECORDINGS_ROOT = process.env.DOCKER_RECORDINGS_PATH;
 export const THEMES_ROOT = process.env.DOCKER_THEMES_PATH;
 export const EXPORT_ROOT = process.env.DOCKER_EXPORT_PATH;
+export const VISUALS_ROOT = process.env.DOCKER_GENERIC_VISUALS_PATH;
 
 export const root_map = new Map([
   ["LOGOS", LOGOS_ROOT],
   ["RECORDINGS", RECORDINGS_ROOT],
   ["THEMES", THEMES_ROOT],
   ["EXPORT", EXPORT_ROOT],
+  ["VISUALS", VISUALS_ROOT],
 ]);
 
 export const getLocalLogoFiles = (sub_dirs: string[]) => {
