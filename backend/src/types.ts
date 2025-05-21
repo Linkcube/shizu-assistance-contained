@@ -91,6 +91,7 @@ export interface IExportDjineupData {
   name: string;
   logo_path: string;
   recording_path: string;
+  visuals_path: string;
   resolution: Promise<number[] | Error>;
   url: string;
   vj: string;

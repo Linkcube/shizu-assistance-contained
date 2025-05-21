@@ -130,17 +130,13 @@ class Hijack:
         lineup_scenes = []
         for dj_entry in lineup_data[DJ_KEY]:
             print(dj_entry)
-            dj_scene = ObsDjScene(
-                dj_entry.get("name"),
-                dj_entry.get("logo_path"),
-                None,
-                None,
-                dj_entry.get("resolution")
-            )
+            dj_scene = ObsDjScene(dj_entry.get("name"), dj_entry.get("logo_path"))
             if dj_entry.get("url"):
                 dj_scene.stream_url = dj_entry.get("url")
             else:
                 dj_scene.recording_path = dj_entry.get("recording_path")
+                dj_scene.visuals_path = dj_entry.get("visuals_path")
+                dj_scene.resolution = dj_entry.get("resolution")
             if self.host_paths:
                 if dj_scene.logo_path:
                     dj_scene.logo_path = self.generate_host_path(
@@ -150,6 +146,16 @@ class Hijack:
                     dj_scene.recording_path = self.generate_host_path(
                         "DOCKER_RECORDINGS_PATH", "LOCAL_RECORDINGS_PATH", dj_scene.recording_path
                     )
+                if dj_scene.visuals_path:
+                    recording_visuals_path = self.generate_host_path(
+                        "DOCKER_RECORDINGS_PATH", "LOCAL_RECORDINGS_PATH", dj_scene.visuals_path
+                    )
+                    if os.path.isfile(recording_visuals_path):
+                        dj_scene.visuals_path = recording_visuals_path
+                    else:
+                        dj_scene.visuals_path = self.generate_host_path(
+                            "DOCKER_GENERIC_VISUALS_PATH", "LOCAL_GENERIC_VISUALS_PATH", dj_scene.visuals_path
+                        )
 
             dj_scene.vj = dj_entry.get("vj")
             lineup_scenes.append(dj_scene)
@@ -286,7 +292,19 @@ class Hijack:
     
     def setup_dj_scene_items(self, scene, scene_values: 'ObsDjScene'):
         # Load recording or setup vlc stream
+        visuals_source = None
         if scene_values.recording_path:
+            if scene_values.visuals_path:
+                visuals_source_name = f"{scene_values.name}_visuals"
+                visuals_json_settings = {
+                    "local_file": scene_values.visuals_path,
+                    "hw_decode": True,
+                    "looping": True
+                }
+                visuals_settings = S.obs_data_create_from_json(json.dumps(visuals_json_settings))
+                visuals_source = S.obs_source_create("ffmpeg_source", visuals_source_name, visuals_settings, None)
+                S.obs_source_set_volume(visuals_source, 0.0)
+                
             video_source_name = f"{scene_values.name}_recording"
             json_settings = {
                 "local_file": scene_values.recording_path,
@@ -315,17 +333,23 @@ class Hijack:
         )
 
         video_item = S.obs_scene_add(scene, video_source)
+        if visuals_source:
+            visuals_item = S.obs_scene_add(scene, visuals_source)
 
         pos = S.vec2()
         # Offset for overlay
         pos.x = self.video_offset_x
         pos.y = self.video_offset_y
-        S.obs_sceneitem_set_pos(video_item, pos)
-        source_width = S.obs_source_get_width(video_source)
-        source_height = S.obs_source_get_height(video_source)
+        
         if scene_values.resolution:
             source_width = scene_values.resolution[0]
             source_height = scene_values.resolution[1]
+        elif visuals_source:
+            source_width = S.obs_source_get_width(visuals_source)
+            source_height = S.obs_source_get_height(visuals_source)
+        else:
+            source_width = S.obs_source_get_width(video_source)
+            source_height = S.obs_source_get_height(video_source)
 
         # Fallback if no frame is rendered
         if source_width == 0 or source_height == 0:
@@ -334,7 +358,14 @@ class Hijack:
         scale = S.vec2()
         scale.x = self.target_video_width / source_width
         scale.y = self.target_video_height / source_height
-        S.obs_sceneitem_set_scale(video_item, scale)
+        if visuals_source:
+            S.obs_sceneitem_set_pos(visuals_item, pos)
+            S.obs_sceneitem_set_scale(visuals_item, scale)
+            S.obs_data_release(visuals_settings)
+            S.obs_source_release(visuals_source)
+        else:
+            S.obs_sceneitem_set_pos(video_item, pos)
+            S.obs_sceneitem_set_scale(video_item, scale)
 
         S.obs_data_release(video_settings)
         S.obs_source_release(video_source)
@@ -458,16 +489,14 @@ class ObsSceneValue:
 class ObsDjScene(ObsSceneValue):
     logo_path = None
     recording_path = None
+    visuals_path = None
     stream_url = None
     resolution = None
     vj = None
 
-    def __init__(self, name, logo_path, recording_path, stream_url, resolution):
+    def __init__(self, name, logo_path):
         self.name = name
         self.logo_path = logo_path
-        self.recording_path = recording_path
-        self.stream_url = stream_url
-        self.resolution = resolution
         self.type = "DJ"
     
     def __str__(self) -> str:

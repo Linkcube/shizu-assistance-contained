@@ -41,6 +41,7 @@ services:
       - DOCKER_THEMES_PATH=${DOCKER_THEMES_PATH}
       - DOCKER_EXPORT_PATH=${DOCKER_EXPORT_PATH}
       - DOCKER_IMPORT_PATH=${DOCKER_IMPORT_PATH}
+      - DOCKER_GENERIC_VISUALS_PATH=${DOCKER_GENERIC_VISUALS_PATH}
     volumes:
       - ./backend/src:/code/src:ro
       - ./backend/package.json:/code/package.json
@@ -61,6 +62,9 @@ services:
       - type: bind
         source: ${LOCAL_IMPORT_PATH}
         target: ${DOCKER_IMPORT_PATH}
+      - type: bind
+        source: ${LOCAL_GENERIC_VISUALS_PATH}
+        target: ${DOCKER_GENERIC_VISUALS_PATH}
     ports:
       - 4004:4004
       - 9229:9229
