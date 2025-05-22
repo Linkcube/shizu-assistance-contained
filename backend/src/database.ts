@@ -95,6 +95,7 @@ import {
   internal_update_event_dj,
 } from "./database_helpers/event_dj_db_helpers";
 import { randomInt } from "node:crypto";
+import { statSync } from "node:fs";
 
 // File for accessing SQL, handles client/pool lifecycles.
 
@@ -872,6 +873,25 @@ export const event_export_summary = async (event_name: string) => {
   };
 };
 
+function get_file_names_in_visuals() {
+  let file_list: string[] = [];
+
+  function help_recursion(sub_dir: string) {
+    const files = readdirSync(sub_dir);
+    files.forEach((file) => {
+      const file_path = join(sub_dir, file);
+      if (statSync(file_path).isDirectory()) {
+        help_recursion(file_path);
+      } else {
+        file_list.push(file);
+      }
+    });
+  }
+
+  help_recursion(VISUALS_ROOT);
+  return file_list;
+}
+
 export const export_event = async (event_name: string) => {
   // Gather and validate event data
   const event_objects = await find_event_objects(event_name);
@@ -890,7 +910,7 @@ export const export_event = async (event_name: string) => {
     gathered_files.file_objects.map((file) => [file.name, file.file_path!]),
   );
 
-  const generic_visuals = readdirSync(VISUALS_ROOT);
+  const generic_visuals = get_file_names_in_visuals();
   let visuals_index = randomInt(generic_visuals.length);
 
   const dj_promises = event_objects.event_djs!.map((event_dj, index) => {
