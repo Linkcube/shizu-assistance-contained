@@ -54,6 +54,8 @@
 	let start_hour = $state('00');
 	let start_minute = $state('00');
 
+	let days_to_event = -1;
+
 	if (event.start_time) {
 		start_hour = event.start_time.split(':')[0];
 		start_minute = event.start_time.split(':')[1];
@@ -79,6 +81,7 @@
 		let theme = event_theme?.getSelectedTheme();
 		if (date_value) {
 			event.date = date_value.toString();
+			updateChecklistDate();
 		}
 		if (theme) {
 			updateSingleTheme(theme);
@@ -165,6 +168,19 @@
 	const openDeleteConfirmation = () => {
 		delete_instance.open();
 	};
+
+	const updateChecklistDate = () => {
+		let current_date = new Date();
+		let event_date = new Date(`${event.date} EST`);
+		current_date.setHours(event_date.getHours());
+		current_date.setMinutes(event_date.getMinutes());
+		current_date.setSeconds(event_date.getSeconds());
+		current_date.setMilliseconds(event_date.getMilliseconds());
+		let diffTime = event_date.valueOf() - current_date.valueOf();
+		days_to_event = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+	};
+
+	if (event.date) updateChecklistDate();
 </script>
 
 <div class="mx-auto flex min-w-80 flex-col px-10 py-4 md:px-40">
@@ -258,3 +274,105 @@
 	callbackFunc={deleteEvent}
 	bind:this={delete_instance}
 />
+
+<div class="mx-auto flex min-w-80 flex-col px-10 py-4 md:px-40">
+	<div class="mx-auto mt-4 flex w-full max-w-4xl flex-row items-center justify-between">
+		{#if days_to_event >= 0}
+			<h1 class="scroll-m-20 py-2 text-center text-xl font-bold tracking-tight">
+				{#if days_to_event > 1}
+					Event Checklist: {days_to_event} Days Remaining
+				{:else if days_to_event == 1}
+					Event Checklist: 1 Day Remaining
+				{:else}
+					Event Checklist: Day of the Event
+				{/if}
+			</h1>
+		{:else}
+			<h1 class="scroll-m-20 py-2 text-center text-xl font-bold tracking-tight">Event Checklist</h1>
+		{/if}
+	</div>
+
+	<div
+		class="mx-auto mt-4 flex w-full max-w-4xl flex-col items-start {days_to_event >= 21
+			? 'text-primary'
+			: 'text-muted'}"
+	>
+		<h1 class="text-l scroll-m-20 py-2 text-center font-bold tracking-tight">3 Weeks Before</h1>
+		<ul class="list-disc">
+			<li>Flyer complete and released</li>
+		</ul>
+	</div>
+
+	<div
+		class="mx-auto mt-4 flex w-full max-w-4xl flex-col items-start {days_to_event > 20
+			? ''
+			: days_to_event >= 14
+				? 'text-primary'
+				: 'text-muted'}"
+	>
+		<h1 class="text-l scroll-m-20 py-2 text-center font-bold tracking-tight">2 Weeks Before</h1>
+		<ul class="list-disc">
+			<li>Lineup Complete</li>
+			<li>If outsourcing VJing, set due to VJ 2 weeks before unless other arrangements made</li>
+			<li>Update name and images of performers on website</li>
+		</ul>
+	</div>
+
+	<div
+		class="mx-auto mt-4 flex w-full max-w-4xl flex-col items-start {days_to_event > 13
+			? ''
+			: days_to_event >= 7
+				? 'text-primary'
+				: 'text-muted'}"
+	>
+		<h1 class="text-l scroll-m-20 py-2 text-center font-bold tracking-tight">1 Week Before</h1>
+		<ul class="list-disc">
+			<li>Scheduled soundchecks with live performers</li>
+		</ul>
+	</div>
+
+	<div
+		class="mx-auto mt-4 flex w-full max-w-4xl flex-col items-start {days_to_event > 6
+			? ''
+			: days_to_event >= 3
+				? 'text-primary'
+				: 'text-muted'}"
+	>
+		<h1 class="text-l scroll-m-20 py-2 text-center font-bold tracking-tight">3 Days Before</h1>
+		<ul class="list-disc">
+			<li>All sets due</li>
+		</ul>
+	</div>
+
+	<div
+		class="mx-auto mt-4 flex w-full max-w-4xl flex-col items-start {days_to_event > 2
+			? ''
+			: days_to_event >= 1
+				? 'text-primary'
+				: 'text-muted'}"
+	>
+		<h1 class="text-l scroll-m-20 py-2 text-center font-bold tracking-tight">Day Before</h1>
+		<ul class="list-disc">
+			<li>All OBS scenes generated and populated</li>
+			<li>Change name of stream</li>
+			<li>All soundchecks complete unless other arrangements made</li>
+			<li>Check audio levels on pre-recorded sets to ensure not redlining</li>
+			<li>Check OBS scene alignments</li>
+			<li>Set Seasonal Transition Stinger</li>
+		</ul>
+	</div>
+
+	<div
+		class="mx-auto mt-4 flex w-full max-w-4xl flex-col items-start {days_to_event > 0
+			? ''
+			: days_to_event >= 0
+				? 'text-primary'
+				: 'text-muted'}"
+	>
+		<h1 class="text-l scroll-m-20 py-2 text-center font-bold tracking-tight">Day of the Event</h1>
+		<ul class="list-disc">
+			<li>Tweet/Insta Post an hour before the show</li>
+			<li>Commence streaming T-10 minutes prior</li>
+		</ul>
+	</div>
+</div>
