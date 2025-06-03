@@ -292,4 +292,8 @@
 			OBS script.
 		</span>
 	</div>
+
+	<h1 class="scroll-m-20 py-2 text-center text-3xl font-bold tracking-tight lg:text-2xl">
+		Shizu Assistance Version: v0.14.0
+	</h1>
 </div>

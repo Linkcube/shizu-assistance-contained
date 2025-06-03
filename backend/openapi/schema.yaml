@@ -242,13 +242,13 @@ components:
           description: Present if the visuals for a DJ are done by a VJ.
           type: string
         recording:
-          description: Recording file identifier for pre-recorded DJs. Supports audio only.
+          description: Recording file identifier for pre-recorded DJs. Supports video and audio files.
           type: string
         visuals:
           description: Visuals file identifier for pre-recorded DJs. Ignores audio.
           type: string
         use_generic_visuals:
-          description: Audio only set, the program will randomly select a visual file to pair with.
+          description: Use for audio only sets, the program will randomly select a visual file to pair with.
           type: boolean
     EventDJ:
       type: object
