@@ -11,12 +11,16 @@ import { openapiGet, openapiPostBody, openapiDelete, openapiPost } from './utils
  * @property {boolean} is_live - Indicates if the DJ is currently live.
  * @property {string} vj - The VJ associated with the DJ.
  * @property {string|null} recording - The recording file associated with the DJ for this event.
+ * @property {string|null} visuals - The visuals file associated with the DJ for this event.
+ * @property {boolean} use_generic_visuals - Whether to select generic visuals.
  */
 export interface EventDj {
 	name: string;
 	is_live: boolean;
 	vj: string;
 	recording: string | null;
+	visuals: string | null;
+	use_generic_visuals: boolean;
 }
 
 /**

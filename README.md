@@ -40,6 +40,7 @@ The `.env` file manages shared file mounts and secrets for the services.
 | `LOCAL_THEMES_PATH` | Host machine path to mount for theme assets |
 | `LOCAL_EXPORT_PATH` | Host machine path to mount for event exports |
 | `LOCAL_IMPORT_PATH` | Host machine path to mount for [Shizu OBS Assisstant](https://github.com/Linkcube/ShizuObsAssistant) ledger and exported lineups |
+| `LOCAL_GENERIC_VISUALS_PATH` | Host machine path to mount for generic visuals directory |
 | `RTMP_SERVER` | Format string for DJ RTMP live stream, is formatted with `rtmp-zone, dj-key` |
 | `FILE_SERVER_AUTHORIZATION` | Authorization header for downloading URL assets |
 | `OBS_CHAT_URL` | Link for OBS browser scene source, only used if a theme is configured for the event |
@@ -104,3 +105,5 @@ Due to the DB docker volume being configured improperly, after v0.1.2 the volume
 - Restart your backend container, and everything should be correctly restored from before the change.
 - Continue updating the software as instructed through `git pull` or copy release data.
 
+## Generic Visuals
+With v0.14.0, the option to select from a a pool of generic visuals has been added, this does require the user to setup a folder for the bind mount to point to in `.env`.

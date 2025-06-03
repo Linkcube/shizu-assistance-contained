@@ -242,8 +242,14 @@ components:
           description: Present if the visuals for a DJ are done by a VJ.
           type: string
         recording:
-          description: Recording file identifier for pre-recorded DJs.
+          description: Recording file identifier for pre-recorded DJs. Supports video and audio files.
           type: string
+        visuals:
+          description: Visuals file identifier for pre-recorded DJs. Ignores audio.
+          type: string
+        use_generic_visuals:
+          description: Use for audio only sets, the program will randomly select a visual file to pair with.
+          type: boolean
     EventDJ:
       type: object
       properties:
@@ -310,7 +316,7 @@ components:
       type: object
       properties:
         djs:
-          description: Array of LineupDJ objects for an event, describes event specific values.
+          description: Array of LineupDJ objects for an event, describes event dj specific values.
           type: array
           items:
             $ref: '#/components/schemas/LineupDJ'

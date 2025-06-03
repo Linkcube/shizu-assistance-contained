@@ -57,6 +57,16 @@
 			key: 'Recording File',
 			description:
 				"File pointing to the local file/url for the DJ's recording. This is set per-event."
+		},
+		{
+			key: 'Visuals File',
+			description:
+				"File pointing to the local file/url for the DJ's visuals. This is set per-event."
+		},
+		{
+			key: 'Use Generic Visuals',
+			description:
+				'If set, a random visual file from LOCAL_GENERIC_VISUALS_PATH will be set for the DJ.'
 		}
 	];
 
@@ -217,8 +227,10 @@
 		<span class="my-2 flex flex-row">
 			Clicking on the ellipses for a DJ's row will give the option to toggle being live, edit the
 			VJ, or set their recording. When a DJ is set to not live, the recording sidebar will be
-			automatically openened. There is an edit option, which will open the DJ's page in a new tab.
-			The remove button will remove the DJ from the event, but not delete the DJ.
+			automatically openened. If a DJ has a visual file or generic visual set, it will appear in OBS
+			over their recording file, and be set to muted. There is an edit option, which will open the
+			DJ's page in a new tab. The remove button will remove the DJ from the event, but not delete
+			the DJ.
 		</span>
 	</div>
 	<h1 class="scroll-m-20 py-2 text-center text-3xl font-bold tracking-tight lg:text-2xl">
@@ -280,4 +292,8 @@
 			OBS script.
 		</span>
 	</div>
+
+	<h1 class="scroll-m-20 py-2 text-center text-3xl font-bold tracking-tight lg:text-2xl">
+		Shizu Assistance Version: v0.14.0
+	</h1>
 </div>

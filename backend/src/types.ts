@@ -70,12 +70,28 @@ export interface IEventDjObject {
   is_live?: boolean;
   vj?: string;
   recording?: string;
+  visuals?: string;
+  use_generic_visuals?: boolean;
+}
+
+export interface IUpdateEventDjObject {
+  event: string;
+  dj: string;
+  position: number;
+  is_live?: boolean;
+  vj?: string;
+  recording_local_path?: string;
+  recording_url_path?: string;
+  visuals_local_path?: string;
+  visuals_url_path?: string;
+  use_generic_visuals?: boolean;
 }
 
 export interface IExportDjineupData {
   name: string;
   logo_path: string;
   recording_path: string;
+  visuals_path: string;
   resolution: Promise<number[] | Error>;
   url: string;
   vj: string;

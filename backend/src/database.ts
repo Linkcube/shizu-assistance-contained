@@ -21,6 +21,7 @@ import {
   ILegacyLedger,
   ILegacyLineup,
   IEventDjObject,
+  IUpdateEventDjObject,
 } from "./types";
 import {
   internal_get_row_from_table,
@@ -73,6 +74,7 @@ import {
   LOGOS_ROOT,
   RECORDINGS_ROOT,
   THEMES_ROOT,
+  VISUALS_ROOT,
 } from "./file_helpers";
 import { join, parse } from "path";
 import { accessSync, readdirSync, readFileSync, writeFileSync } from "fs";
@@ -92,6 +94,8 @@ import {
   internal_static_change_event_djs,
   internal_update_event_dj,
 } from "./database_helpers/event_dj_db_helpers";
+import { randomInt } from "node:crypto";
+import { statSync } from "node:fs";
 
 // File for accessing SQL, handles client/pool lifecycles.
 
@@ -720,11 +724,6 @@ const find_event_objects = async (event_name: string) => {
         event_dj.dj,
         pool,
       );
-      // const event_dj: IEventDjObject | Error = await internal_get_event_dj(
-      //   event.name,
-      //   dj_name,
-      //   pool
-      // )
       if (dj instanceof Error) {
         errors.push(dj);
       } else if (event_dj instanceof Error) {
@@ -733,8 +732,10 @@ const find_event_objects = async (event_name: string) => {
         djs.push(dj);
         event_djs.push(event_dj);
         if (dj.logo) files_to_check.push(dj.logo);
-        if (!event_dj.is_live && event_dj.recording)
+        if (!event_dj.is_live && event_dj.recording) {
+          if (event_dj.visuals) files_to_check.push(event_dj.visuals);
           files_to_check.push(event_dj.recording);
+        }
       }
     }
   }
@@ -838,6 +839,9 @@ export const event_export_summary = async (event_name: string) => {
     if (event_dj.recording) {
       file_names.add(event_dj.recording);
     }
+    if (event_dj.visuals) {
+      file_names.add(event_dj.visuals);
+    }
   }
 
   for (const promo of promos) {
@@ -869,14 +873,32 @@ export const event_export_summary = async (event_name: string) => {
   };
 };
 
+function get_file_names_in_visuals() {
+  let file_list: string[] = [];
+
+  function help_recursion(sub_dir: string) {
+    const files = readdirSync(sub_dir);
+    files.forEach((file) => {
+      const file_path = join(sub_dir, file);
+      if (statSync(file_path).isDirectory()) {
+        help_recursion(file_path);
+      } else {
+        file_list.push(file);
+      }
+    });
+  }
+
+  help_recursion(VISUALS_ROOT);
+  return file_list;
+}
+
 export const export_event = async (event_name: string) => {
   // Gather and validate event data
   const event_objects = await find_event_objects(event_name);
-  const files_to_check = event_objects.file_names;
   const file_errors = event_objects.errors;
-  if (files_to_check.length === 0 || file_errors.length > 0)
-    return invalidFileError(file_errors.toString());
+  if (file_errors.length > 0) return invalidFileError(file_errors.toString());
 
+  // Validate files
   const gathered_files = await gather_files_for_export(
     event_objects.file_names,
   );
@@ -888,6 +910,9 @@ export const export_event = async (event_name: string) => {
     gathered_files.file_objects.map((file) => [file.name, file.file_path!]),
   );
 
+  const generic_visuals = get_file_names_in_visuals();
+  let visuals_index = randomInt(generic_visuals.length);
+
   const dj_promises = event_objects.event_djs!.map((event_dj, index) => {
     const dj = event_objects.djs![index];
 
@@ -895,6 +920,7 @@ export const export_event = async (event_name: string) => {
       name: dj.public_name ? dj.public_name : dj.name,
       logo_path: "",
       recording_path: "",
+      visuals_path: "",
       resolution: Promise.resolve([]),
       url: "",
       vj: event_dj.vj ? event_dj.vj : "",
@@ -907,12 +933,26 @@ export const export_event = async (event_name: string) => {
         dj.rtmp_server,
         dj.rtmp_key,
       );
-    } else {
-      if (event_dj.recording) {
-        dj_export_data.recording_path = join(
-          RECORDINGS_ROOT,
-          files_map.get(event_dj.recording)!,
+    } else if (event_dj.recording) {
+      dj_export_data.recording_path = join(
+        RECORDINGS_ROOT,
+        files_map.get(event_dj.recording)!,
+      );
+      if (event_dj.use_generic_visuals) {
+        // Handle generic selection
+        dj_export_data.visuals_path = join(
+          VISUALS_ROOT,
+          generic_visuals[visuals_index],
         );
+        dj_export_data.resolution = getResolution(dj_export_data.visuals_path);
+        visuals_index = (visuals_index + 1) % generic_visuals.length;
+      } else if (event_dj.visuals) {
+        dj_export_data.visuals_path = join(
+          RECORDINGS_ROOT,
+          files_map.get(event_dj.visuals)!,
+        );
+        dj_export_data.resolution = getResolution(dj_export_data.visuals_path);
+      } else {
         dj_export_data.resolution = getResolution(
           dj_export_data.recording_path,
         );
@@ -949,6 +989,7 @@ export const export_event = async (event_name: string) => {
         name: dj.name,
         logo_path: dj.logo_path,
         recording_path: dj.recording_path,
+        visuals_path: dj.visuals_path,
         resolution: await dj.resolution,
         url: dj.url,
         vj: dj.vj,
