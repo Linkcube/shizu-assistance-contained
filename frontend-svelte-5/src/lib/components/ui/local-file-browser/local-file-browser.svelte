@@ -191,8 +191,8 @@
 				</div>
 			</Dialog.Title>
 			<Dialog.Description>
-				<div class="flex flex-col items-center justify-between md:flex-row">
-					<div class="table-container h-96 overflow-y-auto md:h-[40vh]">
+				<div class="flex flex-col items-center justify-between md:flex-row gap-4">
+					<div class="table-container h-96 overflow-y-auto md:h-[40vh] basis-1/2 w-full">
 						<Table.Root>
 							<Table.Header>
 								<Table.Row>
@@ -222,17 +222,19 @@
 							</Table.Body>
 						</Table.Root>
 					</div>
-					<div class="mx-auto">
+					<div class="mx-auto basis-1/2 h-96 md:h-[40vh]">
 						{#if file_browser_selected_file?.name && !file_browser_selected_file.is_dir}
 							{#if isImageSource(file_browser_preview_path)}
 								<img
-									class="h-80 w-80 object-scale-down"
+									class="object-scale-down w-full h-full"
 									src={file_browser_preview_path}
 									alt="Preview"
 								/>
 							{:else}
-								<video class="h-80 w-80 object-scale-down" controls src={file_browser_preview_path}
-									><track kind="captions" /></video
+								<video
+									class="object-scale-down w-full h-full"
+									controls src={file_browser_preview_path}
+								><track kind="captions" /></video
 								>
 							{/if}
 						{/if}

@@ -10,7 +10,7 @@
 	let previousPage: string = base;
 
 	afterNavigate(({ from }) => {
-		previousPage = from?.url.pathname || previousPage;
+		previousPage = from?.url?.pathname || previousPage;
 	});
 
 	let { data }: PageProps = $props();
