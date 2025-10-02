@@ -3,11 +3,10 @@
 	import { goto, afterNavigate } from '$app/navigation';
 	import { base } from '$app/paths';
 	import DjTable from './dj-table.svelte';
-	import { type File } from '$lib/fileController';
-	import FileObjectsSheet from '$lib/components/ui/file-objects-sheet/file-objects-sheet.svelte';
 	import { toast } from 'svelte-sonner';
 	import { deleteSingle, updateSingle } from '$lib/djController';
 	import { pushToLog } from '$lib/utils';
+	import DjLogoObjectsSheet from '$lib/components/ui/dj-logo-objects-sheet/dj-logo-objects-sheet.svelte';
 
 	let previousPage: string = base;
 
@@ -18,9 +17,8 @@
 	let { data }: PageProps = $props();
 	let dj = $state(data.dj);
 	let events = data.events;
-	let file_type: 'logos' | 'recordings' = $state('logos');
 
-	let fileObjectSheetInstance: FileObjectsSheet;
+	let djLogoObjectSheetInstance: DjLogoObjectsSheet;
 
 	const submitChanges = () => {
 		updateSingle(dj.name, dj.logo, dj.rtmp_server, dj.rtmp_key, dj.public_name, dj.discord_id)
@@ -84,12 +82,11 @@
 	};
 
 	const selectLogo = () => {
-		file_type = 'logos';
-		fileObjectSheetInstance.openFileSheet();
+		djLogoObjectSheetInstance.openFileSheet();
 	};
 
-	const submitFile = (selected_file: File) => {
-		dj.logo = selected_file.name;
+	const submitDjLogoFile = (logo: string | null) => {
+		dj.logo = logo;
 	};
 
 	const unsetLogoFile = () => {
@@ -103,4 +100,4 @@
 
 <DjTable bind:dj {events} {submitChanges} {deleteDj} {selectLogo} {unsetLogoFile} />
 
-<FileObjectsSheet bind:dj {file_type} {submitFile} bind:this={fileObjectSheetInstance} />
+<DjLogoObjectsSheet bind:dj {submitDjLogoFile} bind:this={djLogoObjectSheetInstance} />

@@ -2,12 +2,11 @@
 	import type { PageProps } from './$types';
 	import { goto, afterNavigate } from '$app/navigation';
 	import { base } from '$app/paths';
-	import { type File } from '$lib/fileController';
-	import FileObjectsSheet from '$lib/components/ui/file-objects-sheet/file-objects-sheet.svelte';
 	import { toast } from 'svelte-sonner';
 	import { deleteSingle, updateSingle } from '$lib/promotionsController';
 	import PromotionTable from './promotion-table.svelte';
 	import { pushToLog } from '$lib/utils';
+	import PromoFileObjectsSheet from '$lib/components/ui/promo-file-objects-sheet/promo-file-objects-sheet.svelte';
 
 	let previousPage: string = base;
 
@@ -17,9 +16,8 @@
 
 	let { data }: PageProps = $props();
 	let promo = $state(data.promo);
-	const file_type = 'recordings';
 
-	let fileObjectSheetInstance: FileObjectsSheet;
+	let promoFileObjectSheetInstance: PromoFileObjectsSheet;
 
 	const submitChanges = () => {
 		updateSingle(promo.name, promo.promo_file)
@@ -83,11 +81,11 @@
 	};
 
 	const selectFile = () => {
-		fileObjectSheetInstance.openFileSheet();
+		promoFileObjectSheetInstance.openFileSheet();
 	};
 
-	const submitFile = (selectedFile: File) => {
-		promo.promo_file = selectedFile.name;
+	const submitPromoRecordingFile = (promoFile: string | null) => {
+		promo.promo_file = promoFile;
 	};
 
 	const unsetFile = () => {
@@ -101,4 +99,8 @@
 
 <PromotionTable bind:promo {submitChanges} {deletePromotion} {selectFile} {unsetFile} />
 
-<FileObjectsSheet bind:promo {file_type} {submitFile} bind:this={fileObjectSheetInstance} />
+<PromoFileObjectsSheet
+	bind:promo
+	{submitPromoRecordingFile}
+	bind:this={promoFileObjectSheetInstance}
+/>

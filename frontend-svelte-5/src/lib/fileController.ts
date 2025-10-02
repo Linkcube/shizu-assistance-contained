@@ -144,8 +144,8 @@ export const getThemePermissions = async (sub_dirs: string[]) => {
  */
 export const addLogoFile = async (
 	name: string,
-	file_path?: string,
-	url_path?: string
+	file_path?: string | null,
+	url_path?: string | null
 ): Promise<File> => {
 	const body = {
 		name: name,
