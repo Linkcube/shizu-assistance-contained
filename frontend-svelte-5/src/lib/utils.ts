@@ -225,13 +225,14 @@ export async function logout() {
  */
 async function parseOpenapiError(response: Response) {
 	if (response.status === 401 || response.status === 403) {
+		goto("/login")
 		errorStackPushHelper({
 			statusCode: response.status,
 			message: "Invalid authorization",
 			errorType: response.statusText
 		});
 		// window.open("/login")
-		// goto("/login")
+		
 		return Promise.reject();
 	}
 	console.log(response);

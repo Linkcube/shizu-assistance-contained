@@ -65,6 +65,14 @@
 			>
 				Help
 			</a>
+			<a
+				href="/login"
+				class="transition-colors hover:text-foreground/80 text-foreground{path.startsWith('/login')
+					? ''
+					: '/50'}"
+			>
+				Account
+			</a>
 		</nav>
 		<nav class="flex flex-1 items-center justify-end space-x-2">
 			<a aria-label="source code" href="https://github.com/Linkcube/shizu-assistance-contained">

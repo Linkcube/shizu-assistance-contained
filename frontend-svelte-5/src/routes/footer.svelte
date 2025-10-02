@@ -25,7 +25,7 @@
 	const toggle_log = () => {
 		show_log = !show_log;
 	};
-	let message_interval: number;
+	let message_interval: NodeJS.Timeout;
 	let page_messages: string[] = [];
 
 	message_interval = setInterval(() => {
@@ -87,8 +87,13 @@
 					"It's a little dense, but it covers just about everything!",
 					"Take your time reading, it'll 'help' in the long-term!"
 				];
+			} else if (path === '/login') {
+				page_messages = [
+					"Speak 友達 and enter",
+					"If you were redirected it means you need to login again."
+				]
 			} else if (path === '/') {
-				page_messages = ["Ababababa! You're here!!", 'This should be a piece of cake!'];
+				page_messages = ["Ababababa! You're here!!", 'This should be a piece of cake!', "Make sure to checkout the help page if you are lost!"];
 			} else {
 				page_messages = [
 					"Ah! I don't recognize this page",

@@ -29,8 +29,12 @@ const rec_permissions = staticRecordingPermission();
 const themes_permissions = staticThemePermission();
 
 export const create_server = () => {
+  const allowed_origins = ["http://localhost:5173"];
+  if (process.env.NODE_ENV === "development") {
+    allowed_origins.push("http://localhost:5173")
+  }
   app.use(cors({
-    origin: "http://localhost:5173",
+    origin: allowed_origins,
     credentials: true,
   }));
   app.use(cookieParser())
