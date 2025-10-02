@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import { port } from "./config";
@@ -18,6 +19,8 @@ import { promoRouter } from "./openapi_routers/promo_router";
 import { appThemeRouter } from "./openapi_routers/app_theme_router";
 import { importRouter } from "./openapi_routers/import_router";
 import { settingsRouter } from "./openapi_routers/settings_router";
+import { authRouter } from "./openapi_routers/auth_router";
+import { authMiddleware } from "./middleware/auth_middleware";
 
 // API server
 const app = express();
@@ -26,10 +29,12 @@ const rec_permissions = staticRecordingPermission();
 const themes_permissions = staticThemePermission();
 
 export const create_server = () => {
-  app.use(cors());
-  app.options("*", cors());
+  app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }));
+  app.use(cookieParser())
   app.use(morgan("common"));
-
   /**
    * Health check endpoint
    *
@@ -39,8 +44,12 @@ export const create_server = () => {
    * @returns {string} 200 if running
    */
   app.get("/healthz", (req, res) => {
-    // Simple health check - return 200 if service is running
-    res.sendStatus(200);
+    // do app logic here to determine if app is truly healthy
+    // you should return 200 if healthy, and anything else will fail
+    // if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
+    res.send(
+      `Idle: ${database_pool.idleCount}, Waiting: ${database_pool.waitingCount}, Total: ${database_pool.totalCount}`,
+    );
   });
 
   /**
@@ -54,17 +63,14 @@ export const create_server = () => {
   app.get("/openapi/redoc", (req, res) => {
     res.sendFile(path.join(__dirname, "..", "openapi", "redoc-static.html"));
   });
-
-  // Parsers
   app.use(
     bodyParser.urlencoded({
       extended: true,
     }),
   );
-
+  app.options("*", cors());
   app.use(bodyParser.json());
-
-  // All routers
+  app.use(authMiddleware(["/openapi/auth", "/shizu"]))
   app.use("/openapi/file", fileRouter);
   app.use("/openapi/dj", djRouter);
   app.use("/openapi/theme", themeRouter);
@@ -73,8 +79,9 @@ export const create_server = () => {
   app.use("/openapi/app-theme", appThemeRouter);
   app.use("/openapi/import", importRouter);
   app.use("/openapi/settings", settingsRouter);
+  app.use("/openapi/auth", authRouter);
 
-  // Static delivery
+   // Static delivery
   app.use(
     `/${encodeURIComponent(logo_permissions.id)}`,
     express.static(logo_permissions.path),

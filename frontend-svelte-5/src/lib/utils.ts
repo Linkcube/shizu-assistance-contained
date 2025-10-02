@@ -1,8 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { writable } from 'svelte/store';
-import { page } from '$app/state';
-import { building, dev } from '$app/environment';
+import { goto } from '$app/navigation';
 
 /**
  * Represents an error message object containing status information.
@@ -122,7 +121,8 @@ export function getFileName(file_path: string) {
  */
 export async function openapiGet(url: string, bubble_error = true, fetch_fn = fetch) {
 	const request = fetch_fn(`http://${location.hostname}:4004/openapi/${url}`, {
-		method: 'GET'
+		method: 'GET',
+		credentials: 'include'
 	});
 
 	const response = await request;
@@ -134,7 +134,8 @@ export async function openapiGet(url: string, bubble_error = true, fetch_fn = fe
 
 export async function openapiGetReponse(url: string) {
 	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
-		method: 'GET'
+		method: 'GET',
+		credentials: 'include'
 	});
 	const response = await request;
 	return response.ok;
@@ -149,6 +150,7 @@ export async function openapiGetReponse(url: string) {
 export async function openapiPostBody(url: string, body: {}) {
 	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
 		method: 'POST',
+		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json'
 		},
@@ -176,6 +178,7 @@ export async function openapiPostBody(url: string, body: {}) {
 export async function openapiPost(url: string) {
 	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
 		method: 'POST',
+		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json'
 		},
@@ -198,7 +201,8 @@ export async function openapiPost(url: string) {
  */
 export async function openapiDelete(url: string) {
 	const request = fetch(`http://${location.hostname}:4004/openapi/${url}`, {
-		method: 'DELETE'
+		method: 'DELETE',
+		credentials: 'include'
 	});
 	const response = await request;
 	if (!response.ok) {
@@ -207,11 +211,29 @@ export async function openapiDelete(url: string) {
 	return response.ok;
 }
 
+export async function login(password: string) {
+	return await openapiPostBody('auth/login', {"password": password})
+}
+
+export async function logout() {
+	return await openapiGet('auth/logout')
+}
+
 /**
  * Helper function to parse and handle OpenAPI errors.
  * @param {Response} response - The fetch response object that encountered an error.
  */
 async function parseOpenapiError(response: Response) {
+	if (response.status === 401 || response.status === 403) {
+		errorStackPushHelper({
+			statusCode: response.status,
+			message: "Invalid authorization",
+			errorType: response.statusText
+		});
+		// window.open("/login")
+		// goto("/login")
+		return Promise.reject();
+	}
 	console.log(response);
 	const jsonbody = await response.json();
 	console.log(jsonbody);
