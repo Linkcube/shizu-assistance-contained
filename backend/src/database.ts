@@ -104,6 +104,13 @@ const database_client = () => {
 };
 export const database_pool = new Pool(pool_config);
 
+// --- Table Reading Functions ---
+
+/**
+ * Reads all rows from the FILES_TABLE and returns them as an array of IFileObject.
+ *
+ * @returns A promise resolving to a list of file records from the database.
+ */
 export const read_files_table = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IFileObject> = await internal_read_entire_table(
@@ -114,6 +121,11 @@ export const read_files_table = async () => {
   return retval.rows;
 };
 
+/**
+ * Retrieves all logo files from the database.
+ *
+ * @returns A promise resolving to a list of IFileObject records representing logos.
+ */
 export const read_files_logos = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IFileObject> =
@@ -122,6 +134,11 @@ export const read_files_logos = async () => {
   return retval.rows;
 };
 
+/**
+ * Retrieves all recording files from the database.
+ *
+ * @returns A promise resolving to a list of IFileObject records representing recordings.
+ */
 export const read_files_recordings = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IFileObject> =
@@ -130,6 +147,11 @@ export const read_files_recordings = async () => {
   return retval.rows;
 };
 
+/**
+ * Retrieves all theme files from the database.
+ *
+ * @returns A promise resolving to a list of IFileObject records representing themes.
+ */
 export const read_files_themes = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IFileObject> =
@@ -138,6 +160,11 @@ export const read_files_themes = async () => {
   return retval.rows;
 };
 
+/**
+ * Reads all rows from the THEMES_TABLE and returns them as an array of IThemeObject.
+ *
+ * @returns A promise resolving to a list of theme records from the database.
+ */
 export const read_themes_table = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IThemeObject> = await internal_read_entire_table(
@@ -148,6 +175,11 @@ export const read_themes_table = async () => {
   return retval.rows;
 };
 
+/**
+ * Reads all events from the EVENTS_TABLE, ordered by date.
+ *
+ * @returns A promise resolving to a list of IEventObject records representing events.
+ */
 export const read_events_table = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IEventObject> =
@@ -156,6 +188,11 @@ export const read_events_table = async () => {
   return retval.rows;
 };
 
+/**
+ * Reads all rows from the PROMOS_TABLE and returns them as an array of IPromoObject.
+ *
+ * @returns A promise resolving to a list of promo records from the database.
+ */
 export const read_promos_table = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IPromoObject> = await internal_read_entire_table(
@@ -166,6 +203,13 @@ export const read_promos_table = async () => {
   return retval.rows;
 };
 
+/**
+ * Gets all promos matching the given names.
+ *
+ * @param names - List of promo names to retrieve.
+ * @param event - Optional parameter filtering by event name.
+ * @returns A promise resolving to an array of IPromoObject entries or empty list if no matches found.
+ */
 export const get_promos_by_names = async (names: string[], event?: string) => {
   if (names === null || names === undefined || names.length === 0) {
     return [];
@@ -179,6 +223,11 @@ export const get_promos_by_names = async (names: string[], event?: string) => {
   return retval.rows;
 };
 
+/**
+ * Reads all rows from the DJS_TABLE and returns them as an array of IDjObject.
+ *
+ * @returns A promise resolving to a list of DJ records from the database.
+ */
 export const read_djs_table = async () => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IDjObject> = await internal_read_entire_table(
@@ -189,6 +238,13 @@ export const read_djs_table = async () => {
   return retval.rows;
 };
 
+/**
+ * Gets all DJs matching the given names, optionally filtered by event.
+ *
+ * @param names - List of DJ names to retrieve.
+ * @param event - Optional parameter filtering by event name.
+ * @returns A promise resolving to an array of IDjObject entries or empty list if no matches found.
+ */
 export const get_djs_by_names = async (names: string[], event?: string) => {
   const pool = await database_pool.connect();
   const retval: QueryResult<IDjObject> = await internal_get_djs(
@@ -200,6 +256,11 @@ export const get_djs_by_names = async (names: string[], event?: string) => {
   return retval.rows;
 };
 
+/**
+ * Reads all rows from the APP_THEMES_TABLE and returns them as an array.
+ *
+ * @returns A promise resolving to a list of app theme records from the database.
+ */
 export const read_app_themes_table = async () => {
   const pool = await database_pool.connect();
   const retval = await internal_read_entire_table(APP_THEMES_TABLE, pool);
@@ -207,6 +268,14 @@ export const read_app_themes_table = async () => {
   return retval.rows;
 };
 
+// --- Individual Row Fetching Functions ---
+
+/**
+ * Gets a file record by its name.
+ *
+ * @param name - The unique identifier/name of the file to fetch.
+ * @returns A promise resolving to an IFileObject or Error if not found.
+ */
 export const get_file = async (name: string) => {
   const pool = await database_pool.connect();
   const retval: IFileObject | Error = await internal_get_row_from_table(
@@ -218,6 +287,12 @@ export const get_file = async (name: string) => {
   return retval;
 };
 
+/**
+ * Gets a theme record by its name.
+ *
+ * @param name - The unique identifier/name of the theme to fetch.
+ * @returns A promise resolving to an IThemeObject or Error if not found.
+ */
 export const get_theme = async (name: string) => {
   const pool = await database_pool.connect();
   const retval: IThemeObject | Error = await internal_get_row_from_table(
@@ -229,6 +304,12 @@ export const get_theme = async (name: string) => {
   return retval;
 };
 
+/**
+ * Gets an event record by its name.
+ *
+ * @param name - The unique identifier/name of the event to fetch.
+ * @returns A promise resolving to an IEventObject or Error if not found.
+ */
 export const get_event = async (name: string) => {
   const pool = await database_pool.connect();
   const retval: IEventObject | Error = await internal_get_row_from_table(
@@ -240,6 +321,13 @@ export const get_event = async (name: string) => {
   return retval;
 };
 
+/**
+ * Gets an event-DJ mapping record by event and DJ names.
+ *
+ * @param event - Name of the event.
+ * @param dj - Name of the DJ.
+ * @returns A promise resolving to an IEventDjObject or Error if not found.
+ */
 export const get_event_dj = async (event: string, dj: string) => {
   const pool = await database_pool.connect();
   const retval: IEventDjObject | Error = await internal_get_row_from_table(
@@ -251,6 +339,12 @@ export const get_event_dj = async (event: string, dj: string) => {
   return retval;
 };
 
+/**
+ * Fetches all event-DJ mappings associated with a specific event.
+ *
+ * @param event - Name of the event to query.
+ * @returns A promise resolving to an array of event-dj records or empty list.
+ */
 export const get_event_djs_by_event = async (event: string) => {
   const pool = await database_pool.connect();
   const retval = await internal_get_event_djs_by_event(event, pool);
@@ -258,6 +352,12 @@ export const get_event_djs_by_event = async (event: string) => {
   return retval;
 };
 
+/**
+ * Fetches all event-DJ mappings associated with a specific DJ.
+ *
+ * @param dj - Name of the DJ to query.
+ * @returns A promise resolving to an array of event-dj records or empty list.
+ */
 export const get_event_djs_by_dj = async (dj: string) => {
   const pool = await database_pool.connect();
   const retval = await internal_get_event_djs_by_dj(dj, pool);
@@ -265,6 +365,12 @@ export const get_event_djs_by_dj = async (dj: string) => {
   return retval;
 };
 
+/**
+ * Gets a promo record by its name.
+ *
+ * @param name - The unique identifier/name of the promo to fetch.
+ * @returns A promise resolving to an IPromoObject or Error if not found.
+ */
 export const get_promo = async (name: string) => {
   const pool = await database_pool.connect();
   const retval: IPromoObject | Error = await internal_get_row_from_table(
@@ -276,6 +382,12 @@ export const get_promo = async (name: string) => {
   return retval;
 };
 
+/**
+ * Gets a DJ record by its name.
+ *
+ * @param name - The unique identifier/name of the DJ to fetch.
+ * @returns A promise resolving to an IDjObject or Error if not found.
+ */
 export const get_dj = async (name: string) => {
   const pool = await database_pool.connect();
   const retval: IDjObject | Error = await internal_get_row_from_table(
@@ -287,6 +399,12 @@ export const get_dj = async (name: string) => {
   return retval;
 };
 
+/**
+ * Gets an app theme record by its name.
+ *
+ * @param name - The unique identifier/name of the app theme to fetch.
+ * @returns A promise resolving to an object or Error if not found.
+ */
 export const get_app_theme = async (name: string) => {
   const pool = await database_pool.connect();
   const retval = await internal_get_row_from_table(
@@ -298,6 +416,13 @@ export const get_app_theme = async (name: string) => {
   return retval;
 };
 
+// --- Setup and Initialization ---
+
+/**
+ * Initializes the database by running migrations and seeding initial data if needed.
+ *
+ * @returns A promise that resolves when initialization is complete.
+ */
 export const create_tables = async () => {
   const client = database_client();
   client.connect();
@@ -314,6 +439,9 @@ export const create_tables = async () => {
   }
 };
 
+/**
+ * Initial App (browser) themes, depricated
+ */
 const initial_data = async () => {
   await create_new_app_theme("Default");
   await create_new_app_theme("Moe");
@@ -334,6 +462,11 @@ const initial_data = async () => {
   });
 };
 
+/**
+ * Inserts file data into the database files table
+ * @param file_data - The file object containing name, root, and optional paths
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const insert_into_files = async (file_data: IFileObject) => {
   const pool = await database_pool.connect();
   const error = await internal_insert_into_files(file_data, pool);
@@ -341,6 +474,13 @@ export const insert_into_files = async (file_data: IFileObject) => {
   return error;
 };
 
+/**
+ * Adds a logo file to the database with predefined root "LOGOS"
+ * @param file_name - The name of the logo file
+ * @param file_path - Optional local path to the file
+ * @param url_path - Optional URL path to the file
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const add_logo_file = async (
   file_name: string,
   file_path?: string,
@@ -356,6 +496,13 @@ export const add_logo_file = async (
   return insert_into_files(file_data);
 };
 
+/**
+ * Adds a recording file to the database with predefined root "RECORDINGS"
+ * @param file_name - The name of the recording file
+ * @param file_path - Optional local path to the file
+ * @param url_path - Optional URL path to the file
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const add_recording_file = async (
   file_name: string,
   file_path?: string,
@@ -371,6 +518,13 @@ export const add_recording_file = async (
   return insert_into_files(file_data);
 };
 
+/**
+ * Adds a theme file to the database with predefined root "THEMES"
+ * @param file_name - The name of the theme file
+ * @param file_path - Optional local path to the file
+ * @param url_path - Optional URL path to the file
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const add_theme_file = async (
   file_name: string,
   file_path?: string,
@@ -386,6 +540,11 @@ export const add_theme_file = async (
   return insert_into_files(file_data);
 };
 
+/**
+ * Updates an existing file in the database
+ * @param file_data - The file object containing updated information
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_file = async (file_data: IFileObject) => {
   const pool = await database_pool.connect();
   const error = await internal_update_file(file_data, pool);
@@ -393,6 +552,11 @@ export const update_file = async (file_data: IFileObject) => {
   return error;
 };
 
+/**
+ * Deletes a file from the database by name
+ * @param file_name - The name of the file to delete
+ * @returns Promise resolving to an error if one occurred during deletion, or undefined on success
+ */
 export const delete_file = async (file_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_file(file_name, pool);
@@ -400,6 +564,11 @@ export const delete_file = async (file_name: string) => {
   return error;
 };
 
+/**
+ * Inserts theme data into the database themes table
+ * @param theme_data - The theme object containing theme information
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const insert_into_themes = async (theme_data: IThemeObject) => {
   const pool = await database_pool.connect();
   const error = await internal_insert_into_themes(theme_data, pool);
@@ -407,6 +576,11 @@ export const insert_into_themes = async (theme_data: IThemeObject) => {
   return error;
 };
 
+/**
+ * Updates an existing theme in the database
+ * @param theme_data - The theme object containing updated information
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_theme = async (theme_data: IThemeObject) => {
   const pool = await database_pool.connect();
   const error = await internal_update_theme(theme_data, pool);
@@ -414,6 +588,11 @@ export const update_theme = async (theme_data: IThemeObject) => {
   return error;
 };
 
+/**
+ * Deletes a theme from the database by name
+ * @param theme_name - The name of the theme to delete
+ * @returns Promise resolving to an error if one occurred during deletion, or undefined on success
+ */
 export const delete_theme = async (theme_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_theme(theme_name, pool);
@@ -421,6 +600,12 @@ export const delete_theme = async (theme_name: string) => {
   return error;
 };
 
+/**
+ * Inserts event data into the database along with associated DJs
+ * @param event_data - The event object containing event information
+ * @param event_djs - Array of DJ objects associated with this event
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const insert_into_events = async (
   event_data: IEventObject,
   event_djs: IEventDjObject[],
@@ -443,6 +628,11 @@ export const insert_into_events = async (
   await pool.release();
 };
 
+/**
+ * Adds a DJ to an event
+ * @param dj_data - The DJ object containing event, DJ name and other details
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const add_event_dj = async (dj_data: IEventDjObject) => {
   const pool = await database_pool.connect();
   const error = await dj_exists(dj_data.dj, pool);
@@ -462,6 +652,12 @@ export const add_event_dj = async (dj_data: IEventDjObject) => {
   return error2;
 };
 
+/**
+ * Adds a promo to an event
+ * @param event_name - The name of the event
+ * @param promo_name - The name of the promo to add
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const event_add_promo = async (
   event_name: string,
   promo_name: string,
@@ -472,6 +668,12 @@ export const event_add_promo = async (
   return error;
 };
 
+/**
+ * Updates an existing event in the database with associated DJs
+ * @param event_data - The event object containing updated information
+ * @param event_djs - Array of DJ objects associated with this event
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_event = async (
   event_data: IEventObject,
   event_djs: IEventDjObject[],
@@ -494,6 +696,15 @@ export const update_event = async (
   await pool.release();
 };
 
+/**
+ * Updates an existing DJ's information in an event
+ * @param event_name - The name of the event
+ * @param dj_name - The name of the DJ to update
+ * @param is_live - Optional boolean indicating if DJ is live
+ * @param vj - Optional VJ name
+ * @param recording - Optional recording file name
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_event_dj = async (
   event_name: string,
   dj_name: string,
@@ -519,6 +730,12 @@ export const update_event_dj = async (
   return error;
 };
 
+/**
+ * Removes a DJ from an event
+ * @param event_name - The name of the event
+ * @param dj_name - The name of the DJ to remove
+ * @returns Promise resolving to an error if one occurred during removal, or undefined on success
+ */
 export const remove_event_dj = async (event_name: string, dj_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_event_dj(event_name, dj_name, pool);
@@ -526,6 +743,12 @@ export const remove_event_dj = async (event_name: string, dj_name: string) => {
   return error;
 };
 
+/**
+ * Removes a promo from an event
+ * @param event_name - The name of the event
+ * @param promo_name - The name of the promo to remove
+ * @returns Promise resolving to an error if one occurred during removal, or undefined on success
+ */
 export const remove_event_promo = async (
   event_name: string,
   promo_name: string,
@@ -536,6 +759,13 @@ export const remove_event_promo = async (
   return error;
 };
 
+/**
+ * Moves a DJ in an event's lineup
+ * @param event_name - The name of the event
+ * @param index_a - Original position of the DJ
+ * @param index_b - New position for the DJ
+ * @returns Promise resolving to an error if one occurred during move, or undefined on success
+ */
 export const move_event_dj = async (
   event_name: string,
   index_a: number,
@@ -552,6 +782,13 @@ export const move_event_dj = async (
   return error;
 };
 
+/**
+ * Moves a promo in an event's lineup
+ * @param event_name - The name of the event
+ * @param index_a - Original position of the promo
+ * @param index_b - New position for the promo
+ * @returns Promise resolving to an error if one occurred during move, or undefined on success
+ */
 export const move_event_promo = async (
   event_name: string,
   index_a: number,
@@ -568,6 +805,12 @@ export const move_event_promo = async (
   return error;
 };
 
+/**
+ * Sets the theme for an event
+ * @param event_name - The name of the event
+ * @param theme_name - The name of the theme to set
+ * @returns Promise resolving to an error if one occurred during setting, or undefined on success
+ */
 export const set_event_theme = async (
   event_name: string,
   theme_name: string,
@@ -578,6 +821,13 @@ export const set_event_theme = async (
   return error;
 };
 
+/**
+ * Updates the date and time for an event
+ * @param event_name - The name of the event
+ * @param date - The new date for the event
+ * @param start_time - The new start time for the event
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_event_date_time = async (
   event_name: string,
   date: string,
@@ -594,6 +844,11 @@ export const update_event_date_time = async (
   return error;
 };
 
+/**
+ * Deletes an event
+ * @param event_name - The name of the event to delete
+ * @returns Promise resolving to an error if one occurred during deletion, or undefined on success
+ */
 export const delete_event = async (event_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_event(event_name, pool);
@@ -601,6 +856,11 @@ export const delete_event = async (event_name: string) => {
   return error;
 };
 
+/**
+ * Inserts a new promo into the database
+ * @param promo_data - The promo object containing promo information
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const insert_into_promos = async (promo_data: IPromoObject) => {
   const pool = await database_pool.connect();
   const error = await internal_insert_into_promos(promo_data, pool);
@@ -608,6 +868,11 @@ export const insert_into_promos = async (promo_data: IPromoObject) => {
   return error;
 };
 
+/**
+ * Updates an existing promo in the database
+ * @param promo_data - The promo object containing updated information
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_promo = async (promo_data: IPromoObject) => {
   const pool = await database_pool.connect();
   const error = await internal_update_promo(promo_data, pool);
@@ -615,6 +880,11 @@ export const update_promo = async (promo_data: IPromoObject) => {
   return error;
 };
 
+/**
+ * Deletes a promo from the database
+ * @param promo_name - The name of the promo to delete
+ * @returns Promise resolving to an error if one occurred during deletion, or undefined on success
+ */
 export const delete_promo = async (promo_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_promo(promo_name, pool);
@@ -622,6 +892,11 @@ export const delete_promo = async (promo_name: string) => {
   return error;
 };
 
+/**
+ * Inserts a new DJ into the database
+ * @param dj_data - The DJ object containing DJ information
+ * @returns Promise resolving to an error if one occurred during insertion, or undefined on success
+ */
 export const insert_into_djs = async (dj_data: IDjObject) => {
   const pool = await database_pool.connect();
   const error = await internal_insert_into_djs(dj_data, pool);
@@ -629,6 +904,11 @@ export const insert_into_djs = async (dj_data: IDjObject) => {
   return error;
 };
 
+/**
+ * Updates an existing DJ in the database
+ * @param dj_data - The DJ object containing updated information
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_dj = async (dj_data: IDjObject) => {
   const pool = await database_pool.connect();
   const error = await internal_update_dj(dj_data, pool);
@@ -636,6 +916,11 @@ export const update_dj = async (dj_data: IDjObject) => {
   return error;
 };
 
+/**
+ * Deletes a DJ from the database
+ * @param dj_name - The name of the DJ to delete
+ * @returns Promise resolving to an error if one occurred during deletion, or undefined on success
+ */
 export const delete_dj = async (dj_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_dj(dj_name, pool);
@@ -643,6 +928,11 @@ export const delete_dj = async (dj_name: string) => {
   return error;
 };
 
+/**
+ * Creates a new app theme in the database
+ * @param app_theme_name - The name of the app theme to create
+ * @returns Promise resolving to an error if one occurred during creation, or undefined on success
+ */
 export const create_new_app_theme = async (app_theme_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_insert_into_app_themes(app_theme_name, pool);
@@ -650,6 +940,12 @@ export const create_new_app_theme = async (app_theme_name: string) => {
   return error;
 };
 
+/**
+ * Updates an existing app theme in the database
+ * @param app_theme_name - The name of the app theme to update
+ * @param style - The new style for the app theme
+ * @returns Promise resolving to an error if one occurred during update, or undefined on success
+ */
 export const update_app_theme = async (app_theme_name: string, style: any) => {
   const pool = await database_pool.connect();
   const error = await internal_update_app_themes(app_theme_name, style, pool);
@@ -657,6 +953,11 @@ export const update_app_theme = async (app_theme_name: string, style: any) => {
   return error;
 };
 
+/**
+ * Deletes an app theme from the database
+ * @param app_theme_name - The name of the app theme to delete
+ * @returns Promise resolving to an error if one occurred during deletion, or undefined on success
+ */
 export const delete_app_theme = async (app_theme_name: string) => {
   const pool = await database_pool.connect();
   const error = await internal_delete_app_themes(app_theme_name, pool);
@@ -664,6 +965,12 @@ export const delete_app_theme = async (app_theme_name: string) => {
   return error;
 };
 
+/**
+ * Finds all objects related to a specific event including theme, promos, DJs and event-DJ relationships.
+ * @param event_name - The name of the event to search for
+ * @returns An object containing the event data, theme, promos, djs, event_djs,
+ *  file names to check, and any errors encountered
+ */
 const find_event_objects = async (event_name: string) => {
   const files_to_check: string[] = [];
   const errors = [];
@@ -753,6 +1060,12 @@ const find_event_objects = async (event_name: string) => {
   };
 };
 
+/**
+ * Validates that a local file exists or downloads it if it doesn't.
+ * @param file - The file object containing file path information
+ * @param pool - Database connection pool client
+ * @returns An error if validation fails, otherwise void
+ */
 const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
   if (!file.file_path && !file.url_path)
     return invalidFileError(`No local path or url set for ${file.name}`);
@@ -788,6 +1101,11 @@ const validateLocalFile = async (file: IFileObject, pool: PoolClient) => {
   }
 };
 
+/**
+ * Gathers and validates files for export by checking their existence or downloading them.
+ * @param files_to_check - Array of file names to process
+ * @returns Object containing validated file objects and any errors encountered
+ */
 const gather_files_for_export = async (files_to_check: string[]) => {
   const file_objects: IFileObject[] = [];
   const errors = [];
@@ -817,6 +1135,11 @@ const gather_files_for_export = async (files_to_check: string[]) => {
   };
 };
 
+/**
+ * Generates a summary for event export including all related assets.
+ * @param event_name - Name of the event to generate summary for
+ * @returns Event data, DJ information, promo data, theme details, and associated files
+ */
 export const event_export_summary = async (event_name: string) => {
   const event = await get_event(event_name);
   if (event instanceof Error) return eventNotFoundError(event_name);
@@ -873,8 +1196,12 @@ export const event_export_summary = async (event_name: string) => {
   };
 };
 
+/**
+ * Recursively collects all file names from the visuals directory tree.
+ * @returns Array of all file names found in the visuals root directory
+ */
 function get_file_names_in_visuals() {
-  let file_list: string[] = [];
+  const file_list: string[] = [];
 
   function help_recursion(sub_dir: string) {
     const files = readdirSync(sub_dir);
@@ -892,6 +1219,11 @@ function get_file_names_in_visuals() {
   return file_list;
 }
 
+/**
+ * Exports an event by gathering and validating all related data, then creating a JSON export file.
+ * @param event_name - Name of the event to export
+ * @returns Success or error response indicating completion status
+ */
 export const export_event = async (event_name: string) => {
   // Gather and validate event data
   const event_objects = await find_event_objects(event_name);
@@ -1076,6 +1408,11 @@ export const export_event = async (event_name: string) => {
   writeFileSync(DOCKER_EXPORT_PATH, JSON.stringify(export_data));
 };
 
+/**
+ * Imports legacy ledger data into the current system by processing and inserting files, DJs, and promos.
+ * @param ledger_path - Path to the legacy ledger JSON file
+ * @returns Success or error response indicating import status
+ */
 export const import_legacy_ledger = async (ledger_path: string) => {
   const ledger: ILegacyLedger = JSON.parse(readFileSync(ledger_path, "utf-8"));
 
@@ -1103,6 +1440,11 @@ export const import_legacy_ledger = async (ledger_path: string) => {
   if (errors.length > 0) return importError(errors.toString());
 };
 
+/**
+ * Imports legacy event lineups into the current system by processing and inserting events, DJs, and promos.
+ * @param lineups_path - Path to the folder containing legacy lineup files
+ * @returns Success or error response indicating import status
+ */
 export const import_legacy_events = async (lineups_path: string) => {
   const errors = [];
   const new_events: IEventObject[] = [];

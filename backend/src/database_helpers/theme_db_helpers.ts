@@ -9,13 +9,21 @@ import { EVENTS_TABLE, FILES_TABLE, THEMES_TABLE } from "../tables";
 import { IEventObject, IThemeObject } from "../types";
 import { PoolClient } from "pg";
 
+/**
+ * Validates theme data against database constraints
+ * @param theme_data - The theme object to validate
+ * @param update - Whether this is an update operation
+ * @param pool - Database connection client
+ * @returns Error if validation fails, undefined otherwise
+ */
 const validate_theme = async (
   theme_data: IThemeObject,
   update: boolean,
   pool: PoolClient,
 ) => {
   let exists = await pool.query(
-    `SELECT 1 FROM ${THEMES_TABLE.name} WHERE name = '${theme_data.name}'`,
+    `SELECT 1 FROM ${THEMES_TABLE.name} WHERE name = $1`,
+    [theme_data.name],
   );
   if (update) {
     if (!exists.rows || exists.rows.length === 0) {
@@ -28,7 +36,8 @@ const validate_theme = async (
   }
   if (is_non_empty(theme_data.overlay_file)) {
     exists = await pool.query(
-      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.overlay_file}';`,
+      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = $1;`,
+      [theme_data.overlay_file],
     );
     if (!exists.rows || exists.rows.length === 0) {
       return fileNotFoundError(
@@ -38,7 +47,8 @@ const validate_theme = async (
   }
   if (is_non_empty(theme_data.stinger_file)) {
     exists = await pool.query(
-      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.stinger_file}';`,
+      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = $1;`,
+      [theme_data.stinger_file],
     );
     if (!exists.rows || exists.rows.length === 0) {
       return fileNotFoundError(
@@ -48,7 +58,8 @@ const validate_theme = async (
   }
   if (is_non_empty(theme_data.starting_file)) {
     exists = await pool.query(
-      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.starting_file}';`,
+      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = $1;`,
+      [theme_data.starting_file],
     );
     if (!exists.rows || exists.rows.length === 0) {
       return fileNotFoundError(
@@ -58,7 +69,8 @@ const validate_theme = async (
   }
   if (is_non_empty(theme_data.ending_file)) {
     exists = await pool.query(
-      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${theme_data.ending_file}';`,
+      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = $1;`,
+      [theme_data.ending_file],
     );
     if (!exists.rows || exists.rows.length === 0) {
       return fileNotFoundError(
@@ -68,6 +80,12 @@ const validate_theme = async (
   }
 };
 
+/**
+ * Inserts a new theme into the database
+ * @param theme_data - The theme object to insert
+ * @param pool - Database connection client
+ * @returns Error if validation fails, undefined on success
+ */
 export const internal_insert_into_themes = async (
   theme_data: IThemeObject,
   pool: PoolClient,
@@ -80,6 +98,12 @@ export const internal_insert_into_themes = async (
   await internal_insert_into_table(THEMES_TABLE, theme_data, pool);
 };
 
+/**
+ * Updates an existing theme in the database
+ * @param theme_data - The theme object with updated values
+ * @param pool - Database connection client
+ * @returns Error if validation fails, undefined on success
+ */
 export const internal_update_theme = async (
   theme_data: IThemeObject,
   pool: PoolClient,
@@ -97,6 +121,12 @@ export const internal_update_theme = async (
   );
 };
 
+/**
+ * Deletes a theme and removes all references to it from events
+ * @param theme_name - The name of the theme to delete
+ * @param pool - Database connection client
+ * @returns Error if theme not found, undefined on success
+ */
 export const internal_delete_theme = async (
   theme_name: string,
   pool: PoolClient,
@@ -109,12 +139,12 @@ export const internal_delete_theme = async (
   if (theme instanceof Error) return theme;
 
   // Null out theme for all events using this theme
-  const default_events_query = `UPDATE ${EVENTS_TABLE.name} SET theme = DEFAULT WHERE theme = '${theme_name}';`;
-  console.log(default_events_query);
-  await pool.query(default_events_query);
+  const default_events_query = `UPDATE ${EVENTS_TABLE.name} SET theme = DEFAULT WHERE theme = $1;`;
+  console.log(default_events_query, theme_name);
+  await pool.query(default_events_query, [theme_name]);
 
-  const delete_query = `DELETE FROM ${THEMES_TABLE.name} WHERE name = '${theme_name}'`;
-  console.log(delete_query);
+  const delete_query = `DELETE FROM ${THEMES_TABLE.name} WHERE name = $1;`;
+  console.log(delete_query, theme_name);
 
-  await pool.query(delete_query);
+  await pool.query(delete_query, [theme_name]);
 };

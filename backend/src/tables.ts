@@ -3,27 +3,40 @@ import { IColumnDefinition } from "./types";
 // SQL Tables class, defines table schema and has simple boilerplate query generation.
 // With the introduction of migrations, these definitions are for the post-migration states.
 
-// Boilderplate query generator
+/**
+ * Creates a new Table instance
+ * @param name - The table name
+ * @param definitions - Column definitions for the table
+ * @param pkey_definition - Optional custom primary key definition (defaults to first column)
+ */
 export class Table {
   name: string;
   definitions: IColumnDefinition[];
   columns: string[];
   primary_key: string;
+  composite_keys: string[];
   constructor(
     name: string,
     definitions: IColumnDefinition[],
-    pkey_definition?: string,
+    pkey_definition?: string[],
   ) {
     this.name = name;
     this.definitions = definitions;
     this.columns = definitions.map((col) => col.name);
+    this.composite_keys = [];
     if (pkey_definition) {
-      this.primary_key = pkey_definition;
+      this.composite_keys = pkey_definition;
+      this.primary_key = `(${pkey_definition.join(",")})`;
     } else {
       this.primary_key = this.columns[0];
     }
   }
 
+  /**
+   * Converts column definitions to SQL string representation
+   * @private
+   * @returns {string} Formatted SQL column definitions
+   */
   private definitions_to_string = () => {
     const def_strings = this.definitions.map((def) => {
       if (def.fkey) {
@@ -36,37 +49,59 @@ export class Table {
     return def_strings.join(", ");
   };
 
+  /**
+   * Generate CREATE TABLE SQL statement
+   * @returns {string} SQL CREATE TABLE statement
+   */
   public create_table() {
     return `CREATE TABLE IF NOT EXISTS "${this.name}" (${this.definitions_to_string()});`;
   }
 
+  /**
+   * Generate table existence check query
+   * @returns {string} SQL SELECT query to check if table exists
+   */
   public exists() {
     return `SELECT 1 FROM pg_tables WHERE tablename = '${this.name}';`;
   }
 
+  /**
+   * Generate SELECT all records query ordered by primary key
+   * @returns {string} SQL SELECT statement
+   */
   public select() {
     return `SELECT * FROM ${this.name} ORDER BY ${this.primary_key} asc;`;
   }
 
-  public get_single(primary_key: string) {
-    // In lieu of actually keeping track, remove later
-    if (this.primary_key === this.columns[0]) {
-      return `SELECT * FROM ${this.name} WHERE ${this.primary_key} = '${primary_key}';`;
-    } else {
-      return `SELECT * FROM ${this.name} WHERE ${this.primary_key} = ${primary_key};`;
-    }
+  /**
+   * Generate SELECT single record by primary key query
+   * @returns {string} SQL SELECT statement
+   */
+  public get_single() {
+    return `SELECT * FROM ${this.name} WHERE ${this.primary_key} = $1;`;
   }
 
+  /**
+   * Generate INSERT INTO query
+   * @param values - Values to insert (should be properly formatted SQL string)
+   * @returns {string} SQL INSERT statement
+   */
   public insert_into(values: string) {
     return `INSERT INTO ${this.name} VALUES ${values};`;
   }
 
-  public delete_entry(primary_key: string) {
-    if (this.primary_key === this.columns[0]) {
-      return `DELETE FROM ${this.name} WHERE ${this.primary_key} = '${primary_key}'`;
-    } else {
-      return `DELETE FROM ${this.name} WHERE ${this.primary_key} = ${primary_key}`;
+  /**
+   * Generate DELETE query by primary key
+   * @returns {string} SQL DELETE statement
+   */
+  public delete_entry() {
+    if (this.composite_keys.length > 0) {
+      const composite_params = this.composite_keys
+        .map((_, i) => `$${1 + i}`)
+        .join(",");
+      return `DELETE FROM ${this.name} WHERE ${this.primary_key} = (${composite_params})`;
     }
+    return `DELETE FROM ${this.name} WHERE ${this.primary_key} = $1`;
   }
 }
 
@@ -77,6 +112,10 @@ export const THEMES_TABLE_NAME = "themes";
 export const FILES_TABLE_NAME = "files";
 export const APP_THEMES_TABLE_NAME = "app_themes";
 export const EVENT_DJS_TABLE_NAME = "event_djs";
+
+/**
+ * Table definitions
+ */
 export const DJS_TABLE: Table = new Table(DJS_TABLE_NAME, [
   {
     name: "name",
@@ -291,7 +330,7 @@ export const EVENT_DJS_TABLE: Table = new Table(
       type: "SMALLINT",
     },
   ],
-  "(event, dj)",
+  ["event", "dj"],
 );
 export const ALL_TABLES = [
   FILES_TABLE,

@@ -26,7 +26,53 @@ const themes_permissions = staticThemePermission();
 
 export const create_server = () => {
   app.use(cors());
+  app.options("*", cors());
   app.use(morgan("common"));
+
+  /**
+   * Health check endpoint
+   *
+   * Returns database connection pool status for monitoring.
+   *
+   * @route GET /healthz
+   * @returns {string} 200 if running
+   */
+  app.get("/healthz", (req, res) => {
+    // Simple health check - return 200 if service is running
+    res.sendStatus(200);
+  });
+
+  /**
+   * OpenAPI documentation endpoint
+   *
+   * Serves Redoc static HTML for API documentation.
+   *
+   * @route GET /openapi/redoc
+   * @returns {file} redoc-static.html
+   */
+  app.get("/openapi/redoc", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "openapi", "redoc-static.html"));
+  });
+
+  // Parsers
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+    }),
+  );
+
+  app.use(bodyParser.json());
+
+  // All routers
+  app.use("/openapi/file", fileRouter);
+  app.use("/openapi/dj", djRouter);
+  app.use("/openapi/theme", themeRouter);
+  app.use("/openapi/event", eventRouter);
+  app.use("/openapi/promo", promoRouter);
+  app.use("/openapi/app-theme", appThemeRouter);
+  app.use("/openapi/import", importRouter);
+
+  // Static delivery
   app.use(
     `/${encodeURIComponent(logo_permissions.id)}`,
     express.static(logo_permissions.path),
@@ -48,32 +94,6 @@ export const create_server = () => {
   console.log(
     `Themes: localhost:${port}/${encodeURIComponent(themes_permissions.id)}`,
   );
-  app.get("/healthz", (req, res) => {
-    // do app logic here to determine if app is truly healthy
-    // you should return 200 if healthy, and anything else will fail
-    // if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
-    res.send(
-      `Idle: ${database_pool.idleCount}, Waiting: ${database_pool.waitingCount}, Total: ${database_pool.totalCount}`,
-    );
-  });
-
-  app.get("/openapi/redoc", (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "openapi", "redoc-static.html"));
-  });
-  app.use(
-    bodyParser.urlencoded({
-      extended: true,
-    }),
-  );
-  app.options("*", cors());
-  app.use(bodyParser.json());
-  app.use("/openapi/file", fileRouter);
-  app.use("/openapi/dj", djRouter);
-  app.use("/openapi/theme", themeRouter);
-  app.use("/openapi/event", eventRouter);
-  app.use("/openapi/promo", promoRouter);
-  app.use("/openapi/app-theme", appThemeRouter);
-  app.use("/openapi/import", importRouter);
 
   create_tables();
 
