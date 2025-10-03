@@ -191,7 +191,9 @@
 				</div>
 			</Dialog.Title>
 			<Dialog.Description>
-				<div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+				<div
+					class="flex h-full flex-col items-center justify-between gap-4 overflow-y-auto md:flex-row"
+				>
 					<div class="table-container h-96 w-full basis-1/2 overflow-y-auto md:h-[40vh]">
 						<Table.Root>
 							<Table.Header>

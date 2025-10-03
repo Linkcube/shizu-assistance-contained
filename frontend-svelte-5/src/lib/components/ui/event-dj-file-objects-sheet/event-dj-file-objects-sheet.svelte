@@ -154,7 +154,7 @@
 </script>
 
 <Sheet.Root open={file_sheet_open}>
-	<Sheet.Content>
+	<Sheet.Content side="right" class="h-full overflow-y-auto">
 		<Sheet.Header>
 			<Sheet.Title>
 				<div class="flex flex-row items-center justify-between">
