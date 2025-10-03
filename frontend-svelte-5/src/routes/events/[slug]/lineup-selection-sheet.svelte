@@ -48,7 +48,7 @@
 </script>
 
 <Sheet.Root open={lineup_sheet_open}>
-	<Sheet.Content side="right">
+	<Sheet.Content side="right" class="h-full overflow-y-auto">
 		<Sheet.Header>
 			<Sheet.Title>
 				{#if items_type === 'djs'}
