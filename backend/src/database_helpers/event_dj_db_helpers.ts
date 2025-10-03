@@ -73,11 +73,11 @@ export const internal_get_event_dj = async (
   dj_name: string,
   pool: PoolClient,
 ) => {
-  const composite_key = `('${event_name}', '${dj_name}')`;
   const event_dj = (await internal_get_row_from_table(
     EVENT_DJS_TABLE,
-    composite_key,
+    "",
     pool,
+    [event_name, dj_name],
   )) as IEventDjObject | Error;
   if (event_dj instanceof Error) return event_dj;
   return event_dj;
@@ -282,11 +282,11 @@ export const internal_delete_event_dj = async (
   pool: PoolClient,
 ) => {
   // Validate entry exists
-  const composite_key = `('${event_name}', '${dj_name}')`;
   const event_dj = (await internal_get_row_from_table(
     EVENT_DJS_TABLE,
-    composite_key,
+    "",
     pool,
+    [event_name, dj_name],
   )) as IEventDjObject | Error;
   if (event_dj instanceof Error) return event_dj;
 

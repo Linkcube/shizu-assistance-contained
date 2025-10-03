@@ -78,6 +78,12 @@ export class Table {
    * @returns {string} SQL SELECT statement
    */
   public get_single() {
+    if (this.composite_keys.length > 0) {
+      const composite_params = this.composite_keys
+        .map((_, i) => `$${1 + i}`)
+        .join(",");
+      return `SELECT * FROM ${this.name} WHERE ${this.primary_key} = (${composite_params});`;
+    }
     return `SELECT * FROM ${this.name} WHERE ${this.primary_key} = $1;`;
   }
 

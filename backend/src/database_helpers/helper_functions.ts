@@ -1,4 +1,4 @@
-import { Client, Pool, PoolClient, QueryResult } from "pg";
+import { Client, Pool, PoolClient, Query, QueryResult } from "pg";
 import { ALL_COMPOSITE_TYPES, CompositeType } from "../composite_types";
 import { Table } from "../tables";
 import { sqlEntryNotFound } from "../errors";
@@ -107,9 +107,16 @@ export const internal_get_row_from_table = async (
   table: Table,
   primary_key: string,
   pool: PoolClient,
+  composite_keys?: string[],
 ) => {
-  console.log(`${table.get_single()}, [${primary_key}]`);
-  const retval = await pool.query(table.get_single(), [primary_key]);
+  let retval: QueryResult;
+  if (table.composite_keys.length > 0 && composite_keys !== undefined) {
+    console.log(table.get_single(), composite_keys);
+    retval = await pool.query(table.get_single(), composite_keys);
+  } else {
+    console.log(`${table.get_single()}, [${primary_key}]`);
+    retval = await pool.query(table.get_single(), [primary_key]);
+  }
 
   if (!retval.rows || retval.rows.length === 0)
     return sqlEntryNotFound(
