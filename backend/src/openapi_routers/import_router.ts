@@ -10,6 +10,12 @@ export const importRouter = Router();
 
 type pathInterface = components["schemas"]["ImportPath"];
 
+/**
+ * Import a legacy ledger file into the system
+ * @param path - The file path to the legacy ledger file to be imported
+ * @returns Success status (200) on successful import, or error status (409) if import fails
+ * @throws 400 Bad Request if no path is provided in the request body
+ */
 importRouter.post("/ledger", async (req, res) => {
   const ledger_path: pathInterface = req.body;
 
@@ -34,6 +40,12 @@ importRouter.post("/ledger", async (req, res) => {
   res.send();
 });
 
+/**
+ * Import legacy events/lineups into the system
+ * @param path - The file path to the legacy lineups/events file to be imported
+ * @returns Success status (200) on successful import, or error status (409) if import fails
+ * @throws 400 Bad Request if no path is provided in the request body
+ */
 importRouter.post("/lineups", async (req, res) => {
   const lineups_path: pathInterface = req.body;
 

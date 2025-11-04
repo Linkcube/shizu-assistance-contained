@@ -11,6 +11,16 @@ import {
   IPromoObject,
 } from "./types";
 
+/**
+ * Ensures required environment variables are set for file system paths.
+ * Throws an error if any of the following environment variables are not defined:
+ * - DOCKER_LOGOS_PATH
+ * - DOCKER_RECORDINGS_PATH
+ * - DOCKER_THEMES_PATH
+ * - DOCKER_EXPORT_PATH
+ * - DOCKER_IMPORT_PATH
+ * - DOCKER_GENERIC_VISUALS_PATH
+ */
 if (process.env.DOCKER_LOGOS_PATH === undefined)
   throw new Error("DOCKER_LOGOS_PATH is not set!");
 if (process.env.DOCKER_RECORDINGS_PATH === undefined)
@@ -30,6 +40,9 @@ export const THEMES_ROOT = process.env.DOCKER_THEMES_PATH;
 export const EXPORT_ROOT = process.env.DOCKER_EXPORT_PATH;
 export const VISUALS_ROOT = process.env.DOCKER_GENERIC_VISUALS_PATH;
 
+/**
+ * Map of root path identifiers to their corresponding directories.
+ */
 export const root_map = new Map([
   ["LOGOS", LOGOS_ROOT],
   ["RECORDINGS", RECORDINGS_ROOT],
@@ -38,6 +51,11 @@ export const root_map = new Map([
   ["VISUALS", VISUALS_ROOT],
 ]);
 
+/**
+ * Retrieves local logo files from a specified subdirectory path.
+ * @param sub_dirs - Array of directory names to navigate through
+ * @returns Object containing filtered files, path array, and top directory name
+ */
 export const getLocalLogoFiles = (sub_dirs: string[]) => {
   console.log(sub_dirs);
   const new_path = join(LOGOS_ROOT, ...sub_dirs);
@@ -76,10 +94,20 @@ export const getLocalLogoFiles = (sub_dirs: string[]) => {
   return retval;
 };
 
+/**
+ * Reconstructs a logo path from an array of directory components.
+ * @param dirs - Array of directory names to join with the logos root
+ * @returns Full reconstructed path string
+ */
 export const reconstructLogoPath = (dirs: string[]) => {
   return join(LOGOS_ROOT, ...dirs);
 };
 
+/**
+ * Retrieves local recording files from a specified subdirectory path.
+ * @param sub_dirs - Array of directory names to navigate through
+ * @returns Object containing filtered files, path array, and top directory name
+ */
 export const getLocalRecordingFiles = (sub_dirs: string[]) => {
   const new_path = join(RECORDINGS_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
@@ -117,10 +145,20 @@ export const getLocalRecordingFiles = (sub_dirs: string[]) => {
   return retval;
 };
 
+/**
+ * Reconstructs a recording path from an array of directory components.
+ * @param dirs - Array of directory names to join with the recordings root
+ * @returns Full reconstructed path string
+ */
 export const reconstructRecordingPath = (dirs: string[]) => {
   return join(RECORDINGS_ROOT, ...dirs);
 };
 
+/**
+ * Retrieves local theme files from a specified subdirectory path.
+ * @param sub_dirs - Array of directory names to navigate through
+ * @returns Object containing all files and path information
+ */
 export const getLocalThemeFiles = (sub_dirs: string[]) => {
   const new_path = join(THEMES_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
@@ -142,10 +180,20 @@ export const getLocalThemeFiles = (sub_dirs: string[]) => {
   return retval;
 };
 
+/**
+ * Reconstructs a theme path from an array of directory components.
+ * @param dirs - Array of directory names to join with the themes root
+ * @returns Full reconstructed path string
+ */
 export const reconstructThemePath = (dirs: string[]) => {
   return join(THEMES_ROOT, ...dirs);
 };
 
+/**
+ * Retrieves local export directories from a specified subdirectory path.
+ * @param sub_dirs - Array of directory names to navigate through
+ * @returns Object containing filtered directories, path array, and top directory name
+ */
 export const getLocalExportDirs = (sub_dirs: string[]) => {
   const new_path = join(EXPORT_ROOT, ...sub_dirs);
   const new_items = readdirSync(new_path, { withFileTypes: true });
@@ -170,10 +218,19 @@ export const getLocalExportDirs = (sub_dirs: string[]) => {
   return retval;
 };
 
+/**
+ * Reconstructs an export path from an array of directory components.
+ * @param dirs - Array of directory names to join with the export root
+ * @returns Full reconstructed path string
+ */
 export const reconstructExportPath = (dirs: string[]) => {
   return join(EXPORT_ROOT, ...dirs);
 };
 
+/**
+ * Creates a static logo permission object for access control.
+ * @returns Object containing ID and resolved path for logos directory
+ */
 export const staticLogoPermission = () => {
   const id = basename(LOGOS_ROOT);
   const path = resolve(LOGOS_ROOT);
@@ -184,6 +241,10 @@ export const staticLogoPermission = () => {
   };
 };
 
+/**
+ * Creates a static recording permission object for access control.
+ * @returns Object containing ID and resolved path for recordings directory
+ */
 export const staticRecordingPermission = () => {
   const id = basename(RECORDINGS_ROOT);
   const path = resolve(RECORDINGS_ROOT);
@@ -194,6 +255,10 @@ export const staticRecordingPermission = () => {
   };
 };
 
+/**
+ * Creates a static theme permission object for access control.
+ * @returns Object containing ID and resolved path for themes directory
+ */
 export const staticThemePermission = () => {
   const id = basename(THEMES_ROOT);
   const path = resolve(THEMES_ROOT);
@@ -204,6 +269,12 @@ export const staticThemePermission = () => {
   };
 };
 
+/**
+ * Fetches a file from a URL and saves it locally.
+ * @param url - URL of the remote file to download
+ * @param local_path - Local filesystem path where the file should be saved
+ * @returns Promise that resolves when download completes or rejects on error
+ */
 export const fetchFile = (url: string, local_path: string) => {
   return new Promise((promise_resolve, reject) => {
     const file_url = new URL(url);
@@ -227,6 +298,11 @@ export const fetchFile = (url: string, local_path: string) => {
   });
 };
 
+/**
+ * Gets the resolution of a video file.
+ * @param file_path - Path to the video file
+ * @returns Promise resolving with array of [width, height] or Error object
+ */
 export const getResolution = (file_path: string): Promise<number[] | Error> => {
   if (!file_path)
     return new Promise((promise_resolve, _) => promise_resolve([]));
@@ -252,11 +328,21 @@ export const getResolution = (file_path: string): Promise<number[] | Error> => {
   });
 };
 
+/**
+ * Normalizes a file path.
+ * @param file_path - File path to normalize
+ * @returns Normalized path string, or empty string if input is falsy
+ */
 export const resolvePath = (file_path: string | undefined) => {
   if (!file_path) return "";
   return normalize(file_path);
 };
 
+/**
+ * Builds a map of all files within a directory structure.
+ * @param path - Root path to traverse
+ * @returns Map containing filename -> Dirent mapping for all files in the tree
+ */
 const buildFileMap = (path: string): Map<string, Dirent> => {
   const top_files = readdirSync(path, { withFileTypes: true });
   let this_map = new Map();
@@ -278,6 +364,11 @@ const buildFileMap = (path: string): Map<string, Dirent> => {
   return this_map;
 };
 
+/**
+ * Rebuilds legacy objects from a ledger into modern format.
+ * @param ledger - Legacy ledger containing old DJ and promo data
+ * @returns Object containing converted files, DJs, and promos
+ */
 export const rebuildLegacyObjects = (ledger: ILegacyLedger) => {
   const new_djs: IDjObject[] = [];
   const new_promos: IPromoObject[] = [];

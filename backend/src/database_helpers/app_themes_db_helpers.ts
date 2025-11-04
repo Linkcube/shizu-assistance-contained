@@ -13,7 +13,8 @@ const validate_app_theme = async (
   pool: PoolClient,
 ) => {
   const exists = await pool.query(
-    `SELECT 1 FROM ${APP_THEMES_TABLE.name} WHERE name = '${theme_name}';`,
+    `SELECT 1 FROM ${APP_THEMES_TABLE.name} WHERE name = $1;`,
+    [theme_name],
   );
 
   if (update) {
@@ -78,8 +79,8 @@ export const internal_delete_app_themes = async (
   )) as any | Error;
   if (theme instanceof Error) return theme;
 
-  const delete_query = `DELETE FROM ${APP_THEMES_TABLE.name} WHERE name = '${name}';`;
+  const delete_query = `DELETE FROM ${APP_THEMES_TABLE.name} WHERE name = $1;`;
   console.log(delete_query);
 
-  await pool.query(delete_query);
+  await pool.query(delete_query, [name]);
 };

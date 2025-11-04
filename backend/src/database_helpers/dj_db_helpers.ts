@@ -10,13 +10,21 @@ import { PoolClient, QueryResult } from "pg";
 import { internal_delete_event_dj } from "./event_dj_db_helpers";
 import { internal_delete_file } from "./file_db_helpers";
 
+/**
+ * Validates DJ data before insertion or update operations
+ * @param dj_data - The DJ object to validate
+ * @param update - Whether this is an update operation (true) or insert (false)
+ * @param pool - Database connection pool
+ * @returns Error if validation fails, undefined if successful
+ */
 const validate_dj = async (
   dj_data: IDjObject,
   update: boolean,
   pool: PoolClient,
 ) => {
   let exists = await pool.query(
-    `SELECT 1 FROM ${DJS_TABLE.name} WHERE name = '${dj_data.name}';`,
+    `SELECT 1 FROM ${DJS_TABLE.name} WHERE name = $1;`,
+    [dj_data.name],
   );
   if (update) {
     if (!exists.rows || exists.rows.length === 0) {
@@ -29,7 +37,8 @@ const validate_dj = async (
   }
   if (is_non_empty(dj_data.logo)) {
     exists = await pool.query(
-      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = '${dj_data.logo}'`,
+      `SELECT 1 FROM ${FILES_TABLE.name} WHERE name = $1`,
+      [dj_data.logo],
     );
     if (!exists.rows || exists.rows.length === 0) {
       return invalidFileError(
@@ -39,9 +48,16 @@ const validate_dj = async (
   }
 };
 
+/**
+ * Checks if a DJ exists in the database
+ * @param dj_name - Name of the DJ to check
+ * @param pool - Database connection pool
+ * @returns boolean indicating if DJ exists, or error if not found
+ */
 export const dj_exists = async (dj_name: string, pool: PoolClient) => {
   const exists = await pool.query(
-    `SELECT 1 FROM ${DJS_TABLE.name} WHERE name = '${dj_name}';`,
+    `SELECT 1 FROM ${DJS_TABLE.name} WHERE name = $1;`,
+    [dj_name],
   );
   if (exists.rows && exists.rowCount && exists.rowCount > 0) {
     return true;
@@ -49,24 +65,38 @@ export const dj_exists = async (dj_name: string, pool: PoolClient) => {
   return djNotFoundError(`DJ ${dj_name} does not exist.`);
 };
 
+/**
+ * Retrieves multiple DJs from the database by their names
+ * @param dj_names - Array of DJ names to retrieve
+ * @param pool - Database connection pool
+ * @param event - Optional event filter
+ * @returns Query result containing matching DJs
+ */
 export const internal_get_djs = async (
   dj_names: string[],
   pool: PoolClient,
   event?: string,
 ) => {
-  const formatted_names = dj_names.map((name) => `'${name}'`).join(", ");
-  let query = `
-    SELECT * FROM ${DJS_TABLE.name}
-      where ${DJS_TABLE.primary_key} in (${formatted_names})`;
-  if (event) {
-    query += ` AND event = '${event}'`;
+  const placeholders = Array.from(
+    { length: dj_names.length },
+    (_, i) => `$${i + 1}`,
+  ).join(",");
+  let query = `SELECT * FROM ${DJS_TABLE.name} WHERE ${DJS_TABLE.primary_key} in (${placeholders});`;
+  const params = [...dj_names];
+  if (event !== undefined) {
+    query += ` AND event = '${dj_names.length + 2}'`;
+    params.push(event);
   }
   query += ";";
-
-  console.log(query);
-  return pool.query(query);
+  return pool.query(query, params);
 };
 
+/**
+ * Inserts a new DJ into the database
+ * @param dj_data - The DJ object to insert
+ * @param pool - Database connection pool
+ * @returns Error if validation fails, undefined if successful
+ */
 export const internal_insert_into_djs = async (
   dj_data: IDjObject,
   pool: PoolClient,
@@ -79,6 +109,12 @@ export const internal_insert_into_djs = async (
   await internal_insert_into_table(DJS_TABLE, dj_data, pool);
 };
 
+/**
+ * Updates an existing DJ in the database
+ * @param dj_data - The DJ object with updated values
+ * @param pool - Database connection pool
+ * @returns Error if validation fails, undefined if successful
+ */
 export const internal_update_dj = async (
   dj_data: IDjObject,
   pool: PoolClient,
@@ -91,14 +127,22 @@ export const internal_update_dj = async (
   await internal_update_table_entry(DJS_TABLE, dj_data.name, dj_data, pool);
 };
 
+/**
+ * Deletes a DJ from the database and related records
+ * @param dj_name - Name of the DJ to delete
+ * @param pool - Database connection pool
+ * @returns Error if DJ doesn't exist or deletion fails, undefined if successful
+ */
 export const internal_delete_dj = async (dj_name: string, pool: PoolClient) => {
   const dj_does_exist = await dj_exists(dj_name, pool);
   if (dj_does_exist instanceof Error) return dj_does_exist;
 
-  const event_djs_query = `SELECT * FROM ${EVENT_DJS_TABLE.name} WHERE dj = '${dj_name}';`;
-  console.log(event_djs_query);
-  const event_djs: QueryResult<IEventDjObject> =
-    await pool.query(event_djs_query);
+  const event_djs_query = `SELECT * FROM ${EVENT_DJS_TABLE.name} WHERE dj = $1;`;
+  console.log(`${event_djs_query}, [${dj_name}]`);
+  const event_djs: QueryResult<IEventDjObject> = await pool.query(
+    event_djs_query,
+    [dj_name],
+  );
 
   if (event_djs.rows && event_djs.rows.length > 0) {
     for (const event_dj of event_djs.rows) {
@@ -108,8 +152,8 @@ export const internal_delete_dj = async (dj_name: string, pool: PoolClient) => {
     }
   }
 
-  const delete_query = `DELETE FROM ${DJS_TABLE.name} WHERE name = '${dj_name}';`;
-  console.log(delete_query);
+  const delete_query = `DELETE FROM ${DJS_TABLE.name} WHERE name = $1;`;
+  console.log(`${delete_query}, [${dj_name}]`);
 
-  await pool.query(delete_query);
+  await pool.query(delete_query, [dj_name]);
 };
