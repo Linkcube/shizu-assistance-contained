@@ -41,7 +41,8 @@ The `.env` file manages shared file mounts and secrets for the services.
 | `LOCAL_EXPORT_PATH` | Host machine path to mount for event exports |
 | `LOCAL_IMPORT_PATH` | Host machine path to mount for [Shizu OBS Assisstant](https://github.com/Linkcube/ShizuObsAssistant) ledger and exported lineups |
 | `LOCAL_GENERIC_VISUALS_PATH` | Host machine path to mount for generic visuals directory |
-| `RTMP_SERVER` | Format string for DJ RTMP live stream, is formatted with `rtmp-zone, dj-key` |
+| `RTMP_SERVER` | Format string for DJ RTMP live stream, is formatted with `rtmp-zone, dj-key` if `RTMP_ZONES` is populated |
+| `RTMP_ZONES` | Dumped JSON object of id:key pairs for RTMP zones, the id field is used in `RTMP_SERVER` formatting |
 | `FILE_SERVER_AUTHORIZATION` | Authorization header for downloading URL assets |
 | `OBS_CHAT_URL` | Link for OBS browser scene source, only used if a theme is configured for the event |
 
@@ -50,6 +51,9 @@ The `.env` file manages shared file mounts and secrets for the services.
 | ----- | ----- |
 | `DOCKER_*_PATH` | Same as the above `LOCAL*_PATH` but for internal docker paths |
 | `POSTGRES_*` | Postgresql config |
+
+## RTMP Settings
+With version 0.15.0 RTMP can either be configured for a single URL formatted with a stream key, or to take both a stream key and server zone. If `RTMP_ZONES` is populated with one or more values, then the formatter will use both the DJ's key and the RTMP zone id.
 
 
 ## Changes from Shizu OBS Assistance

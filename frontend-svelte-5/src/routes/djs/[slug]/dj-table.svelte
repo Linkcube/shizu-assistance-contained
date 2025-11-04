@@ -11,10 +11,12 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import Wifi from 'lucide-svelte/icons/wifi';
 	import Film from 'lucide-svelte/icons/film';
+	import type { RTMP_Data } from '$lib/settingsController';
 
 	type Props = {
 		dj: DJ;
 		events: DjEvent[];
+		rtmp_data: RTMP_Data;
 		submitChanges: () => void;
 		deleteDj: () => void;
 		selectLogo: () => void;
@@ -24,6 +26,7 @@
 	let {
 		dj = $bindable(),
 		events,
+		rtmp_data,
 		submitChanges,
 		deleteDj,
 		selectLogo,
@@ -33,7 +36,7 @@
 	console.log(events);
 
 	const rtmpTriggerContent = $derived(
-		RTMP_SERVERS.find((r) => r.id === dj.rtmp_server && r.id !== '')?.name ?? 'RTMP Server'
+		rtmp_data.rtmp_zones.find((r) => r.id === dj.rtmp_server && r.id !== '')?.name ?? 'RTMP Server'
 	);
 
 	let delete_instance: DeleteConfirmation;
@@ -76,16 +79,19 @@
 		<div class="basis-1/5 flex-col">
 			<Label for="server-select">RTMP Server</Label>
 			<Select.Root type="single" name="server-select" bind:value={dj.rtmp_server}>
-				<Select.Trigger class="w-[120px]">
+				<Select.Trigger class="w-[120px]" disabled={rtmp_data.rtmp_zones.length === 0}>
 					{rtmpTriggerContent}
 				</Select.Trigger>
-				<Select.Content>
-					{#each RTMP_SERVERS as rtmp_config}
-						<Select.Item value={rtmp_config.id}>
-							{rtmp_config.name}
-						</Select.Item>
-					{/each}
-				</Select.Content>
+				{#if rtmp_data.rtmp_zones.length !== 0}
+					<Select.Content>
+						<Select.Item value="">Unset</Select.Item>
+						{#each rtmp_data.rtmp_zones as rtmp_config}
+							<Select.Item value={rtmp_config.id}>
+								{rtmp_config.name}
+							</Select.Item>
+						{/each}
+					</Select.Content>
+				{/if}
 			</Select.Root>
 			<p class="text-sm text-muted-foreground">Closest Zone.</p>
 		</div>

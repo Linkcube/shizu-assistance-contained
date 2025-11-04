@@ -17,6 +17,7 @@
 	let { data }: PageProps = $props();
 	let dj = $state(data.dj);
 	let events = data.events;
+	let rtmp_data = data.rtmp_data;
 
 	let djLogoObjectSheetInstance: DjLogoObjectsSheet;
 
@@ -98,6 +99,6 @@
 	{dj.name}
 </h1>
 
-<DjTable bind:dj {events} {submitChanges} {deleteDj} {selectLogo} {unsetLogoFile} />
+<DjTable bind:dj {events} {rtmp_data} {submitChanges} {deleteDj} {selectLogo} {unsetLogoFile} />
 
 <DjLogoObjectsSheet bind:dj {submitDjLogoFile} bind:this={djLogoObjectSheetInstance} />

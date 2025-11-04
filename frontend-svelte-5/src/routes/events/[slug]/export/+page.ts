@@ -4,6 +4,7 @@ import { getExportSummary } from '$lib/eventController';
 import { type DJ } from '$lib/djController';
 import { type Promotion } from '$lib/promotionsController';
 import { type File } from '$lib/fileController';
+import { getRTMP } from '$lib/settingsController';
 
 export const load: PageLoad = async ({ fetch, params }) => {
 	const real_name = decodeURI(params.slug);
@@ -26,6 +27,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	let dj_errors_promise: string[] = [];
 	let promo_errors_promise: string[] = [];
 	let theme_errors: string[] = [];
+	let rtmp_data = await getRTMP();
 
 	if (export_summary.djs.length > 0) {
 		dj_errors_promise = export_summary.event.djs
@@ -33,10 +35,14 @@ export const load: PageLoad = async ({ fetch, params }) => {
 				const dj = dj_map.get(event_dj.name);
 				if (!dj) return `${event_dj.name}: Does not exist.`;
 				if (event_dj.is_live) {
-					if (!dj.rtmp_key && !dj.rtmp_server)
-						return `${dj.name}: Live DJ missing RTMP Server and Key`;
-					if (!dj.rtmp_key) return `${dj.name}: Live DJ missing RTMP Key`;
-					if (!dj.rtmp_server) return `${dj.name}: Live DJ missing RTMP Server`;
+					if (rtmp_data.rtmp_zones.length === 0) {
+						if (!dj.rtmp_key) return `${dj.name}: Live DJ missing RTMP Key`;
+					} else {
+						if (!dj.rtmp_key && !dj.rtmp_server)
+							return `${dj.name}: Live DJ missing RTMP Server and Key`;
+						if (!dj.rtmp_key) return `${dj.name}: Live DJ missing RTMP Key`;
+						if (!dj.rtmp_server) return `${dj.name}: Live DJ missing RTMP Server`;
+					}
 				} else {
 					if (!event_dj.recording) return `${dj.name}: Pre-recorded DJ no recording set.`;
 					const dj_rec_file = files_map.get(event_dj.recording);
@@ -100,6 +106,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 		dj_errors_promise,
 		promo_errors_promise,
 		theme: export_summary.theme,
-		theme_errors
+		theme_errors,
+		rtmp_data
 	};
 };

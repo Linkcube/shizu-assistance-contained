@@ -1,10 +1,14 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table/index.js';
+	import type { PageProps } from './$types';
 
 	interface table_defs {
 		key: string;
 		description: string;
 	}
+
+	let { data }: PageProps = $props();
+	let version_string = data.version_data.version;
 
 	const dj_info: table_defs[] = [
 		{
@@ -294,6 +298,6 @@
 	</div>
 
 	<h1 class="scroll-m-20 py-2 text-center text-3xl font-bold tracking-tight lg:text-2xl">
-		Shizu Assistance Version: v0.14.0
+		Shizu Assistance Version: v{version_string}
 	</h1>
 </div>

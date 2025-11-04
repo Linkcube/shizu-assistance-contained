@@ -32,6 +32,7 @@
 		new Map(data.promotions.map((promo) => [promo.name, promo])) || new Map();
 	const files_map: Map<string, File> =
 		new Map(data.files.map((file) => [file.name, file])) || new Map();
+	const rtmp_zones = data.rtmp_data.rtmp_zones;
 
 	let exporting = $state(false);
 	let export_promise = $state(Promise.resolve(false));
@@ -151,7 +152,14 @@
 								<Table.Cell class="font-medium">
 									<div class="flex flex-row items-center text-center">
 										{#if event_dj.is_live}
-											{#if dj_map.get(event_dj.name)?.rtmp_server && dj_map.get(event_dj.name)?.rtmp_key}
+											{#if rtmp_zones.length === 0}
+												{#if dj_map.get(event_dj.name)?.rtmp_key}
+													<Wifi class="mr-2 size-4 text-primary" />
+													<span>{dj_map.get(event_dj.name)?.rtmp_key}</span>
+												{:else}
+													<Ban class="mr-2 size-4 text-primary" />
+												{/if}
+											{:else if dj_map.get(event_dj.name)?.rtmp_server && dj_map.get(event_dj.name)?.rtmp_key}
 												<Wifi class="mr-2 size-4 text-primary" />
 												<span
 													>{dj_map.get(event_dj.name)?.rtmp_server}:{dj_map.get(event_dj.name)
