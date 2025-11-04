@@ -563,6 +563,32 @@ components:
         path:
           description: Path for importing objects, if using docker this refers to the /imports mount.
           type: string
+    VersionData:
+      type: object
+      properties:
+        version:
+          description: Current application version
+          type: string
+    RtmpZone:
+      type: object
+      properties:
+        id:
+          description: ID for the RTMP Zone
+          type: string
+        name:
+          description: Display name for the RTMP Zone
+          type: string
+    RtmpData:
+      type: object
+      properties:
+        rtmp_server:
+          description: Format string used for generating a live DJ's
+          type: string          
+        rtmp_zones:
+          type: array
+          items:
+            $ref: '#/components/schemas/RtmpZone'
+
 paths:
   /file:
     get:
@@ -1728,3 +1754,28 @@ paths:
           description: Invalid input data.
         '409':
           description: The import failed.
+    
+  /settings/version:
+    get:
+      tags:
+        - settings
+      summary: Get the version of shizu-assistance-contained
+    responses:
+      '200':
+        description: Version served!
+        content:
+          application/json:
+          schema:
+            $ref: '#/components/schemas/VersionData'
+  /settings/rtmp:
+    get:
+      tags:
+        - settings
+      summary: Returns relevant data for RTMP zones and server url.
+    responses:
+      '200':
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RtmpData'

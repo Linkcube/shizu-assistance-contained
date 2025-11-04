@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import { getSingle, getSingleEvents } from '$lib/djController';
+import { getRTMP } from '$lib/settingsController';
 
 export const load: PageLoad = async ({ fetch, params }) => {
 	const real_name = decodeURI(params.slug);
@@ -14,8 +15,11 @@ export const load: PageLoad = async ({ fetch, params }) => {
 
 	let dj_event_data = await getSingleEvents(real_name, fetch);
 
+	let rtmp_data = await getRTMP(fetch);
+
 	return {
 		dj: dj_data,
-		events: dj_event_data
+		events: dj_event_data,
+		rtmp_data: rtmp_data
 	};
 };

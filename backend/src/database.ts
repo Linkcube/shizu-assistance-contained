@@ -21,7 +21,6 @@ import {
   ILegacyLedger,
   ILegacyLineup,
   IEventDjObject,
-  IUpdateEventDjObject,
 } from "./types";
 import {
   internal_get_row_from_table,
@@ -97,11 +96,34 @@ import {
 import { randomInt } from "node:crypto";
 import { statSync } from "node:fs";
 
-// File for accessing SQL, handles client/pool lifecycles.
+// Check for RTMP values
+if (process.env.RTMP_SERVER === undefined) {
+  console.warn("RTMP_SERVER is not set, setting a DJ as live will fail.");
+}
 
+let RTMP_ZONES: object = [];
+
+if (process.env.RTMP_ZONES === undefined) {
+  console.info("RTMP_ZONES is not set, dj.rtmp_server will be ignored.");
+} else {
+  RTMP_ZONES = JSON.parse(process.env.RTMP_ZONES);
+}
+
+// Map env variable to id, name value pairs
+export const get_rtmp_zones = () => {
+  return Object.entries(RTMP_ZONES).map((rtmp) => {
+    return {
+      id: rtmp[0],
+      name: rtmp[1],
+    };
+  });
+};
+
+// Variables for accessing SQL, handles client/pool lifecycles.
 const database_client = () => {
   return new Client(base_db_config);
 };
+
 export const database_pool = new Pool(pool_config);
 
 // --- Table Reading Functions ---
@@ -1260,11 +1282,16 @@ export const export_event = async (event_name: string) => {
     if (dj.logo)
       dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
     if (event_dj.is_live) {
-      dj_export_data.url = util.format(
-        process.env.RTMP_SERVER,
-        dj.rtmp_server,
-        dj.rtmp_key,
-      );
+      // Check length of zones, if formatting should use dj.rtmp_server
+      if (Object.keys(RTMP_ZONES).length === 0) {
+        dj_export_data.url = util.format(process.env.RTMP_SERVER, dj.rtmp_key);
+      } else {
+        dj_export_data.url = util.format(
+          process.env.RTMP_SERVER,
+          dj.rtmp_server,
+          dj.rtmp_key,
+        );
+      }
     } else if (event_dj.recording) {
       dj_export_data.recording_path = join(
         RECORDINGS_ROOT,
