@@ -181,7 +181,10 @@ export async function updateEventDj(name: string, dj: EventDj): Promise<Event | 
 		is_live: dj.is_live,
 		vj: dj.vj
 	};
-	return await openapiPostBody(`event/${encodeURIComponent(name)}/dj/${encodeURIComponent(dj.name)}`, body);
+	return await openapiPostBody(
+		`event/${encodeURIComponent(name)}/dj/${encodeURIComponent(dj.name)}`,
+		body
+	);
 }
 
 /**
@@ -294,6 +297,11 @@ export async function getExportSummary(
 	name: string,
 	fetch_fn?: typeof fetch
 ): Promise<ExportSummary | undefined> {
-	if (fetch_fn) return await openapiGet('event/' + encodeURIComponent(name) + '/export-summary', undefined, fetch_fn);
+	if (fetch_fn)
+		return await openapiGet(
+			'event/' + encodeURIComponent(name) + '/export-summary',
+			undefined,
+			fetch_fn
+		);
 	return await openapiGet('event/' + name + '/export-summary');
 }

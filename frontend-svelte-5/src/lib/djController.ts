@@ -80,7 +80,8 @@ export async function getSingleEvents(
 	dj_name: string,
 	fetch_fn?: typeof fetch
 ): Promise<DjEvent[]> {
-	if (fetch_fn) return await openapiGet('dj/' + encodeURIComponent(dj_name) + '/events', undefined, fetch_fn);
+	if (fetch_fn)
+		return await openapiGet('dj/' + encodeURIComponent(dj_name) + '/events', undefined, fetch_fn);
 	return await openapiGet('dj/' + encodeURIComponent(dj_name) + '/events');
 }
 

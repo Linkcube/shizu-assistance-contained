@@ -130,7 +130,9 @@
 				<Table.Row>
 					<Table.Cell class="font-medium">{events.length - index}</Table.Cell>
 					<Table.Cell>
-						<a class="hover:underline" href="/events/{encodeURIComponent(event.event)}">{event.event}</a>
+						<a class="hover:underline" href="/events/{encodeURIComponent(event.event)}"
+							>{event.event}</a
+						>
 					</Table.Cell>
 					<Table.Cell>
 						{#if event.is_live}
