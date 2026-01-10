@@ -66,7 +66,7 @@ export async function getMin(fetch_fn?: typeof fetch): Promise<DjMin[]> {
  * @returns {Promise<DJ|undefined>} A DJ object if found, otherwise undefined.
  */
 export async function getSingle(dj_name: string, fetch_fn?: typeof fetch): Promise<DJ | undefined> {
-	if (fetch_fn) return await openapiGet('dj/' + dj_name, undefined, fetch_fn);
+	if (fetch_fn) return await openapiGet('dj/' + encodeURIComponent(dj_name), undefined, fetch_fn);
 	return await openapiGet('dj/' + dj_name);
 }
 
@@ -80,8 +80,8 @@ export async function getSingleEvents(
 	dj_name: string,
 	fetch_fn?: typeof fetch
 ): Promise<DjEvent[]> {
-	if (fetch_fn) return await openapiGet('dj/' + dj_name + '/events', undefined, fetch_fn);
-	return await openapiGet('dj/' + dj_name + '/events');
+	if (fetch_fn) return await openapiGet('dj/' + encodeURIComponent(dj_name) + '/events', undefined, fetch_fn);
+	return await openapiGet('dj/' + encodeURIComponent(dj_name) + '/events');
 }
 
 /**
@@ -124,7 +124,7 @@ export async function updateSingle(
 		discord_id: discord_id
 	};
 
-	return await openapiPostBody('dj/' + name, body);
+	return await openapiPostBody('dj/' + encodeURIComponent(name), body);
 }
 
 /**
@@ -133,5 +133,5 @@ export async function updateSingle(
  * @returns {Promise<void>} Resolves when the deletion is complete.
  */
 export async function deleteSingle(dj_name: string) {
-	return await openapiDelete('dj/' + dj_name);
+	return await openapiDelete('dj/' + encodeURIComponent(dj_name));
 }

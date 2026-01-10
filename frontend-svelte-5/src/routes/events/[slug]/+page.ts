@@ -3,7 +3,8 @@ import type { PageLoad } from './$types';
 import { getSingle } from '$lib/eventController';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const real_name = decodeURI(params.slug);
+	console.log(params)
+	const real_name = decodeURIComponent(params.slug);
 	let event_data;
 	try {
 		event_data = await getSingle(real_name, fetch);

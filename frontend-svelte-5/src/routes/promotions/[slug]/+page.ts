@@ -3,7 +3,7 @@ import type { PageLoad } from './$types';
 import { getSingle } from '$lib/promotionsController';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const real_name = decodeURI(params.slug);
+	const real_name = decodeURIComponent(params.slug);
 	let promo_data;
 	try {
 		promo_data = await getSingle(real_name, fetch);

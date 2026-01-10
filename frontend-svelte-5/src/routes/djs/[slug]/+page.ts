@@ -4,7 +4,7 @@ import { getSingle, getSingleEvents } from '$lib/djController';
 import { getRTMP } from '$lib/settingsController';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const real_name = decodeURI(params.slug);
+	const real_name = decodeURIComponent(params.slug);
 	let dj_data;
 	try {
 		dj_data = await getSingle(real_name, fetch);

@@ -63,7 +63,7 @@
 				description: `Created ${create_promo_name}.`,
 				action: {
 					label: 'Edit',
-					onClick: () => goto(`/promotions/${create_promo_name}`)
+					onClick: () => goto(`/promotions/${encodeURIComponent(create_promo_name)}`)
 				}
 			});
 		}

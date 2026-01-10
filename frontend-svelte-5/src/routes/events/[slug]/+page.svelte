@@ -100,7 +100,7 @@
 							onClick: () => console.info('Yay')
 						}
 					});
-					goto(`/events/${event.name}/export`);
+					goto(`/events/${encodeURIComponent(event.name)}/export`);
 				}
 			})
 			.catch((e) => {

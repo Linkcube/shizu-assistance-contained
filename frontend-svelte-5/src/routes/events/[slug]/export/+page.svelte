@@ -95,7 +95,7 @@
 									<Button
 										variant="link"
 										class="text-foreground"
-										onclick={() => goto(`/djs/${event_dj.name}`)}
+										onclick={() => goto(`/djs/${encodeURIComponent(event_dj.name)}`)}
 									>
 										{event_dj.name}
 									</Button>
@@ -293,7 +293,7 @@
 									<Button
 										variant="link"
 										class="text-foreground"
-										onclick={() => goto(`/promotions/${promo}`)}
+										onclick={() => goto(`/promotions/${encodeURIComponent(promo)}`)}
 									>
 										{promo}
 									</Button>

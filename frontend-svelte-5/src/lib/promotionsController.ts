@@ -51,7 +51,7 @@ export async function getSingle(
 	fetch_fn?: typeof fetch
 ): Promise<Promotion | undefined> {
 	if (fetch_fn) return await openapiGet('promo/' + promo_name, undefined, fetch_fn);
-	return await openapiGet('promo/' + promo_name);
+	return await openapiGet('promo/' + encodeURIComponent(promo_name));
 }
 
 /**
@@ -75,7 +75,7 @@ export async function updateSingle(
 	promo_file: string | null
 ): Promise<Promotion | undefined> {
 	const body = { name, promo_file };
-	return await openapiPostBody('promo/' + name, body);
+	return await openapiPostBody('promo/' + encodeURIComponent(name), body);
 }
 
 /**
@@ -84,5 +84,5 @@ export async function updateSingle(
  * @returns {Promise<void>} Resolves when the deletion is complete.
  */
 export async function deleteSingle(name: string) {
-	return await openapiDelete('promo/' + name);
+	return await openapiDelete('promo/' + encodeURIComponent(name));
 }
