@@ -7,8 +7,7 @@ import { type File } from '$lib/fileController';
 import { getRTMP } from '$lib/settingsController';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const real_name = decodeURI(params.slug);
-
+	const real_name = decodeURIComponent(params.slug);
 	let export_summary;
 	try {
 		export_summary = await getExportSummary(real_name, fetch);

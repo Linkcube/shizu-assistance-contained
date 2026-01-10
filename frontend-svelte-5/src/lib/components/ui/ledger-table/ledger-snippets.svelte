@@ -22,7 +22,7 @@
 {/snippet}
 
 {#snippet NameLink(value: { path: string; name: string })}
-	<a class="hover:underline" href="/{value.path}/{value.name}">{value.name}</a>
+	<a class="hover:underline" href="/{value.path}/{encodeURIComponent(value.name)}">{value.name}</a>
 {/snippet}
 
 {#snippet RawData(value: any)}

@@ -65,7 +65,7 @@
 				description: `Created ${create_dj_name}.`,
 				action: {
 					label: 'Edit',
-					onClick: () => goto(`/djs/${create_dj_name}`)
+					onClick: () => goto(`/djs/${encodeURIComponent(create_dj_name)}`)
 				}
 			});
 		}

@@ -91,7 +91,7 @@ export async function getMin(fetch_fn?: typeof fetch): Promise<Event[]> {
  * @returns {Promise<Event | undefined>} A Promise that resolves to an Event object if found, otherwise undefined.
  */
 export async function getSingle(name: string, fetch_fn?: typeof fetch): Promise<Event | undefined> {
-	if (fetch_fn) return await openapiGet('event/' + name, undefined, fetch_fn);
+	if (fetch_fn) return await openapiGet('event/' + encodeURIComponent(name), undefined, fetch_fn);
 	return await openapiGet('event/' + name);
 }
 
@@ -120,7 +120,7 @@ export async function updateSingle(event: Event): Promise<Event | undefined> {
 		date: event.date,
 		start_time: event.start_time
 	};
-	return await openapiPostBody(`event/${event.name}`, body);
+	return await openapiPostBody(`event/${encodeURIComponent(event.name)}`, body);
 }
 
 /**
@@ -140,7 +140,7 @@ export async function updateSingleDateTime(
 		date: date,
 		start_time: start_time
 	};
-	return await openapiPostBody(`event/${name}/dateTime`, body);
+	return await openapiPostBody(`event/${encodeURIComponent(name)}/dateTime`, body);
 }
 
 /**
@@ -151,7 +151,7 @@ export async function updateSingleDateTime(
  * @returns {Promise<Event | undefined>} A Promise that resolves to an Event object if successful, otherwise undefined.
  */
 export async function updateSingleTheme(name: string, theme: string): Promise<Event | undefined> {
-	return await openapiPostBody(`event/${name}/set-theme`, { name: theme });
+	return await openapiPostBody(`event/${encodeURIComponent(name)}/set-theme`, { name: theme });
 }
 
 /**
@@ -166,7 +166,7 @@ export async function addEventDj(name: string, dj_name: string): Promise<Event |
 		name: dj_name,
 		is_live: false
 	};
-	return await openapiPostBody(`event/${name}/dj`, body);
+	return await openapiPostBody(`event/${encodeURIComponent(name)}/dj`, body);
 }
 
 /**
@@ -181,7 +181,10 @@ export async function updateEventDj(name: string, dj: EventDj): Promise<Event | 
 		is_live: dj.is_live,
 		vj: dj.vj
 	};
-	return await openapiPostBody(`event/${name}/dj/${dj.name}`, body);
+	return await openapiPostBody(
+		`event/${encodeURIComponent(name)}/dj/${encodeURIComponent(dj.name)}`,
+		body
+	);
 }
 
 /**
@@ -202,7 +205,7 @@ export async function moveEventDj(
 		index_b: index_b
 	};
 
-	return await openapiPostBody(`event/${name}/move-dj`, body);
+	return await openapiPostBody(`event/${encodeURIComponent(name)}/move-dj`, body);
 }
 
 /**
@@ -213,7 +216,7 @@ export async function moveEventDj(
  * @returns {Promise<void>} A Promise that resolves when the DJ is successfully deleted.
  */
 export async function deleteEventDj(name: string, dj_name: string) {
-	return await openapiDelete(`event/${name}/dj/${dj_name}`);
+	return await openapiDelete(`event/${encodeURIComponent(name)}/dj/${dj_name}`);
 }
 
 /**
@@ -227,7 +230,7 @@ export async function addEventPromotion(
 	name: string,
 	promo_name: string
 ): Promise<Event | undefined> {
-	return await openapiPostBody(`event/${name}/promo`, { name: promo_name });
+	return await openapiPostBody(`event/${encodeURIComponent(name)}/promo`, { name: promo_name });
 }
 
 /**
@@ -248,7 +251,7 @@ export async function moveEventPromotion(
 		index_b: index_b
 	};
 
-	return await openapiPostBody(`event/${name}/move-promo`, body);
+	return await openapiPostBody(`event/${encodeURIComponent(name)}/move-promo`, body);
 }
 
 /**
@@ -259,7 +262,7 @@ export async function moveEventPromotion(
  * @returns {Promise<void>} A Promise that resolves when the promotion is successfully deleted.
  */
 export async function deleteEventPromotion(name: string, promo_name: string) {
-	return await openapiDelete(`event/${name}/promo/${promo_name}`);
+	return await openapiDelete(`event/${encodeURIComponent(name)}/promo/${promo_name}`);
 }
 
 /**
@@ -269,7 +272,7 @@ export async function deleteEventPromotion(name: string, promo_name: string) {
  * @returns {Promise<void>} A Promise that resolves when the event is successfully deleted.
  */
 export async function deleteSingle(name: string) {
-	return await openapiDelete(`event/${name}`);
+	return await openapiDelete(`event/${encodeURIComponent(name)}`);
 }
 
 /**
@@ -279,7 +282,7 @@ export async function deleteSingle(name: string) {
  * @returns {Promise<boolean>} A Promise that resolves to true if the export is successful, otherwise false.
  */
 export async function exportSingle(name: string): Promise<boolean> {
-	const response = await openapiPost(`event/${name}/export`);
+	const response = await openapiPost(`event/${encodeURIComponent(name)}/export`);
 	return response;
 }
 
@@ -294,6 +297,11 @@ export async function getExportSummary(
 	name: string,
 	fetch_fn?: typeof fetch
 ): Promise<ExportSummary | undefined> {
-	if (fetch_fn) return await openapiGet('event/' + name + '/export-summary', undefined, fetch_fn);
+	if (fetch_fn)
+		return await openapiGet(
+			'event/' + encodeURIComponent(name) + '/export-summary',
+			undefined,
+			fetch_fn
+		);
 	return await openapiGet('event/' + name + '/export-summary');
 }

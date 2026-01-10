@@ -28,12 +28,12 @@
 	<DropdownMenu.Content>
 		<DropdownMenu.Group>
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
-			<DropdownMenu.Item onclick={() => goto(`/${path}/${name}`)}>
+			<DropdownMenu.Item onclick={() => goto(`/${path}/${encodeURIComponent(name)}`)}>
 				<Pencil class="mr-2 size-4" />
 				Edit
 			</DropdownMenu.Item>
 			{#if path === 'events'}
-				<DropdownMenu.Item onclick={() => goto(`/${path}/${name}/export`)}>
+				<DropdownMenu.Item onclick={() => goto(`/${path}/${encodeURIComponent(name)}/export`)}>
 					<Download class="mr-2 size-4" />
 					Export
 				</DropdownMenu.Item>

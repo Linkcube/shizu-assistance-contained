@@ -47,7 +47,7 @@ export async function getAll(): Promise<Theme[]> {
  * @returns {Promise<Theme | undefined>} A promise that resolves to a Theme object or undefined if not found.
  */
 export async function getSingle(theme_name: string): Promise<Theme | undefined> {
-	return await openapiGet('theme/' + theme_name);
+	return await openapiGet('theme/' + encodeURIComponent(theme_name));
 }
 
 /**
@@ -80,9 +80,9 @@ export async function updateSingle(theme: Theme): Promise<Theme | undefined> {
 		chat_offset_y: theme.chat_offset_y
 	};
 
-	return await openapiPostBody('theme/' + theme.name, body);
+	return await openapiPostBody('theme/' + encodeURIComponent(theme.name), body);
 }
 
 export async function deleteSingle(name: string) {
-	return await openapiDelete('theme/' + name);
+	return await openapiDelete('theme/' + encodeURIComponent(name));
 }

@@ -65,7 +65,7 @@
 				description: `Created ${create_event_name}.`,
 				action: {
 					label: 'Edit',
-					onClick: () => goto(`/events/${create_event_name}`)
+					onClick: () => goto(`/events/${encodeURIComponent(create_event_name)}`)
 				}
 			});
 		}
