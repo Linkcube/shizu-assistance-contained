@@ -12,7 +12,7 @@ export const settingsRouter = Router();
  * @returns {Object} The version object.
  */
 settingsRouter.get("/version", async (req, res) => {
-  const version = "0.15.0";
+  const version = "0.16.0";
   const version_data = {
     version,
   };
