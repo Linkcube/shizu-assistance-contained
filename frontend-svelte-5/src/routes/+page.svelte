@@ -18,7 +18,7 @@
 	</div>
 	<div class="flex flex-col">
 		<span class="my-2 flex flex-row">
-			Welcome to Shizu's Assistance! This program is meant to help an orginzation manage a ledger of
+			Welcome to Shizu's Assistance! This program is meant to help an organization manage a ledger of
 			all DJs they have worked with as well as create event lineups to be exported to OBS.
 		</span>
 		<span class="my-2 flex flex-row">

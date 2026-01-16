@@ -109,5 +109,11 @@ Due to the DB docker volume being configured improperly, after v0.1.2 the volume
 - Restart your backend container, and everything should be correctly restored from before the change.
 - Continue updating the software as instructed through `git pull` or copy release data.
 
+## 0.1.5 to 0.1.6 Update
+On some instances during this update, Postgres may throw some errors. After updating, please run the following: 
+- Run `psql -W shizu_db, ALTER DATABASE shizu_db REFRESH COLLATION VERSION;` on the Postgres container.
+- Restart the Postgres container and the database should function normally again.
+
+
 ## Generic Visuals
 With v0.14.0, the option to select from a a pool of generic visuals has been added, this does require the user to setup a folder for the bind mount to point to in `.env`.

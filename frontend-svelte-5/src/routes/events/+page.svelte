@@ -96,7 +96,7 @@
 <Dialog.Root bind:open={create_event_open}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Create a new Promotion</Dialog.Title>
+			<Dialog.Title>Create a new Event</Dialog.Title>
 			<Dialog.Description>
 				<div class="flex flex-row items-center justify-between pt-4">
 					Name:
