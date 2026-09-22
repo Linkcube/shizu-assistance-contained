@@ -1285,7 +1285,8 @@ export const export_event = async (event_name: string) => {
       // Check length of zones, if formatting should use dj.rtmp_server
       if (
         Object.keys(RTMP_ZONES).length === 0 ||
-        (process.env.SKIP_RTMP_SERVER && process.env.SKIP_RTMP_ZONE.toLowerCase() === "true")
+        (process.env.SKIP_RTMP_SERVER &&
+          process.env.SKIP_RTMP_ZONE.toLowerCase() === "true")
       ) {
         dj_export_data.url = util.format(process.env.RTMP_SERVER, dj.rtmp_key);
       } else {
