@@ -30,7 +30,7 @@ settingsRouter.get("/rtmp", async (req, res) => {
 
   res.status(200);
   res.send({
-	"rtmp_server": rtmp_server,
-	"rtmp_zones": rtmp_zones
+    rtmp_server: rtmp_server,
+    rtmp_zones: rtmp_zones,
   });
 });

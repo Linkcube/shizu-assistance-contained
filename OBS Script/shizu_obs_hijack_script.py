@@ -291,7 +291,7 @@ class Hijack:
 
     
     def setup_dj_scene_items(self, scene, scene_values: 'ObsDjScene'):
-        # Load recording or setup vlc stream
+        # Load recording or setup remote stream
         visuals_source = None
         if scene_values.recording_path:
             if scene_values.visuals_path:
@@ -315,15 +315,14 @@ class Hijack:
         else:
             video_source_name = f"{scene_values.name}_live"
             json_settings = {
-                "playlist": [
-                    {
-                        "hidden": False,
-                        "value": scene_values.stream_url
-                    }
-                ]
+                "is_local_file": False,
+                "restart_on_activate": False,
+                "input_format": "rtmp",
+                "input": scene_values.stream_url,
+                "clear_on_media_end": False
             }
             video_settings = S.obs_data_create_from_json(json.dumps(json_settings))
-            video_source = S.obs_source_create("vlc_source", video_source_name, video_settings, None)
+            video_source = S.obs_source_create("ffmpeg_source", video_source_name, video_settings, None)
         
         self.ass_manager.add_dj(
             scene_values.name,

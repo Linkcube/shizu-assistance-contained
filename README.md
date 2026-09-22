@@ -43,6 +43,7 @@ The `.env` file manages shared file mounts and secrets for the services.
 | `LOCAL_GENERIC_VISUALS_PATH` | Host machine path to mount for generic visuals directory |
 | `RTMP_SERVER` | Format string for DJ RTMP live stream, is formatted with `rtmp-zone, dj-key` if `RTMP_ZONES` is populated |
 | `RTMP_ZONES` | Dumped JSON object of id:key pairs for RTMP zones, the id field is used in `RTMP_SERVER` formatting |
+| `SKIP_RTMP_ZONE` | If set to `true` then does not include the `rtmp-zone` value for a DJ when constructing their live uri, for cases where only one server is used |
 | `FILE_SERVER_AUTHORIZATION` | Authorization header for downloading URL assets |
 | `OBS_CHAT_URL` | Link for OBS browser scene source, only used if a theme is configured for the event |
 
