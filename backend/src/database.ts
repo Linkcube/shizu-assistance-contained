@@ -1283,7 +1283,10 @@ export const export_event = async (event_name: string) => {
       dj_export_data.logo_path = join(LOGOS_ROOT, files_map.get(dj.logo)!);
     if (event_dj.is_live) {
       // Check length of zones, if formatting should use dj.rtmp_server
-      if (Object.keys(RTMP_ZONES).length === 0) {
+      if (
+        Object.keys(RTMP_ZONES).length === 0 ||
+        (process.env.SKIP_RTMP_SERVER && process.env.SKIP_RTMP_ZONE.toLowerCase() === "true")
+      ) {
         dj_export_data.url = util.format(process.env.RTMP_SERVER, dj.rtmp_key);
       } else {
         dj_export_data.url = util.format(
